@@ -61,7 +61,7 @@ dsgo-dpp-backend/
 │       └── validators.js        # Input validation
 ├── .env                          # Configuration (git-ignored)
 ├── .env.example                  # Example configuration
-├── docker-compose.yml           # PostgreSQL + Redis
+├── docker-compose.yml           # PostgreSQL
 ├── package.json
 └── README.md
 ```
@@ -73,7 +73,6 @@ dsgo-dpp-backend/
 ### 2.1 Prerequisites
 - Node.js 18+
 - PostgreSQL 14+
-- Redis 7+ (optional, for caching)
 - Docker & Docker Compose (recommended)
 
 ### 2.2 Installation Steps
@@ -121,9 +120,6 @@ DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=dsgo_dpp
-
-# Redis (optional)
-REDIS_URL=redis://localhost:6379
 
 # Credenco Integration
 CREDENCO_BASE_URL=https://wallet.acc.credenco.com
@@ -206,7 +202,7 @@ The schema includes 25+ tables covering all data models:
 - OAuth 2.0 client credentials flow for token
 - Template ID mapping for each credential type
 - Error handling for rate limits & timeouts
-- Credential caching in Redis
+- In-memory token caching (via Map in ishareService)
 
 **Key Endpoints Called:**
 ```
@@ -693,22 +689,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-
   backend:
     build: .
     ports:
       - "3000:3000"
     environment:
       DB_HOST: postgres
-      REDIS_URL: redis://redis:6379
       NODE_ENV: production
     depends_on:
       - postgres
-      - redis
     volumes:
       - ./keys:/app/keys:ro
 
@@ -823,7 +812,7 @@ Response: { status: "ok", timestamp, uptime, db: "connected" }
 
 ## 14. NEXT STEPS
 
-1. **Setup PostgreSQL & Redis** via docker-compose
+1. **Setup PostgreSQL** via docker-compose
 2. **Run migrations** to create schema
 3. **Configure Credenco** (get API credentials, template IDs)
 4. **Configure iSHARE** (get participant ID, private key)

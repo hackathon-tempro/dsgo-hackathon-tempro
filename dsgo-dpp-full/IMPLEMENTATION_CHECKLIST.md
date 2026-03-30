@@ -1,9 +1,9 @@
 # DSGO/DPP Full MVP - Implementation Checklist
 
 ## Project Overview
-- **Scope:** All 13 user stories, real Credenco + iSHARE integration, 11 stakeholder frontends
-- **Backend:** Express.js + PostgreSQL + Redis
-- **Frontends:** 11 separate React apps (one per stakeholder)
+- **Scope:** All 13 user stories, real Credenco + iSHARE integration, unified stakeholder frontend
+- **Backend:** Express.js + PostgreSQL
+- **Frontend:** 1 unified React app with role-based views (one view set per stakeholder)
 - **Database:** 25+ tables covering all data models
 - **API Endpoints:** 100+ endpoints
 - **Timeline:** Complete generation for hackathon
@@ -300,124 +300,114 @@
 
 ---
 
-## PHASE 5: Individual Stakeholder Frontends (11 apps)
+## PHASE 5: Unified Frontend Application (single app, port 3001)
 
-### 5.1 Supplier Frontend (Port 3001)
-- [ ] `frontends/supplier/package.json`
-- [ ] `frontends/supplier/vite.config.js`
-- [ ] `frontends/supplier/src/main.jsx`
-- [ ] `frontends/supplier/src/App.jsx`
-- [ ] `frontends/supplier/src/pages/Dashboard.jsx` - Home dashboard
-- [ ] `frontends/supplier/src/pages/CreateLot.jsx` - Create material lot
-- [ ] `frontends/supplier/src/pages/IssueCertificate.jsx` - Issue MaterialPassportCredential
-- [ ] `frontends/supplier/src/pages/CreateShipment.jsx` - Create shipment
-- [ ] `frontends/supplier/src/pages/MyCredentials.jsx` - View issued credentials
-- [ ] `frontends/supplier/Dockerfile`
+### 5.1 App Shell & Auth
+- [ ] `frontend/package.json`
+- [ ] `frontend/vite.config.js`
+- [ ] `frontend/src/main.jsx`
+- [ ] `frontend/src/App.jsx` - Root router, role-based layout
+- [ ] `frontend/src/auth/RoleSelector.jsx` - Login / role selection screen
+- [ ] `frontend/src/auth/AuthContext.jsx` - Auth context & hooks
+- [ ] `frontend/src/api/client.js` - Axios HTTP client
+- [ ] `frontend/src/hooks/useCredentials.js`
+- [ ] `frontend/src/utils/formatting.js`
+- [ ] `frontend/src/utils/validation.js`
 
-### 5.2 Manufacturer Frontend (Port 3002)
-- [ ] `frontends/manufacturer/package.json`
-- [ ] `frontends/manufacturer/vite.config.js`
-- [ ] `frontends/manufacturer/src/main.jsx`
-- [ ] `frontends/manufacturer/src/App.jsx`
-- [ ] `frontends/manufacturer/src/pages/Dashboard.jsx` - Home
-- [ ] `frontends/manufacturer/src/pages/ReceiveShipment.jsx` - Receive & verify lots
-- [ ] `frontends/manufacturer/src/pages/CreateProduct.jsx` - Create product + BOM
-- [ ] `frontends/manufacturer/src/pages/ManageDPP.jsx` - DPP assembly & transfer
-- [ ] `frontends/manufacturer/src/pages/CredentialVerification.jsx` - Verify credentials
-- [ ] `frontends/manufacturer/src/pages/OutgoingShipments.jsx` - Send to construction
-- [ ] `frontends/manufacturer/Dockerfile`
+### 5.2 Shared Components
+- [ ] `frontend/src/components/DPPViewer/DPPViewer.jsx` - Full passport view
+- [ ] `frontend/src/components/CredentialCard/CredentialCard.jsx` - Credential summary
+- [ ] `frontend/src/components/VerificationBadge/VerificationBadge.jsx` - PASSED/FAILED badge
+- [ ] `frontend/src/components/Timeline/CredentialTimeline.jsx` - DPP event timeline
+- [ ] `frontend/src/components/Forms/LotForm.jsx`
+- [ ] `frontend/src/components/Forms/ProductForm.jsx`
+- [ ] `frontend/src/components/Forms/DPPForm.jsx`
+- [ ] `frontend/src/components/Table/DataTable.jsx`
+- [ ] `frontend/src/components/Modal/ConfirmModal.jsx`
+- [ ] `frontend/src/styles/tailwind.css`
 
-### 5.3 Test Lab Frontend (Port 3003)
-- [ ] `frontends/test-lab/package.json`
-- [ ] `frontends/test-lab/src/App.jsx`
-- [ ] `frontends/test-lab/src/pages/Dashboard.jsx` - Home
-- [ ] `frontends/test-lab/src/pages/TestRequests.jsx` - Incoming test requests
-- [ ] `frontends/test-lab/src/pages/RegisterSample.jsx` - Register samples
-- [ ] `frontends/test-lab/src/pages/RecordResults.jsx` - Enter test results
-- [ ] `frontends/test-lab/src/pages/IssueCertificate.jsx` - Issue TestReportCredential
-- [ ] `frontends/test-lab/Dockerfile`
+### 5.3 Supplier Views
+- [ ] `frontend/src/views/supplier/Dashboard.jsx` - Home dashboard
+- [ ] `frontend/src/views/supplier/CreateLot.jsx` - Create material lot
+- [ ] `frontend/src/views/supplier/IssueCertificate.jsx` - Issue MaterialPassportCredential
+- [ ] `frontend/src/views/supplier/CreateShipment.jsx` - Create shipment
+- [ ] `frontend/src/views/supplier/MyCredentials.jsx` - View issued credentials
 
-### 5.4 LCA Organisation Frontend (Port 3004)
-- [ ] `frontends/lca-org/package.json`
-- [ ] `frontends/lca-org/src/App.jsx`
-- [ ] `frontends/lca-org/src/pages/Dashboard.jsx` - Home
-- [ ] `frontends/lca-org/src/pages/CreateProject.jsx` - New LCA project
-- [ ] `frontends/lca-org/src/pages/ExecuteLCA.jsx` - Record LCA data
-- [ ] `frontends/lca-org/src/pages/ReviewResults.jsx` - Review calculations
-- [ ] `frontends/lca-org/src/pages/IssueCertificate.jsx` - Issue ProductEnvironmentalCredential
-- [ ] `frontends/lca-org/src/pages/MyProjects.jsx` - View all projects
-- [ ] `frontends/lca-org/Dockerfile`
+### 5.4 Manufacturer Views
+- [ ] `frontend/src/views/manufacturer/Dashboard.jsx` - Home
+- [ ] `frontend/src/views/manufacturer/ReceiveShipment.jsx` - Receive & verify lots
+- [ ] `frontend/src/views/manufacturer/CreateProduct.jsx` - Create product + BOM
+- [ ] `frontend/src/views/manufacturer/ManageDPP.jsx` - DPP assembly & transfer
+- [ ] `frontend/src/views/manufacturer/CredentialVerification.jsx` - Verify credentials
+- [ ] `frontend/src/views/manufacturer/OutgoingShipments.jsx` - Send to construction
 
-### 5.5 Certification Body Frontend (Port 3005)
-- [ ] `frontends/certification-body/package.json`
-- [ ] `frontends/certification-body/src/App.jsx`
-- [ ] `frontends/certification-body/src/pages/Dashboard.jsx` - Home
-- [ ] `frontends/certification-body/src/pages/PendingReviews.jsx` - LCA reports pending
-- [ ] `frontends/certification-body/src/pages/ReviewLCA.jsx` - Review LCA document
-- [ ] `frontends/certification-body/src/pages/IssueCertificate.jsx` - Approve & issue ProductCertificate
-- [ ] `frontends/certification-body/src/pages/CertificateHistory.jsx` - View issued certificates
-- [ ] `frontends/certification-body/Dockerfile`
+### 5.5 Test Lab Views
+- [ ] `frontend/src/views/test-lab/Dashboard.jsx` - Home
+- [ ] `frontend/src/views/test-lab/TestRequests.jsx` - Incoming test requests
+- [ ] `frontend/src/views/test-lab/RegisterSample.jsx` - Register samples
+- [ ] `frontend/src/views/test-lab/RecordResults.jsx` - Enter test results
+- [ ] `frontend/src/views/test-lab/IssueCertificate.jsx` - Issue TestReportCredential
 
-### 5.6 Construction Company Frontend (Port 3006)
-- [ ] `frontends/construction-company/package.json`
-- [ ] `frontends/construction-company/src/App.jsx`
-- [ ] `frontends/construction-company/src/pages/Dashboard.jsx` - Home
-- [ ] `frontends/construction-company/src/pages/IncomingDeliveries.jsx` - Receive products + DPPs
-- [ ] `frontends/construction-company/src/pages/VerifyDPP.jsx` - Verify credentials
-- [ ] `frontends/construction-company/src/pages/PrepareHandover.jsx` - Prepare building handover
-- [ ] `frontends/construction-company/src/pages/DPPCustodyChain.jsx` - View DPP history
-- [ ] `frontends/construction-company/Dockerfile`
+### 5.6 LCA Organisation Views
+- [ ] `frontend/src/views/lca-org/Dashboard.jsx` - Home
+- [ ] `frontend/src/views/lca-org/CreateProject.jsx` - New LCA project
+- [ ] `frontend/src/views/lca-org/ExecuteLCA.jsx` - Record LCA data
+- [ ] `frontend/src/views/lca-org/ReviewResults.jsx` - Review calculations
+- [ ] `frontend/src/views/lca-org/IssueCertificate.jsx` - Issue ProductEnvironmentalCredential
+- [ ] `frontend/src/views/lca-org/MyProjects.jsx` - View all projects
 
-### 5.7 Building Owner Frontend (Port 3007)
-- [ ] `frontends/building-owner/package.json`
-- [ ] `frontends/building-owner/src/App.jsx`
-- [ ] `frontends/building-owner/src/pages/Dashboard.jsx` - Portfolio overview
-- [ ] `frontends/building-owner/src/pages/ReceiveBuilding.jsx` - Accept asset handover
-- [ ] `frontends/building-owner/src/pages/AssetDPPs.jsx` - View building + DPPs
-- [ ] `frontends/building-owner/src/pages/ComplianceChecker.jsx` - Run compliance checks
-- [ ] `frontends/building-owner/src/pages/ComplianceResults.jsx` - View compliance report
-- [ ] `frontends/building-owner/src/pages/Portfolio.jsx` - Manage all buildings
-- [ ] `frontends/building-owner/Dockerfile`
+### 5.7 Certification Body Views
+- [ ] `frontend/src/views/certification-body/Dashboard.jsx` - Home
+- [ ] `frontend/src/views/certification-body/PendingReviews.jsx` - LCA reports pending
+- [ ] `frontend/src/views/certification-body/ReviewLCA.jsx` - Review LCA document
+- [ ] `frontend/src/views/certification-body/IssueCertificate.jsx` - Approve & issue ProductCertificate
+- [ ] `frontend/src/views/certification-body/CertificateHistory.jsx` - View issued certificates
 
-### 5.8 Maintenance Company Frontend (Port 3008)
-- [ ] `frontends/maintenance-company/package.json`
-- [ ] `frontends/maintenance-company/src/App.jsx`
-- [ ] `frontends/maintenance-company/src/pages/Dashboard.jsx` - Home
-- [ ] `frontends/maintenance-company/src/pages/RequestAccess.jsx` - Request DPP access
-- [ ] `frontends/maintenance-company/src/pages/RecordRepair.jsx` - Enter repair data
-- [ ] `frontends/maintenance-company/src/pages/IssueRepairCred.jsx` - Issue RepairCredential
-- [ ] `frontends/maintenance-company/src/pages/DPPEvolution.jsx` - View DPP with repairs
-- [ ] `frontends/maintenance-company/Dockerfile`
+### 5.8 Construction Company Views
+- [ ] `frontend/src/views/construction-company/Dashboard.jsx` - Home
+- [ ] `frontend/src/views/construction-company/IncomingDeliveries.jsx` - Receive products + DPPs
+- [ ] `frontend/src/views/construction-company/VerifyDPP.jsx` - Verify credentials
+- [ ] `frontend/src/views/construction-company/PrepareHandover.jsx` - Prepare building handover
+- [ ] `frontend/src/views/construction-company/DPPCustodyChain.jsx` - View DPP history
 
-### 5.9 Regulatory Authority Frontend (Port 3009)
-- [ ] `frontends/regulatory-authority/package.json`
-- [ ] `frontends/regulatory-authority/src/App.jsx`
-- [ ] `frontends/regulatory-authority/src/pages/Dashboard.jsx` - Home
-- [ ] `frontends/regulatory-authority/src/pages/CreateAuditRequest.jsx` - New audit request
-- [ ] `frontends/regulatory-authority/src/pages/PendingAudits.jsx` - Audit requests
-- [ ] `frontends/regulatory-authority/src/pages/VerifyPresentation.jsx` - Review credentials
-- [ ] `frontends/regulatory-authority/src/pages/RecordFindings.jsx` - Document findings
-- [ ] `frontends/regulatory-authority/src/pages/AuditHistory.jsx` - View audit records
-- [ ] `frontends/regulatory-authority/Dockerfile`
+### 5.9 Building Owner Views
+- [ ] `frontend/src/views/building-owner/Dashboard.jsx` - Portfolio overview
+- [ ] `frontend/src/views/building-owner/ReceiveBuilding.jsx` - Accept asset handover
+- [ ] `frontend/src/views/building-owner/AssetDPPs.jsx` - View building + DPPs
+- [ ] `frontend/src/views/building-owner/ComplianceChecker.jsx` - Run compliance checks
+- [ ] `frontend/src/views/building-owner/ComplianceResults.jsx` - View compliance report
+- [ ] `frontend/src/views/building-owner/Portfolio.jsx` - Manage all buildings
 
-### 5.10 Dismantling Company Frontend (Port 3010)
-- [ ] `frontends/dismantling-company/package.json`
-- [ ] `frontends/dismantling-company/src/App.jsx`
-- [ ] `frontends/dismantling-company/src/pages/Dashboard.jsx` - Home
-- [ ] `frontends/dismantling-company/src/pages/IntakeVerification.jsx` - Verify incoming DPP
-- [ ] `frontends/dismantling-company/src/pages/RecordDismantling.jsx` - Enter dismantling data
-- [ ] `frontends/dismantling-company/src/pages/DismantlingOutcome.jsx` - Record component recovery
-- [ ] `frontends/dismantling-company/Dockerfile`
+### 5.10 Maintenance Company Views
+- [ ] `frontend/src/views/maintenance-company/Dashboard.jsx` - Home
+- [ ] `frontend/src/views/maintenance-company/RequestAccess.jsx` - Request DPP access
+- [ ] `frontend/src/views/maintenance-company/RecordRepair.jsx` - Enter repair data
+- [ ] `frontend/src/views/maintenance-company/IssueRepairCred.jsx` - Issue RepairCredential
+- [ ] `frontend/src/views/maintenance-company/DPPEvolution.jsx` - View DPP with repairs
 
-### 5.11 Recycler Frontend (Port 3011)
-- [ ] `frontends/recycler/package.json`
-- [ ] `frontends/recycler/src/App.jsx`
-- [ ] `frontends/recycler/src/pages/Dashboard.jsx` - Home
-- [ ] `frontends/recycler/src/pages/IncomingMaterial.jsx` - Receive material lots
-- [ ] `frontends/recycler/src/pages/VerifyMaterial.jsx` - Verify credentials
-- [ ] `frontends/recycler/src/pages/RecordRecycling.jsx` - Record recycling status
-- [ ] `frontends/recycler/src/pages/RecyclingHistory.jsx` - View processed materials
-- [ ] `frontends/recycler/Dockerfile`
+### 5.11 Regulatory Authority Views
+- [ ] `frontend/src/views/regulatory-authority/Dashboard.jsx` - Home
+- [ ] `frontend/src/views/regulatory-authority/CreateAuditRequest.jsx` - New audit request
+- [ ] `frontend/src/views/regulatory-authority/PendingAudits.jsx` - Audit requests
+- [ ] `frontend/src/views/regulatory-authority/VerifyPresentation.jsx` - Review credentials
+- [ ] `frontend/src/views/regulatory-authority/RecordFindings.jsx` - Document findings
+- [ ] `frontend/src/views/regulatory-authority/AuditHistory.jsx` - View audit records
+
+### 5.12 Dismantling Company Views
+- [ ] `frontend/src/views/dismantling-company/Dashboard.jsx` - Home
+- [ ] `frontend/src/views/dismantling-company/IntakeVerification.jsx` - Verify incoming DPP
+- [ ] `frontend/src/views/dismantling-company/RecordDismantling.jsx` - Enter dismantling data
+- [ ] `frontend/src/views/dismantling-company/DismantlingOutcome.jsx` - Record component recovery
+
+### 5.13 Recycler Views
+- [ ] `frontend/src/views/recycler/Dashboard.jsx` - Home
+- [ ] `frontend/src/views/recycler/IncomingMaterial.jsx` - Receive material lots
+- [ ] `frontend/src/views/recycler/VerifyMaterial.jsx` - Verify credentials
+- [ ] `frontend/src/views/recycler/RecordRecycling.jsx` - Record recycling status
+- [ ] `frontend/src/views/recycler/RecyclingHistory.jsx` - View processed materials
+
+### 5.14 Dockerfile
+- [ ] `frontend/Dockerfile` - Single multi-stage build
 
 ---
 
@@ -426,18 +416,8 @@
 ### 6.1 Backend Dockerfile
 - [ ] `backend/Dockerfile` - Multi-stage build, production-ready
 
-### 6.2 Frontend Dockerfiles (11 apps)
-- [ ] `frontends/supplier/Dockerfile`
-- [ ] `frontends/manufacturer/Dockerfile`
-- [ ] `frontends/test-lab/Dockerfile`
-- [ ] `frontends/lca-org/Dockerfile`
-- [ ] `frontends/certification-body/Dockerfile`
-- [ ] `frontends/construction-company/Dockerfile`
-- [ ] `frontends/building-owner/Dockerfile`
-- [ ] `frontends/maintenance-company/Dockerfile`
-- [ ] `frontends/regulatory-authority/Dockerfile`
-- [ ] `frontends/dismantling-company/Dockerfile`
-- [ ] `frontends/recycler/Dockerfile`
+### 6.2 Frontend Dockerfile
+- [ ] `frontend/Dockerfile` - Already covered in Phase 5.14
 
 ### 6.3 Root Configuration
 - [ ] `docker-compose.yml` - Already created
@@ -482,7 +462,7 @@
 - [ ] All API endpoints working
 - [ ] Credenco integration verified
 - [ ] iSHARE authentication working
-- [ ] All 11 frontends load
+- [ ] Unified frontend loads and role switcher works
 - [ ] Append-only DPP enforcement working
 - [ ] Audit logs being recorded
 - [ ] Credentials verifying correctly
@@ -511,9 +491,9 @@
    - Auth context
    - API client
 
-5. **Phase 5** - Stakeholder Frontends (8 hours)
-   - 11 apps, each 45 minutes
-   - Story-specific pages
+5. **Phase 5** - Unified Frontend (6-8 hours)
+   - 1 app with role-based routing
+   - 53 pages across 11 role views
 
 6. **Phase 6** - Docker & Config (1 hour)
    - Dockerfiles
@@ -543,9 +523,8 @@
 | Backend Services | 7 files |
 | Backend Routes | 20 files |
 | Backend Config | 3 files |
-| Shared Frontend | 20 files |
-| Stakeholder Frontends | 55 files (5 per app × 11) |
-| Dockerfiles | 12 files |
+| Frontend (unified) | 65 files (shell + shared components + 53 pages) |
+| Dockerfiles | 2 files |
 | Documentation | 6 files |
 | Configuration | 3 files |
 | **TOTAL** | **~138 files** |
@@ -559,7 +538,7 @@
 ✅ All 13 user stories must be working end-to-end  
 ✅ Append-only DPP enforcement at both app & DB level  
 ✅ Audit logging for every action  
-✅ All 11 frontends must be independent & functional  
+✅ Unified frontend must load all role views and be fully functional  
 ✅ Multi-org access control & delegation  
 ✅ W3C VC 2.0 compliance with BitstringStatusList  
 

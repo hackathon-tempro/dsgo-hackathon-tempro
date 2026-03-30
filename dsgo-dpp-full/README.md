@@ -1,6 +1,6 @@
 # DSGO/DPP Platform - Digital Product Passport MVP
 
-**Complete end-to-end Digital Product Passport platform** supporting all 13 user stories, real Credenco integration, iSHARE authentication, multi-org workflows, and 11 stakeholder frontends.
+**Complete end-to-end Digital Product Passport platform** supporting all 13 user stories, real Credenco integration, iSHARE authentication, multi-org workflows, and a unified stakeholder frontend.
 
 ---
 
@@ -12,14 +12,14 @@
 - ✅ Database schema designed - 25+ tables with full ERD
 - ✅ 100+ API endpoints mapped to all 13 user stories
 - ✅ 7 integration services designed (Credenco, iSHARE, DPP, Verification, Audit, Compliance)
-- ✅ 11 stakeholder frontends specified with UI/UX flows
+- ✅ Unified stakeholder frontend specified with UI/UX flows (role-based views per actor)
 - ✅ Docker Compose configuration (all services)
 - ✅ All 13 user stories documented with interaction flows
 - ✅ Implementation checklist (138 files, 7 phases, 27-32 hours)
 
 ### Project Structure Ready
 - ✅ Backend scaffold with directory structure
-- ✅ Frontend scaffolds (11 apps with ports 3001-3011)
+- ✅ Unified frontend scaffold (single app, port 3001, role-based routing)
 - ✅ Environment configuration template
 - ✅ Docker Compose pre-configured
 
@@ -119,48 +119,49 @@ backend/src/routes/
 
 ---
 
-### Phase 4: Shared Frontend Library (2 hours)
+### Phase 4: Unified Frontend Application (6-8 hours)
 **Status:** 📋 Ready after Phase 1 backend
+**Single React app (port 3001) with role-based routing. Login selects actor role; the app renders that role's views.**
 ```
-frontends/shared/
-├── src/api/client.js              (Axios HTTP client)
-├── src/auth/                       (Auth context & hooks)
-├── src/store/                      (Redux setup)
-├── src/components/                 (20+ reusable components)
-├── src/hooks/                      (Custom hooks)
-└── src/utils/                      (Formatting, validation)
+frontend/
+├── src/
+│   ├── api/client.js              (Axios HTTP client)
+│   ├── auth/                      (Auth context, role selection, hooks)
+│   ├── components/                (20+ shared components)
+│   │   ├── DPPViewer/
+│   │   ├── CredentialCard/
+│   │   ├── VerificationBadge/
+│   │   ├── Forms/
+│   │   ├── Timeline/
+│   │   └── Table/
+│   ├── hooks/                     (Custom hooks)
+│   ├── utils/                     (Formatting, validation)
+│   └── views/
+│       ├── supplier/              (5 pages)
+│       ├── manufacturer/          (6 pages — most complex)
+│       ├── test-lab/              (5 pages)
+│       ├── lca-org/               (5 pages)
+│       ├── certification-body/    (5 pages)
+│       ├── construction-company/  (5 pages)
+│       ├── building-owner/        (6 pages)
+│       ├── maintenance-company/   (4 pages)
+│       ├── regulatory-authority/  (5 pages)
+│       ├── dismantling-company/   (4 pages)
+│       └── recycler/              (4 pages)
+├── package.json
+└── Dockerfile
+
+Total: 53 UI pages across 11 role views — 1 app, 1 port
 ```
 
-**Outcome:** Reusable component library all 11 frontends inherit from
-
----
-
-### Phase 5: 11 Stakeholder Frontends (8-10 hours)
-**Status:** 📋 Ready after Phase 4
-```
-1. Supplier (Port 3001)             - 5 pages
-2. Manufacturer (Port 3002)         - 6 pages (most complex)
-3. Test Lab (Port 3003)             - 5 pages
-4. LCA Organisation (Port 3004)     - 5 pages
-5. Certification Body (Port 3005)   - 5 pages
-6. Construction Company (Port 3006) - 5 pages
-7. Building Owner (Port 3007)       - 6 pages
-8. Maintenance Company (Port 3008)  - 4 pages
-9. Regulatory Authority (Port 3009) - 5 pages
-10. Dismantling Company (Port 3010) - 4 pages
-11. Recycler (Port 3011)            - 4 pages
-
-Total: 53 frontend pages
-```
-
-**Outcome:** All 11 frontends operational, story-specific UIs
+**Outcome:** Unified frontend operational, all role-specific views accessible via role switcher
 
 ---
 
 ### Phase 6: Docker & Configuration (1 hour)
 **Status:** 📋 Ready after Phase 5
 - Complete backend Dockerfile
-- Complete 11 frontend Dockerfiles
+- Complete frontend Dockerfile (single app)
 - Docker Compose verification
 - Production environment setup
 
@@ -177,7 +178,7 @@ Total: 53 frontend pages
 - Append-only DPP enforcement tested
 - Complete audit trails recorded
 - Multi-org access control working
-- All 11 frontends functional
+- Unified frontend functional with all role views
 
 **Outcome:** Production-ready MVP
 
@@ -203,7 +204,7 @@ All 13 stories implemented:
 | 13 | Dismantling | Dismantling | 3 | Dismantling |
 | 14 | Recycling | Recycler | 4 | Recycler |
 
-**Total: 100+ endpoints, 13 stories, 11 frontends, 53 UI pages**
+**Total: 100+ endpoints, 13 stories, 1 unified frontend, 53 UI pages across 11 role views**
 
 ---
 
@@ -225,7 +226,7 @@ docker-compose exec backend npm run seed
 
 # Access the platform
 echo "Backend API: http://localhost:3000/api/v1"
-echo "11 Frontends: http://localhost:3001-3011"
+echo "Frontend:    http://localhost:3001"
 ```
 
 ---
@@ -235,19 +236,8 @@ echo "11 Frontends: http://localhost:3001-3011"
 | Service | Port |
 |---------|------|
 | Backend API | 3000 |
-| Supplier | 3001 |
-| Manufacturer | 3002 |
-| Test Lab | 3003 |
-| LCA Org | 3004 |
-| Certification Body | 3005 |
-| Construction Company | 3006 |
-| Building Owner | 3007 |
-| Maintenance Company | 3008 |
-| Regulatory Authority | 3009 |
-| Dismantling Company | 3010 |
-| Recycler | 3011 |
+| Frontend (unified — Supplier, Manufacturer, Test Lab, LCA Org, Certification Body, Construction Company, Building Owner, Maintenance Company, Regulatory Authority, Dismantling Company, Recycler) | 3001 |
 | PostgreSQL | 5432 |
-| Redis | 6379 |
 
 ---
 
@@ -283,19 +273,25 @@ dsgo-dpp-full/
 │   ├── Dockerfile                  📋
 │   └── README.md
 │
-├── frontends/                      ← Phase 4-5: To implement
-│   ├── shared/                     📋 (Reusable library)
-│   ├── supplier/                   📋 (Port 3001)
-│   ├── manufacturer/               📋 (Port 3002)
-│   ├── test-lab/                   📋 (Port 3003)
-│   ├── lca-org/                    📋 (Port 3004)
-│   ├── certification-body/         📋 (Port 3005)
-│   ├── construction-company/       📋 (Port 3006)
-│   ├── building-owner/             📋 (Port 3007)
-│   ├── maintenance-company/        📋 (Port 3008)
-│   ├── regulatory-authority/       📋 (Port 3009)
-│   ├── dismantling-company/        📋 (Port 3010)
-│   └── recycler/                   📋 (Port 3011)
+├── frontend/                       ← Phase 4: To implement (single app, port 3001)
+│   ├── src/
+│   │   ├── api/                    📋 (HTTP client)
+│   │   ├── auth/                   📋 (Role selection, auth context)
+│   │   ├── components/             📋 (Shared components)
+│   │   └── views/                  📋 (11 role view folders)
+│   │       ├── supplier/           📋 (5 pages)
+│   │       ├── manufacturer/       📋 (6 pages)
+│   │       ├── test-lab/           📋 (5 pages)
+│   │       ├── lca-org/            📋 (5 pages)
+│   │       ├── certification-body/ 📋 (5 pages)
+│   │       ├── construction-company/ 📋 (5 pages)
+│   │       ├── building-owner/     📋 (6 pages)
+│   │       ├── maintenance-company/ 📋 (4 pages)
+│   │       ├── regulatory-authority/ 📋 (5 pages)
+│   │       ├── dismantling-company/ 📋 (4 pages)
+│   │       └── recycler/           📋 (4 pages)
+│   ├── package.json                📋
+│   └── Dockerfile                  📋
 │
 ├── docker-compose.yml              ✅
 ├── .env.example                    ✅
@@ -321,15 +317,14 @@ Week 1:
   Phase 3 (6-8h):  API routes (100+ endpoints)
 
 Week 2:
-  Phase 4 (2h):    Shared frontend library
-  Phase 5 (8-10h): 11 stakeholder frontends
-  Phase 6 (1h):    Docker setup
-  Phase 7 (2-3h):  Testing & validation
+  Phase 4 (6-8h):  Unified frontend (role-based, single app)
+  Phase 5 (1h):    Docker setup
+  Phase 6 (2-3h):  Testing & validation
 
 Parallel work streams:
   - Backend team (3 people): Phases 1-3
-  - Frontend team (2 people): Phases 4-5
-  - DevOps/QA (1 person): Phases 6-7
+  - Frontend team (2 people): Phase 4
+  - DevOps/QA (1 person): Phases 5-6
 ```
 
 ---
@@ -348,9 +343,9 @@ Parallel work streams:
 - Test: `docker-compose exec backend npm run migrate`
 
 ### Frontend Development
-- Start with Phase 4: Create shared components in `frontends/shared/`
-- Reference: `docs/spec/13-ui-interfaces.md` for screen specs
-- Each stakeholder app inherits from shared library
+- Start with Phase 4: Build `frontend/src/auth/` (role selection) and shared components
+- Reference: `docs/spec/13-ui-interfaces.md` for screen specs per role
+- All role views share one component library within the same app
 
 ### Database
 - Schema: `backend/src/migrations/001-init.sql` (25+ tables)
@@ -369,7 +364,7 @@ Parallel work streams:
 ### Implementation Details
 - **API Endpoints:** `docs/spec/14-api-endpoints.md` (100+ endpoints)
 - **Interaction Flows:** `docs/spec/12-interaction-flows.md` (12 flows A-L)
-- **UI Specifications:** `docs/spec/13-ui-interfaces.md` (all 11 frontends)
+- **UI Specifications:** `docs/spec/13-ui-interfaces.md` (all 11 role views, unified frontend)
 - **Credential Models:** `docs/spec/09-credential-models.md` (all 7 W3C VCs)
 - **Data Models:** `docs/spec/04-08-domain-models.md` (5 files)
 
@@ -390,8 +385,8 @@ A: Implement Phase 1 & 3 first, then integrate Phase 2 services later.
 **Q: How do I test my work?**  
 A: Each phase has testable endpoints. Use curl or Postman.
 
-**Q: Which frontend do I start with?**  
-A: Manufacturer (most complex). Then replicate pattern to others.
+**Q: Where do I start in the frontend?**
+A: Build the role selector and auth context first, then the Manufacturer view (most complex). Other role views follow the same pattern.
 
 **Q: How do I track progress?**  
 A: Use `IMPLEMENTATION_CHECKLIST.md` - check off each file as you complete it.
@@ -410,7 +405,7 @@ After implementation, you'll have:
 - ✅ Append-only DPP enforced
 - ✅ Complete audit trails recorded
 - ✅ Multi-org access control working
-- ✅ 11 stakeholder frontends operational
+- ✅ Unified frontend operational with all 11 role views
 - ✅ Production-ready on Docker
 
 ---
