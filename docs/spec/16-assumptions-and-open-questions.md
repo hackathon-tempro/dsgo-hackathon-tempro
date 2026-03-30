@@ -16,9 +16,13 @@ The DigitalProductPassport credential is always issued by Credenco on behalf of 
 
 All organisations use `did:web` as their DID method. No `did:key`, `did:ion`, or other methods are referenced in the examples. This should be explicitly confirmed.
 
-### A4 — iSHARE is the underlying trust/authorisation framework for DSGO
+### A4 — iSHARE is the B2B inter-organisational trust framework for DSGO
 
-The DSGO Afsprakenstelsel uses the iSHARE Trust Framework for M2M identification, authentication, and authorisation. It is assumed that all participants are registered in the iSHARE/DSGO Participant Registry and that access tokens are obtained via the iSHARE OAuth 2.0 flow before calling platform APIs.
+The DSGO Afsprakenstelsel uses the iSHARE Trust Framework for M2M inter-organisational identification and delegation. iSHARE's role is strictly: (1) verifying that a counterparty EORI is a registered DSGO participant, (2) public certificate lookup for verifying signed tokens from other organisations, and (3) delegation evidence — a signed JWT one organisation issues to grant another access to a specific resource.
+
+iSHARE is **not** used for human session authentication. UI sessions use a simple username lookup that issues a platform JWT (HS256). For the hackathon, this is a mock flow — users type a role name (e.g. "supplier1") and are routed to the appropriate screen.
+
+It is assumed that all participants are registered in the iSHARE/DSGO Participant Registry for production use. For the hackathon, only one real iSHARE identity (EORI + X.509 cert) is available. The remaining 10 simulated organisations use locally-generated self-signed certs stored in the database, controlled by `ISHARE_SIMULATION_MODE=true`.
 
 ### A5 — BitstringStatusList endpoint is hosted by each issuer
 
@@ -61,6 +65,14 @@ In Flow H, the system sends proof requests "to all DPP holders". How are these h
 ### Q7 — DSGO Participant Registry integration
 
 How does the platform verify that a counterparty is an active DSGO/iSHARE participant before accepting a credential or presentation? Is this check integrated into the platform API layer, or is it the responsibility of each implementing party?
+
+### Q9 — Employee key delegation model in DID documents
+
+When an employee signs a Verifiable Credential using their Ed25519 key on behalf of their organisation, their public key must be resolvable by verifiers. The recommended approach is to list the employee's key as a `verificationMethod` in the organisation's DID document with `controller: <org-did>`. This requires each organisation's DID document to be maintained and updated when employees join or leave. Who is responsible for maintaining these DID documents, and what is the rotation/revocation policy for employee keys?
+
+### Q10 — iSHARE simulation mode and test interoperability
+
+For the hackathon, `ISHARE_SIMULATION_MODE=true` uses locally-generated self-signed X.509 certs for 10 of the 11 simulated organisations. Delegation evidence signed with these certs will not be verifiable by any real external iSHARE participant. Is this acceptable for the demo, or is cross-party verifiability of delegation evidence a requirement during the hackathon presentation?
 
 ### Q8 — Credential validity periods
 

@@ -22,7 +22,7 @@
 - [ ] `backend/package.json` - Dependencies (already created)
 
 ### 1.2 Middleware Layer
-- [ ] `backend/src/middleware/auth.js` - iSHARE OAuth + API key auth
+- [ ] `backend/src/middleware/auth.js` - Two layers: (1) platform JWT session auth (username → JWT, used for all requests); (2) iSHARE delegation evidence validation (X-Delegation-Evidence header, used only on cross-org data access endpoints) (https://framework.ishare.eu/detailed-descriptions/technical/structure-of-delegation-evidence)
 - [ ] `backend/src/middleware/auditLog.js` - Audit trail logging
 - [ ] `backend/src/middleware/errorHandler.js` - Global error handling
 - [ ] `backend/src/middleware/validation.js` - Input validation
@@ -31,7 +31,7 @@
 ### 1.3 Database & Migrations
 - [ ] `backend/src/migrations/001-init.sql` - Complete schema (25+ tables)
 - [ ] `backend/src/migrations/run.js` - Migration runner
-- [ ] `backend/src/seed.js` - Seed test data (11 organizations)
+- [ ] `backend/src/seed.js` - Seed test data (11 organizations, each with: simulated EORI, locally-generated RSA keypair + self-signed X.509 cert, test users with Ed25519 keypairs)
 
 ---
 
@@ -47,14 +47,15 @@
   - [ ] Token caching
   - [ ] Error handling & retries
 
-### 2.2 iSHARE Service (Real API Integration)
+### 2.2 iSHARE Service (B2B inter-org trust — NOT user auth)
 - [ ] `backend/src/services/ishareService.js`
-  - [ ] OAuth 2.0 token generation
-  - [ ] JWT assertion creation
-  - [ ] Delegation evidence validation
-  - [ ] Participant registry lookup
-  - [ ] Token refresh & caching
-  - [ ] Private key loading
+  - [ ] JWT client assertion creation (RS256 + x5c) — for calling iSHARE's own APIs
+  - [ ] Delegation evidence creation and signing (org grants another org access to a resource)
+  - [ ] Delegation evidence verification (verify counterparty's signed delegation JWT)
+  - [ ] Participant registry lookup (verify EORI is a registered DSGO member)
+  - [ ] Public certificate lookup (fetch org cert to verify their signed tokens)
+  - [ ] Token caching (Map-based, already implemented)
+  - [ ] ISHARE_SIMULATION_MODE: route cert lookups to local DB instead of live registry (needed — only 1 real iSHARE identity available)
 
 ### 2.3 Credential Service (W3C VC 2.0)
 - [ ] `backend/src/services/credentialService.js`
@@ -66,7 +67,7 @@
   - [ ] AssetHandoverCredential creation (Story 8)
   - [ ] RepairCredential creation (Story 11)
   - [ ] W3C VC 2.0 JSON-LD formatting
-  - [ ] Proof generation (Ed25519Signature2020)
+  - [ ] Proof generation: Credenco signs with org key; employee recorded as `authorisedBy` in credentialSubject (not the VC proof itself)
   - [ ] BitstringStatusList integration
 
 ### 2.4 DPP Service (Append-Only Logic)
@@ -461,7 +462,7 @@
 ### 8.2 Validation Checklist
 - [ ] All API endpoints working
 - [ ] Credenco integration verified
-- [ ] iSHARE authentication working
+- [ ] iSHARE B2B delegation evidence working
 - [ ] Unified frontend loads and role switcher works
 - [ ] Append-only DPP enforcement working
 - [ ] Audit logs being recorded
@@ -534,7 +535,7 @@
 ## Critical Success Factors
 
 ✅ Credenco integration must be real (not mocked)  
-✅ iSHARE authentication must be real (OAuth 2.0)  
+✅ iSHARE B2B trust must be real (PKI client assertions + delegation evidence — no shared secret)  
 ✅ All 13 user stories must be working end-to-end  
 ✅ Append-only DPP enforcement at both app & DB level  
 ✅ Audit logging for every action  

@@ -26,5 +26,5 @@ The platform demonstrates end-to-end Digital Product Passport transfer through t
 
 - The platform covers data exchange and credential lifecycle — it does not implement a BIM viewer or spatial data platform.
 - All credential issuance in the reference implementation is performed via the Credenco Business Wallet (see **15-credenco-wallet-integration.md**).
-- Data sharing governance follows the DSGO Afsprakenstelsel and uses iSHARE as the trust framework for identification, authentication, and authorisation between participants (see **03-standards-and-technology.md**).
+- Data sharing governance follows the DSGO Afsprakenstelsel and uses iSHARE as the B2B inter-organisational trust framework for M2M participant verification and delegation evidence between organisations. iSHARE is not used for human session authentication — UI login is a separate, simple flow (see **03-standards-and-technology.md** and **AUTH_ARCHITECTURE.md**).
 - The system operates on a federated model: data stays at the source; only verifiable credentials and presentations are exchanged.

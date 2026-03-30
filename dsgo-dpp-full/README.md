@@ -1,6 +1,6 @@
 # DSGO/DPP Platform - Digital Product Passport MVP
 
-**Complete end-to-end Digital Product Passport platform** supporting all 13 user stories, real Credenco integration, iSHARE authentication, multi-org workflows, and a unified stakeholder frontend.
+**Complete end-to-end Digital Product Passport platform** supporting all 13 user stories, real Credenco integration, iSHARE B2B trust (participant registry + delegation evidence), multi-org workflows, and a unified stakeholder frontend.
 
 ---
 
@@ -36,7 +36,7 @@ backend/src/
 ├── config.js              ← Configuration management
 ├── database.js            ← PostgreSQL connection pool
 ├── middleware/
-│   ├── auth.js            ← iSHARE OAuth + API key
+│   ├── auth.js            ← platform JWT session auth + iSHARE delegation evidence
 │   ├── auditLog.js        ← Audit trail logging
 │   ├── errorHandler.js    ← Global error handling
 │   ├── validation.js      ← Input validation
@@ -65,7 +65,7 @@ backend/src/services/credencoService.js
   ✓ OID4VP presentation exchange
 ```
 
-**Phase 2B - iSHARE Real OAuth:**
+**Phase 2B - iSHARE B2B PKI Trust:**
 ```
 backend/src/services/ishareService.js
   ✓ Token generation with JWT assertions
@@ -173,7 +173,7 @@ Total: 53 UI pages across 11 role views — 1 app, 1 port
 **Status:** 📋 Ready after Phase 6
 - All 13 user stories end-to-end
 - Credenco integration verified
-- iSHARE authentication working
+- iSHARE B2B delegation evidence working
 - W3C VC 2.0 credentials verifiable
 - Append-only DPP enforcement tested
 - Complete audit trails recorded
@@ -370,7 +370,7 @@ Parallel work streams:
 
 ### Integration Guides
 - **Credenco API:** `docs/spec/15-credenco-wallet-integration.md`
-- **iSHARE OAuth:** `docs/spec/03-standards-and-technology.md`
+- **iSHARE B2B Trust:** `docs/spec/03-standards-and-technology.md`
 
 ---
 
@@ -400,7 +400,7 @@ After implementation, you'll have:
 - ✅ All 13 user stories implemented & tested
 - ✅ 100+ API endpoints functioning
 - ✅ Real Credenco integration verified
-- ✅ Real iSHARE authentication working
+- ✅ iSHARE B2B trust working (delegation evidence + participant registry)
 - ✅ W3C VC 2.0 credentials verifiable
 - ✅ Append-only DPP enforced
 - ✅ Complete audit trails recorded

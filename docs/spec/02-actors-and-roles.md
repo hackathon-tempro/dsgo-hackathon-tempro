@@ -54,4 +54,18 @@ These are the named human-facing roles referenced in user stories and UI interfa
 - **RepairTechnician** — Registers repair events and issues RepairCredentials
 - **AuthorityInspector** — Initiates audit requests and reviews presentations
 
+### Human Identity Model
+
+Each user has an **Ed25519 keypair** used for **signing Verifiable Credentials**, not for UI session login. The UI session is a simple username lookup that returns a platform JWT encoding `{ userId, organisationId, role }`.
+
+When a user issues a credential, one of two patterns applies:
+- **Simple (hackathon):** Credenco signs the VC with the org's key; the employee is recorded as `authorisedBy` in the credential subject.
+- **Full delegation:** The employee's Ed25519 public key is registered in the org's DID document as an authorised delegate. The VC proof references `did:web:org.com#employee-key`. Verifiers resolve the org's DID document to find and verify the key — no per-employee key distribution needed.
+
+See **AUTH_ARCHITECTURE.md** for full detail.
+
+### Organisational Identity Model
+
+Each organisation is identified by its **EORI** number and holds an **X.509 certificate** (RSA or EC) registered in the iSHARE participant registry. The org's private key is used to sign inter-org delegation evidence. For simulated organisations (hackathon), locally-generated self-signed certs are used in place of real iSHARE registrations.
+
 See **04-domain-model-organizations.md** for the data models.
