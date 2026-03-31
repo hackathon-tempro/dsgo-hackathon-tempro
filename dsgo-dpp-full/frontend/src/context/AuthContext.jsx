@@ -132,6 +132,19 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
+  const buildUserData = (foundCompany, foundEmployee) => ({
+    email: foundEmployee.email,
+    name: foundEmployee.name,
+    firstName: foundEmployee.firstName,
+    lastName: foundEmployee.lastName,
+    jobTitle: foundEmployee.jobTitle,
+    role: foundCompany.role,
+    org: foundCompany.name,
+    ishareId: foundCompany.ishareId,
+    organizationId: foundCompany.id,
+    id: `user-${foundEmployee.email}`,
+  });
+
   const login = async (email) => {
     let foundEmployee = null;
     let foundCompany = null;
@@ -150,20 +163,32 @@ export function AuthProvider({ children }) {
     }
 
     const token = `demo-token-${Date.now()}`;
-    const userData = {
-      email: foundEmployee.email,
-      name: foundEmployee.name,
-      firstName: foundEmployee.firstName,
-      lastName: foundEmployee.lastName,
-      jobTitle: foundEmployee.jobTitle,
-      role: foundCompany.role,
-      org: foundCompany.name,
-      ishareId: foundCompany.ishareId,
-      organizationId: foundCompany.id,
-      id: `user-${foundEmployee.email}`,
-    };
+    const userData = buildUserData(foundCompany, foundEmployee);
 
     localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+    return userData;
+  };
+
+  const switchToCompany = (companyId, employeeEmail = null) => {
+    const company = DEMO_COMPANIES.find((c) => c.id === companyId);
+    if (!company) {
+      throw new Error('Company not found');
+    }
+
+    const employee = employeeEmail
+      ? company.employees.find((e) => e.email === employeeEmail)
+      : company.employees[0];
+
+    if (!employee) {
+      throw new Error('Employee not found');
+    }
+
+    const existingToken = localStorage.getItem('token') || `demo-token-${Date.now()}`;
+    const userData = buildUserData(company, employee);
+
+    localStorage.setItem('token', existingToken);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
     return userData;
@@ -182,6 +207,7 @@ export function AuthProvider({ children }) {
     logout,
     isAuthenticated: !!user,
     companies: DEMO_COMPANIES,
+    switchToCompany,
     // legacy compat
     demoUsers: DEMO_COMPANIES.flatMap((c) =>
       c.employees.map((e) => ({ ...e, role: c.role, org: c.name }))

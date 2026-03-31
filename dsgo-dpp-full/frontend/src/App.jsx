@@ -2,6 +2,7 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Login from "./views/Login";
+import DemoWorkflow from "./views/DemoWorkflow";
 
 import SupplierDashboard from "./views/supplier/Dashboard";
 import ManufacturerDashboard from "./views/manufacturer/Dashboard";
@@ -46,6 +47,14 @@ function RoleBasedRouter() {
 
   return (
     <Routes>
+      <Route
+        path="/demo-workflow"
+        element={
+          <ProtectedRoute>
+            <DemoWorkflow />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/supplier/*"
         element={
@@ -156,8 +165,20 @@ export default function App() {
   return (
     <Routes>
       <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            <Navigate to="/demo-workflow" replace />
+          ) : (
+            <Navigate to="/login" replace />
+          )
+        }
+      />
+      <Route
         path="/login"
-        element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
+        element={
+          isAuthenticated ? <Navigate to="/demo-workflow" replace /> : <Login />
+        }
       />
       <Route path="/*" element={<RoleBasedRouter />} />
     </Routes>

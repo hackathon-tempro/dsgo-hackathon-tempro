@@ -9,6 +9,8 @@ import {
   Flame,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext";
+import { getAsset, issueFlowCredential, useFlowSnapshot } from "../../demo/sequentialFlow";
 
 const navItems = [
   { label: "Test Requests", path: "/test-lab" },
@@ -51,6 +53,9 @@ const FIRE_RATINGS = ["EI30", "EI60", "EI90", "EI120", "E30", "E60", "E90"];
 // Test Requests View
 // ---------------------------------------------------------------------------
 function TestRequestsView({ onComplete }) {
+  const { user } = useAuth();
+  useFlowSnapshot();
+  const asset = getAsset();
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
   const [selected, setSelected] = useState(INITIAL_REQUESTS[0]);
   const [submitting, setSubmitting] = useState(false);
@@ -103,6 +108,22 @@ function TestRequestsView({ onComplete }) {
     };
 
     setRequests((prev) => prev.filter((r) => r.id !== selected.id));
+    issueFlowCredential({
+      type: "TestReport",
+      issuerRole: "test_lab",
+      issuerOrg: user?.org || "Test Lab",
+      recipientRole: "manufacturer",
+      recipientOrg: "BuildCorp Manufacturers",
+      payload: {
+        productId: asset.productId,
+        productName: asset.productName,
+        testRequestId: completed.id,
+        testType: completed.result.testType,
+        standard: completed.result.standard,
+        conclusion: completed.result.conclusion,
+        fireRating: completed.result.fireRating || null,
+      },
+    });
     onComplete?.(completed);
     setSelected(null);
     setSubmitting(false);

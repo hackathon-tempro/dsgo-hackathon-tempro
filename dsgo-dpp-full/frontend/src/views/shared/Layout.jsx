@@ -1,8 +1,17 @@
 import React from "react";
 import { useAuth } from "../../context/AuthContext";
-import { LogOut, Building2, User, Menu, X, Shield } from "lucide-react";
+import { LogOut, Building2, User, Menu, X, Shield, ArrowLeftCircle, CheckCircle2 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import clsx from "clsx";
+import {
+  DEMO_RETURN_PATH,
+  getDemoStageByRole,
+  isStageUnlocked,
+  markDemoStageComplete,
+  readDemoProgress,
+} from "../../demo/workflow";
+import { isDemoStageReady } from "../../demo/sequentialFlow";
+import toast from "react-hot-toast";
 
 const ROLE_LABELS = {
   supplier: "Supplier",
@@ -23,6 +32,13 @@ export function Layout({ children, title, actions, navItems = [] }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const demoReturnPath = localStorage.getItem("demo_journey_return_path");
+  const demoStage = getDemoStageByRole(user?.role);
+  const progress = readDemoProgress();
+  const completedSet = new Set(progress);
+  const stageCompleted = demoStage ? completedSet.has(demoStage.id) : false;
+  const stageUnlocked = demoStage ? isStageUnlocked(demoStage.id, completedSet) : false;
+  const stageReady = demoStage ? isDemoStageReady(demoStage.id) : false;
 
   React.useEffect(() => {
     if (location.pathname === "/" && user?.role) {
@@ -83,6 +99,16 @@ export function Layout({ children, title, actions, navItems = [] }) {
                 )}
               </div>
 
+              {demoReturnPath && location.pathname !== demoReturnPath && (
+                <button
+                  onClick={() => navigate(demoReturnPath)}
+                  className="hidden md:inline-flex items-center gap-1.5 btn btn-outline text-xs py-1.5"
+                >
+                  <ArrowLeftCircle className="w-3.5 h-3.5" />
+                  Back to Demo Overview
+                </button>
+              )}
+
               {actions}
 
               <button
@@ -133,6 +159,49 @@ export function Layout({ children, title, actions, navItems = [] }) {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {demoReturnPath === DEMO_RETURN_PATH && demoStage && (
+          <div className="mb-6 rounded-xl border border-primary-200 bg-primary-50 p-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">Demo Objective</p>
+                <h2 className="text-sm font-semibold text-primary-900 mt-1">{demoStage.title}</h2>
+                <p className="text-xs text-primary-800 mt-1">{demoStage.objective}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                {location.pathname !== demoStage.interfacePath && (
+                  <button
+                    onClick={() => navigate(demoStage.interfacePath)}
+                    className="btn btn-outline text-xs"
+                  >
+                    Go to Recommended Screen
+                  </button>
+                )}
+                <button
+                  disabled={!stageUnlocked || stageCompleted || !stageReady}
+                  onClick={() => {
+                    if (!demoStage) return;
+                    if (!isDemoStageReady(demoStage.id)) {
+                      toast.error("Complete the required action in this interface first");
+                      return;
+                    }
+                    markDemoStageComplete(demoStage.id);
+                    toast.success(`${demoStage.title} marked complete`);
+                    navigate(DEMO_RETURN_PATH);
+                  }}
+                  className="btn btn-primary text-xs inline-flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {stageCompleted ? "Stage Completed" : "Complete Stage & Return"}
+                </button>
+              </div>
+            </div>
+            {!stageReady && !stageCompleted && (
+              <p className="text-xs text-primary-800 mt-2">
+                Complete the stage action in this screen before marking it complete.
+              </p>
+            )}
+          </div>
+        )}
         {children}
       </main>
 

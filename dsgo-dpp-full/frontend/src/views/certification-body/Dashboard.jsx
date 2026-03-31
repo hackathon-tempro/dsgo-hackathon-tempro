@@ -13,6 +13,8 @@ import {
   X,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuth } from "../../context/AuthContext";
+import { getAsset, issueFlowCredential, useFlowSnapshot } from "../../demo/sequentialFlow";
 
 const navItems = [
   { label: 'Review Queue', path: '/certification-body' },
@@ -175,6 +177,9 @@ function VCModal({ vc, onClose }) {
 // Review Queue
 // ---------------------------------------------------------------------------
 function ReviewQueue({ pending, onApprove }) {
+  const { user } = useAuth();
+  useFlowSnapshot();
+  const asset = getAsset();
   const [selected, setSelected] = useState(pending[0] || null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -203,6 +208,23 @@ function ReviewQueue({ pending, onApprove }) {
       fireResistanceClass: selected.certDetails.fireResistanceClass,
       carbonFootprint: selected.certDetails.carbonFootprintKgCO2e,
     };
+
+    issueFlowCredential({
+      type: "CEMArkingTestREport",
+      issuerRole: "certification_body",
+      issuerOrg: user?.org || "Certification Body",
+      recipientRole: "manufacturer",
+      recipientOrg: "BuildCorp Manufacturers",
+      payload: {
+        productId: asset.productId,
+        productName: asset.productName,
+        certificateType: selected.certificateType,
+        certId,
+        product: selected.product,
+        fireResistanceClass: selected.certDetails.fireResistanceClass || null,
+        standard: selected.certDetails.testStandard || selected.certDetails.standard || null,
+      },
+    });
 
     onApprove(selected.id, issued);
     setSelected(null);

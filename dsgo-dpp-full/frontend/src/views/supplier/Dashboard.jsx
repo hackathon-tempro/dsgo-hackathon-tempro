@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { Layout } from "../shared/Layout";
 import {
   Package,
@@ -12,6 +12,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext";
+import { issueFlowCredential } from "../../demo/sequentialFlow";
 
 // ---------------------------------------------------------------------------
 // Mock product catalogue with CO₂ lifecycle data
@@ -214,6 +216,7 @@ function ProductsOverview({ onSelectProduct }) {
 // Passport Issuance — pre-filled from product, issues to wallet
 // ---------------------------------------------------------------------------
 function PassportIssuance({ selectedProduct, onIssued }) {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     lotId: selectedProduct ? `urn:lot:LOT-2026-03-${String(Math.floor(Math.random() * 90000) + 10000)}` : "",
     materialId: selectedProduct ? selectedProduct.id : "",
@@ -245,8 +248,24 @@ function PassportIssuance({ selectedProduct, onIssued }) {
     };
     setIssued(credential);
     onIssued?.(credential);
+    issueFlowCredential({
+      type: "MaterialPassport",
+      issuerRole: "supplier",
+      issuerOrg: user?.org || "Supplier",
+      recipientRole: "manufacturer",
+      recipientOrg: "BuildCorp Manufacturers",
+      payload: {
+        productId: formData.materialId,
+        productName: selectedProduct?.name || formData.materialId,
+        gtin: selectedProduct?.gtin || "",
+        lotId: formData.lotId,
+        batchNumber: formData.batchNumber,
+        recycledContent: parseFloat(formData.recycledContent),
+        carbonFootprint: parseFloat(formData.carbonFootprint),
+      },
+    });
     setSubmitting(false);
-    toast.success("MaterialPassportCredential issued and stored in wallet!");
+    toast.success("MaterialPassport issued and sent to Manufacturer.");
   };
 
   if (issued) {
@@ -448,6 +467,7 @@ const navItems = [
 ];
 
 export default function SupplierDashboard() {
+  const navigate = useNavigate();
   const [issuedCredentials, setIssuedCredentials] = useState([]);
   const [prefillProduct, setPrefillProduct] = useState(null);
 
@@ -472,7 +492,7 @@ export default function SupplierDashboard() {
             <ProductsOverview
               onSelectProduct={(p) => {
                 setPrefillProduct(p);
-                window.location.hash = '';
+                navigate("/supplier/passport-issuance");
               }}
             />
           }

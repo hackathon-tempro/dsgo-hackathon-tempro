@@ -1,47 +1,220 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { Layout } from '../shared/Layout';
-import { Truck, CheckCircle, FileText, Building2 } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { dppService, credentialsService, transactionsService } from '../../services/api';
-import { DPPViewer } from '../../components/DPPViewer';
-import { VerificationBadge } from '../../components/VerificationBadge';
+import { Routes, Route } from "react-router-dom";
+import { ArrowRight, Building2, CheckCircle, ClipboardCheck, FileText, Package } from "lucide-react";
+import toast from "react-hot-toast";
+import { Layout } from "../shared/Layout";
+import { useAuth } from "../../context/AuthContext";
+import {
+  canConstructionHandoverToOwner,
+  getConstructionNextTypeToVerify,
+  getConstructionPackage,
+  getConstructionVerificationOrder,
+  hasRoleVerified,
+  issueFlowCredential,
+  useFlowSnapshot,
+  verifyCredential,
+} from "../../demo/sequentialFlow";
 
 const navItems = [
-  { label: "Receiving", path: "/construction-company" },
-  { label: "Assembly", path: "/construction-company/assembly" },
-  { label: "Transfer", path: "/construction-company/transfer" },
+  { label: "Asset Receiving", path: "/construction-company" },
+  { label: "Handover to Owner", path: "/construction-company/handover" },
 ];
 
-export default function Dashboard() {
-  const [credentials, setCredentials] = useState([]);
+function renderCredentialSummary(credential) {
+  const payload = credential.payload || {};
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await credentialsService.list().catch(() => ({ data: [] }));
-        setCredentials(data.data || []);
-      } catch (error) {
-        console.error('Failed to load data:', error);
-      }
-    };
-    loadData();
-  }, []);
+  if (credential.type === "TestReport") {
+    return [
+      `Test type: ${payload.testType}`,
+      `Standard: ${payload.standard}`,
+      `Conclusion: ${payload.conclusion}`,
+      payload.fireRating ? `Fire rating: ${payload.fireRating}` : null,
+    ].filter(Boolean);
+  }
+
+  if (credential.type === "CEMArkingTestREport") {
+    return [
+      `Certificate type: ${payload.certificateType}`,
+      `Cert ID: ${payload.certId}`,
+      `Standard: ${payload.standard}`,
+      payload.fireResistanceClass ? `Class: ${payload.fireResistanceClass}` : null,
+    ].filter(Boolean);
+  }
+
+  if (credential.type === "EnvironmentalFootprintTestPassport") {
+    return [
+      `Methodology: ${payload.methodology}`,
+      `Carbon footprint: ${payload.carbonFootprint} kg CO2e`,
+      `Water footprint: ${payload.waterFootprint}`,
+    ].filter(Boolean);
+  }
+
+  return [];
+}
+
+function ReceivingView() {
+  const { user } = useAuth();
+  useFlowSnapshot();
+  const pkg = getConstructionPackage();
+
+  if (!pkg) {
+    return (
+      <div className="card text-center py-12 text-gray-500">
+        <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+        <p>Waiting for AssetHandoverCredential from Manufacturer.</p>
+        <p className="text-xs text-gray-400 mt-2">
+          Go to Manufacturer → Asset Handover and issue the credential first.
+        </p>
+      </div>
+    );
+  }
+
+  const order = getConstructionVerificationOrder();
+  const nextType = getConstructionNextTypeToVerify();
+
+  const handleVerify = (credential) => {
+    if (nextType && credential.type !== nextType) {
+      toast.error(`Verify ${nextType} first`);
+      return;
+    }
+
+    const result = verifyCredential(credential.id, "construction_company", user?.org || "Construction Company");
+    if (!result.ok) {
+      toast.error(result.reason || "Verification failed");
+      return;
+    }
+
+    toast.success(`${credential.type} verified by Construction Company`);
+  };
 
   return (
-    <Layout title="Construction Company Dashboard" navItems={navItems}>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <StatCard icon={Truck} label="Incoming Deliveries" value="-" />
-        <StatCard icon={CheckCircle} label="Verified DPPs" value="-" />
-        <StatCard icon={FileText} label="Active Contracts" value="-" />
+    <div className="space-y-6">
+      <div className="card border border-primary-200 bg-primary-50">
+        <div className="flex items-center gap-3">
+          <Package className="w-5 h-5 text-primary-600" />
+          <div>
+            <p className="font-semibold text-primary-900">{pkg.asset.productName}</p>
+            <p className="text-xs text-primary-700">
+              Asset ID: {pkg.asset.id} · Product ID: {pkg.asset.productId}
+            </p>
+          </div>
+        </div>
+        <p className="text-xs text-primary-700 mt-3">
+          Manufacturer handover: <span className="font-mono break-all">{pkg.handover.id}</span>
+        </p>
       </div>
 
-      <Routes>
-        <Route path="" element={<ReceivingView />} />
-        <Route path="assembly" element={<AssemblyView />} />
-        <Route path="transfer" element={<TransferView />} />
-      </Routes>
-    </Layout>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {order.map((type) => {
+          const credential = pkg.linkedCredentials.find((item) => item.type === type);
+          const verified = credential ? hasRoleVerified(credential, "construction_company") : false;
+          const isCurrent = nextType === type;
+
+          return (
+            <div key={type} className="card border border-gray-200">
+              <div className="flex justify-between items-start gap-2">
+                <div>
+                  <p className="font-semibold text-sm">{type}</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {credential ? `From ${credential.issuerOrg}` : "Missing from package"}
+                  </p>
+                </div>
+                <span className={`badge ${verified ? "badge-success" : isCurrent ? "badge-warning" : "badge-gray"}`}>
+                  {verified ? "Verified" : isCurrent ? "Verify now" : "Locked"}
+                </span>
+              </div>
+
+              <div className="mt-3 rounded-lg bg-gray-50 p-3 text-xs text-gray-600 space-y-1">
+                {credential ? (
+                  renderCredentialSummary(credential).map((line) => <div key={line}>{line}</div>)
+                ) : (
+                  <div>Credential not linked on this package.</div>
+                )}
+              </div>
+
+              {credential && (
+                <p className="mt-3 text-xs text-gray-400 font-mono break-all">{credential.id}</p>
+              )}
+
+              <button
+                disabled={!credential || verified || (!!nextType && !isCurrent)}
+                onClick={() => handleVerify(credential)}
+                className="btn btn-outline text-xs mt-4 w-full disabled:opacity-50"
+              >
+                {verified ? "Verified" : "Verify"}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function HandoverToOwner() {
+  const { user } = useAuth();
+  const { credentials } = useFlowSnapshot();
+  const pkg = getConstructionPackage();
+  const ownerHandover = credentials.find(
+    (credential) =>
+      credential.type === "AssetHandoverCredential" &&
+      credential.issuerRole === "construction_company" &&
+      credential.recipientRole === "building_owner",
+  );
+
+  const handleHandover = () => {
+    if (!pkg) {
+      toast.error("No incoming asset package found");
+      return;
+    }
+    if (!canConstructionHandoverToOwner()) {
+      toast.error("Verify TestReport, CE marking, and LCA report in order before handover");
+      return;
+    }
+
+    issueFlowCredential({
+      type: "AssetHandoverCredential",
+      issuerRole: "construction_company",
+      issuerOrg: user?.org || "Construction Company",
+      recipientRole: "building_owner",
+      recipientOrg: "PropInvest Real Estate",
+      payload: {
+        assetId: pkg.asset.id,
+        assetName: pkg.asset.productName,
+        productId: pkg.asset.productId,
+        linkedCredentialIds: pkg.linkedCredentials.map((credential) => credential.id),
+        previousHandoverCredentialId: pkg.handover.id,
+      },
+    });
+
+    toast.success("AssetHandoverCredential sent to Building Owner");
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="card">
+        <h2 className="text-lg font-semibold">Construction Company -&gt; Building Owner</h2>
+        <p className="text-sm text-gray-600 mt-2">
+          Forward the same asset product and linked credentials to the building owner after verification.
+        </p>
+        <button
+          disabled={!canConstructionHandoverToOwner()}
+          onClick={handleHandover}
+          className="btn btn-primary mt-4 disabled:opacity-50"
+        >
+          Send AssetHandoverCredential
+        </button>
+      </div>
+
+      {ownerHandover && (
+        <div className="card border border-green-200 bg-green-50">
+          <div className="flex items-center gap-2 text-green-700">
+            <CheckCircle className="w-5 h-5" />
+            <span className="font-semibold">Current owner handover in flow</span>
+          </div>
+          <p className="text-xs text-green-700 mt-2 font-mono break-all">{ownerHandover.id}</p>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -59,228 +232,29 @@ function StatCard({ icon: Icon, label, value }) {
   );
 }
 
-function ReceivingView({ onSelectDpp }) {
-  const [verificationResult, setVerificationResult] = useState(null);
-
-  const handleVerifyDpp = async (dppId) => {
-    try {
-      const result = await credentialsService.verify(dppId);
-      setVerificationResult(result.data);
-      toast.success('DPP verification completed');
-    } catch (error) {
-      toast.error('Verification failed');
-    }
-  };
+export default function Dashboard() {
+  useFlowSnapshot();
+  const pkg = getConstructionPackage();
+  const nextType = getConstructionNextTypeToVerify();
+  const verifiedCount = pkg
+    ? pkg.linkedCredentials.filter((credential) =>
+        hasRoleVerified(credential, "construction_company"),
+      ).length
+    : 0;
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-lg font-semibold">Incoming Deliveries & DPP Verification</h2>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card">
-          <h3 className="font-medium mb-4">Available DPPs</h3>
-          <div className="space-y-3">
-            <DppCard
-              name="Aluminium Facade Panel"
-              id="DPP-001"
-              onVerify={() => handleVerifyDpp('DPP-001')}
-            />
-            <DppCard
-              name="Steel Reinforcement Bar"
-              id="DPP-002"
-              onVerify={() => handleVerifyDpp('DPP-002')}
-            />
-          </div>
-        </div>
-
-        <div className="card">
-          <h3 className="font-medium mb-4">Verification Result</h3>
-          {verificationResult ? (
-            <div className="space-y-4">
-              <VerificationBadge verified={verificationResult.verified} size="lg" />
-              <div className="space-y-2">
-                <CheckItem label="Signature Valid" passed={verificationResult.verified} />
-                <CheckItem label="Issuer Trusted" passed={verificationResult.verified} />
-                <CheckItem label="DPP Complete" passed={verificationResult.verified} />
-              </div>
-              <button className="btn btn-success w-full">Accept Delivery</button>
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">
-              Select a DPP and click Verify
-            </p>
-          )}
-        </div>
+    <Layout title="Construction Company Dashboard" navItems={navItems}>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <StatCard icon={Package} label="Asset Received" value={pkg ? "Yes" : "No"} />
+        <StatCard icon={ClipboardCheck} label="Verified Linked Credentials" value={verifiedCount} />
+        <StatCard icon={ArrowRight} label="Next Required" value={nextType || "Done"} />
+        <StatCard icon={Building2} label="Ready for Owner" value={canConstructionHandoverToOwner() ? "Yes" : "No"} />
       </div>
 
-      <HandoverSection />
-    </div>
+      <Routes>
+        <Route path="" element={<ReceivingView />} />
+        <Route path="handover" element={<HandoverToOwner />} />
+      </Routes>
+    </Layout>
   );
 }
-
-function DppCard({ name, id, onVerify }) {
-  return (
-    <div className="p-4 border rounded-lg hover:bg-gray-50">
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="font-medium">{name}</p>
-          <p className="text-xs text-gray-500 font-mono">{id}</p>
-        </div>
-        <button onClick={onVerify} className="btn btn-outline text-xs py-1">
-          Verify DPP
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function CheckItem({ label, passed }) {
-  return (
-    <div className={`flex items-center gap-2 ${passed ? 'text-green-600' : 'text-red-600'}`}>
-      {passed ? <CheckCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
-      <span className="text-sm">{label}</span>
-    </div>
-  );
-}
-
-function HandoverSection() {
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleHandover = async () => {
-    setSubmitting(true);
-    try {
-      await credentialsService.issueHandover({
-        handoverId: `HO-${Date.now()}`,
-        assetId: 'ASSET-001',
-        handoverData: {
-          includedDPPs: ['DPP-001', 'DPP-002'],
-        },
-        from: 'Construction Co',
-        to: 'Building Owner',
-        handoverDate: new Date().toISOString(),
-      });
-      toast.success('Handover credential issued!');
-    } catch (error) {
-      toast.error('Failed to create handover');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="card">
-      <h3 className="font-medium mb-4">Project Handover to Building Owner</h3>
-      <div className="space-y-4">
-        <p className="text-sm text-gray-600">
-          Send building with all associated DPPs to the building owner
-        </p>
-        <button onClick={handleHandover} disabled={submitting} className="btn btn-primary">
-          {submitting ? 'Processing...' : 'Send to Building Owner'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function AssemblyView() {
-  const [assemblies, setAssemblies] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const handleCreateAssembly = async () => {
-    setLoading(true);
-    try {
-      toast.success('Assembly created');
-    } catch (error) {
-      toast.error('Failed to create assembly');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <h2 className="text-lg font-semibold">Assembly Management</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card">
-          <h3 className="font-medium mb-4">Available Components</h3>
-          <div className="space-y-3">
-            <DppCard name="Aluminium Facade Panel" id="DPP-001" onVerify={() => {}} />
-            <DppCard name="Steel Reinforcement Bar" id="DPP-002" onVerify={() => {}} />
-          </div>
-        </div>
-        <div className="card">
-          <h3 className="font-medium mb-4">Assembly Workspace</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="label">Assembly Name</label>
-              <input type="text" className="input" placeholder="Building Assembly A" />
-            </div>
-            <div>
-              <label className="label">Selected Components</label>
-              <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
-                No components selected
-              </div>
-            </div>
-            <button onClick={handleCreateAssembly} disabled={loading} className="btn btn-primary w-full">
-              {loading ? 'Creating...' : 'Create Assembly'}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TransferView() {
-  const [transfers, setTransfers] = useState([]);
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleTransfer = async () => {
-    setSubmitting(true);
-    try {
-      await credentialsService.issueDPP({
-        dppId: `DPP-TRANSFER-${Date.now()}`,
-        productData: {
-          name: 'Assembled Building',
-          components: ['DPP-001', 'DPP-002'],
-        },
-      });
-      toast.success('Transfer initiated');
-    } catch (error) {
-      toast.error('Failed to initiate transfer');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <h2 className="text-lg font-semibold">Product Transfer</h2>
-      <div className="card">
-        <h3 className="font-medium mb-4">Transfer to Next Stage</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="label">Recipient Organization</label>
-            <select className="input">
-              <option value="">Select recipient...</option>
-              <option value="building_owner">Building Owner</option>
-              <option value="maintenance">Maintenance Company</option>
-            </select>
-          </div>
-          <div>
-            <label className="label">Transfer Type</label>
-            <select className="input">
-              <option value="sale">Sale</option>
-              <option value="lease">Lease</option>
-              <option value="handover">Project Handover</option>
-            </select>
-          </div>
-          <button onClick={handleTransfer} disabled={submitting} className="btn btn-primary">
-            {submitting ? 'Processing...' : 'Initiate Transfer'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
