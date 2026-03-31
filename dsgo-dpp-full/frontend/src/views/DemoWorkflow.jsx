@@ -23,11 +23,10 @@ import {
 import { getWalletViewForRole, resetFlowState, useFlowSnapshot } from "../demo/sequentialFlow";
 
 const STAGE_BY_ID = Object.fromEntries(DEMO_STAGES.map((stage) => [stage.id, stage]));
-const PRE_MANUFACTURER_ORDER = ["supplier", "issuer_lca", "tester", "issuer_ce"];
+const PRE_MANUFACTURER_ORDER = ["supplier", "issuer_lca", "issuer_ce"];
 const REQUIRED_MANUFACTURER_TYPES = [
   "MaterialPassport",
   "EnvironmentalFootprintTestPassport",
-  "TestReport",
   "CEMArkingTestREport",
 ];
 
@@ -148,7 +147,6 @@ export default function DemoWorkflow() {
     if (completedSet.has("supplier")) items.push("MaterialPassport");
     if (completedSet.has("manufacturer")) items.push("Manufacturer receiving and verification");
     if (completedSet.has("issuer_lca")) items.push("EnvironmentalFootprintTestPassport");
-    if (completedSet.has("tester")) items.push("TestReport");
     if (completedSet.has("issuer_ce")) items.push("CEMArkingTestREport");
     if (completedSet.has("construction")) items.push("AssetHandoverCredential to construction company");
     if (completedSet.has("owner")) items.push("Final owner verification completed");
@@ -179,7 +177,7 @@ export default function DemoWorkflow() {
   const openStage = (stage) => {
     if (isStageLocked(stage)) {
       if (stage.id === "construction" && !manufacturerHasAllIncoming) {
-        toast.error("Issue all 4 credentials to Manufacturer before opening handover");
+        toast.error("Issue all required credentials to Manufacturer before opening handover");
         return;
       }
       toast.error("This stage is locked until prior demo steps are completed");
@@ -235,7 +233,7 @@ export default function DemoWorkflow() {
             <UseCaseCard
               icon={Flame}
               title="Parallel Certifications"
-              description="LCA, Test Lab, and SKG IKOB credentials are issued to manufacturer."
+              description="LCA and SKG IKOB credentials are issued to manufacturer."
               done={useCaseStatus.certification}
             />
             <UseCaseCard
@@ -326,7 +324,7 @@ export default function DemoWorkflow() {
           <div className="rounded-xl border bg-gray-50 p-4">
             <h2 className="text-sm font-semibold text-gray-800">Demo Presenter Flow</h2>
             <p className="text-xs text-gray-600 mt-2">
-              Supplier issues MaterialPassport, manufacturer receives all credentials, LCA + Test Lab + SKG IKOB run in parallel,
+              Supplier issues MaterialPassport, then LCA and SKG IKOB issue their credentials,
               then Manufacturer and Construction Company each issue AssetHandoverCredential until owner receives the linked package.
             </p>
             <div className="mt-3 space-y-1.5">

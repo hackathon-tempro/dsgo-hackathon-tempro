@@ -43,7 +43,7 @@ function renderCredentialPayload(credential) {
     return (
       <div className="text-xs text-gray-600 space-y-1">
         <div>Methodology: <span className="font-medium">{payload.methodology}</span></div>
-        <div>Carbon footprint: <span className="font-medium">{payload.carbonFootprint} kg CO2e</span></div>
+        <div>Carbon emissions: <span className="font-medium">{payload.carbonEmissions ?? payload.carbonFootprint} kg CO2e</span></div>
         <div>Water footprint: <span className="font-medium">{payload.waterFootprint}</span></div>
       </div>
     );
@@ -66,8 +66,8 @@ function renderCredentialPayload(credential) {
         <div>Certificate type: <span className="font-medium">{payload.certificateType}</span></div>
         <div>Cert ID: <span className="font-mono">{payload.certId}</span></div>
         <div>Standard: <span className="font-medium">{payload.standard}</span></div>
-        {payload.fireResistanceClass && (
-          <div>Fire resistance class: <span className="font-medium">{payload.fireResistanceClass}</span></div>
+        {(payload.fireSafetyClass || payload.fireResistanceClass) && (
+          <div>Fire safety class: <span className="font-medium">{payload.fireSafetyClass || payload.fireResistanceClass}</span></div>
         )}
       </div>
     );

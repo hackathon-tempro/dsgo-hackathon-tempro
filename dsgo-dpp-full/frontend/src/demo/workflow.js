@@ -23,16 +23,6 @@ export const DEMO_STAGES = [
     useCases: ["certification"],
   },
   {
-    id: "tester",
-    title: "Test Lab -> Manufacturer",
-    role: "test_lab",
-    companyId: "eurotest",
-    interfacePath: "/test-lab",
-    objective: "Issue TestReport credential to Manufacturer.",
-    outcome: "Test results are attached to the manufacturer package.",
-    useCases: ["certification"],
-  },
-  {
     id: "issuer_ce",
     title: "SKG IKOB -> Manufacturer",
     role: "certification_body",
@@ -119,8 +109,7 @@ function hasAll(completedSet, stageIds) {
 export function isStageUnlocked(stageId, completedSet) {
   if (stageId === "supplier") return true;
   if (stageId === "issuer_lca") return completedSet.has("supplier");
-  if (stageId === "tester") return completedSet.has("issuer_lca");
-  if (stageId === "issuer_ce") return completedSet.has("tester");
+  if (stageId === "issuer_ce") return completedSet.has("issuer_lca");
   if (stageId === "manufacturer") return completedSet.has("issuer_ce");
   if (stageId === "construction") return completedSet.has("manufacturer");
   if (stageId === "owner") return completedSet.has("construction");
@@ -130,7 +119,7 @@ export function isStageUnlocked(stageId, completedSet) {
 export function getUseCaseStatus(completedSet) {
   return {
     material: hasAll(completedSet, ["supplier", "manufacturer"]),
-    certification: hasAll(completedSet, ["issuer_lca", "tester", "issuer_ce"]),
+    certification: hasAll(completedSet, ["issuer_lca", "issuer_ce"]),
     handover: hasAll(completedSet, ["construction", "owner"]),
   };
 }

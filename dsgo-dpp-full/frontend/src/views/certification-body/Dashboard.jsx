@@ -222,6 +222,7 @@ function ReviewQueue({ pending, onApprove }) {
         certId,
         product: selected.product,
         fireResistanceClass: selected.certDetails.fireResistanceClass || null,
+        fireSafetyClass: selected.certDetails.fireResistanceClass || null,
         standard: selected.certDetails.testStandard || selected.certDetails.standard || null,
       },
     });

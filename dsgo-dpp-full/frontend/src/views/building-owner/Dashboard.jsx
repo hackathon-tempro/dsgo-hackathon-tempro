@@ -22,11 +22,14 @@ function renderCredentialSummary(credential) {
   }
 
   if (credential.type === "CEMArkingTestREport") {
-    return `CE Marking · ${payload.standard} · ${payload.certId}`;
+    const fireSafety = payload.fireSafetyClass || payload.fireResistanceClass;
+    return fireSafety
+      ? `CE Marking · Fire safety ${fireSafety} · ${payload.standard}`
+      : `CE Marking · ${payload.standard} · ${payload.certId}`;
   }
 
   if (credential.type === "EnvironmentalFootprintTestPassport") {
-    return `LCA · ${payload.methodology} · ${payload.carbonFootprint} kg CO2e`;
+    return `LCA · Carbon emissions ${(payload.carbonEmissions ?? payload.carbonFootprint)} kg CO2e · ${payload.methodology}`;
   }
 
   if (credential.type === "MaterialPassport") {

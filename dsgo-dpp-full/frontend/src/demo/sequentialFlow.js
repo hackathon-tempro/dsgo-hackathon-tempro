@@ -6,13 +6,11 @@ const FLOW_STORAGE_EVENT = "demo-sequential-flow-updated";
 const REQUIRED_MANUFACTURER_TYPES = [
   "MaterialPassport",
   "EnvironmentalFootprintTestPassport",
-  "TestReport",
   "CEMArkingTestREport",
 ];
 
 const DOWNSTREAM_LINKED_TYPES = [
   "MaterialPassport",
-  "TestReport",
   "CEMArkingTestREport",
   "EnvironmentalFootprintTestPassport",
 ];
@@ -22,7 +20,6 @@ let cachedParsedState = null;
 
 const CONSTRUCTION_VERIFY_ORDER = [
   "MaterialPassport",
-  "TestReport",
   "CEMArkingTestREport",
   "EnvironmentalFootprintTestPassport",
 ];
@@ -345,16 +342,6 @@ export function isDemoStageReady(stageId) {
       (credential) =>
         credential.type === "EnvironmentalFootprintTestPassport" &&
         credential.issuerRole === "lca_org" &&
-        credential.recipientRole === "manufacturer",
-    );
-  }
-
-  if (stageId === "tester") {
-    return !!findCredential(
-      state,
-      (credential) =>
-        credential.type === "TestReport" &&
-        credential.issuerRole === "test_lab" &&
         credential.recipientRole === "manufacturer",
     );
   }

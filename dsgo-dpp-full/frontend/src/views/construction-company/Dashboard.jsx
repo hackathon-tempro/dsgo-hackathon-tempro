@@ -33,14 +33,14 @@ function renderCredentialSummary(credential) {
       `Certificate type: ${payload.certificateType}`,
       `Cert ID: ${payload.certId}`,
       `Standard: ${payload.standard}`,
-      payload.fireResistanceClass ? `Class: ${payload.fireResistanceClass}` : null,
+      (payload.fireSafetyClass || payload.fireResistanceClass) ? `Fire safety class: ${payload.fireSafetyClass || payload.fireResistanceClass}` : null,
     ].filter(Boolean);
   }
 
   if (credential.type === "EnvironmentalFootprintTestPassport") {
     return [
       `Methodology: ${payload.methodology}`,
-      `Carbon footprint: ${payload.carbonFootprint} kg CO2e`,
+      `Carbon emissions: ${payload.carbonEmissions ?? payload.carbonFootprint} kg CO2e`,
       `Water footprint: ${payload.waterFootprint}`,
     ].filter(Boolean);
   }

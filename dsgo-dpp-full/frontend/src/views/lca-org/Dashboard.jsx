@@ -18,7 +18,7 @@ function AssessmentWorkspace() {
   const [issuedCredential, setIssuedCredential] = useState(null);
   const [formData, setFormData] = useState({
     methodology: "EN 15804+A2",
-    carbonFootprint: "2840",
+    carbonEmissions: "2840",
     waterFootprint: "50",
     wasteGenerated: "10",
     renewableEnergyPercentage: "30",
@@ -37,7 +37,8 @@ function AssessmentWorkspace() {
         productId: asset.productId,
         productName: asset.productName,
         methodology: formData.methodology,
-        carbonFootprint: parseFloat(formData.carbonFootprint),
+        carbonEmissions: parseFloat(formData.carbonEmissions),
+        carbonFootprint: parseFloat(formData.carbonEmissions),
         waterFootprint: parseFloat(formData.waterFootprint),
         wasteGenerated: parseFloat(formData.wasteGenerated),
         renewableEnergyPercentage: parseFloat(formData.renewableEnergyPercentage),
@@ -71,12 +72,12 @@ function AssessmentWorkspace() {
             />
           </div>
           <div>
-            <label className="label">Carbon Footprint (kg CO2e)</label>
+            <label className="label">Carbon Emissions (kg CO2e)</label>
             <input
               className="input"
               type="number"
-              value={formData.carbonFootprint}
-              onChange={(event) => setFormData({ ...formData, carbonFootprint: event.target.value })}
+              value={formData.carbonEmissions}
+              onChange={(event) => setFormData({ ...formData, carbonEmissions: event.target.value })}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -142,7 +143,7 @@ function IssuedCredentialView() {
       <div className="mt-4 text-sm text-gray-700 space-y-2">
         <div>Product: <span className="font-medium">{credential.payload.productName}</span></div>
         <div>Methodology: <span className="font-medium">{credential.payload.methodology}</span></div>
-        <div>Carbon footprint: <span className="font-medium">{credential.payload.carbonFootprint} kg CO2e</span></div>
+        <div>Carbon emissions: <span className="font-medium">{credential.payload.carbonEmissions ?? credential.payload.carbonFootprint} kg CO2e</span></div>
       </div>
       <p className="text-xs text-gray-400 mt-4 font-mono break-all">{credential.id}</p>
     </div>
