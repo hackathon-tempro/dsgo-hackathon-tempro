@@ -124,8 +124,7 @@ DB_NAME=dsgo_dpp
 
 # Credenco Integration
 CREDENCO_BASE_URL=https://wallet.acc.credenco.com
-CREDENCO_CLIENT_ID=<your-client-id>
-CREDENCO_CLIENT_SECRET=<your-client-secret>
+CREDENCO_API_KEY=<your-api-key>
 CREDENCO_ISSUER_TEMPLATE_ID=<issuer-template-id>
 
 # Credenco Credential Templates
@@ -204,18 +203,22 @@ The schema includes 25+ tables covering all data models:
 - `createPresentation(credentials, verifier)` - OID4VP presentation
 
 **Implementation Points:**
-- OAuth 2.0 client credentials flow for token
+- API key passed via `x-api-key` header on every request (no token exchange)
+- API key managed in Business Wallet under Settings → IAM → API Access
 - Template ID mapping for each credential type
 - Error handling for rate limits & timeouts
-- In-memory token caching (via Map in ishareService)
 
 **Key Endpoints Called:**
 ```
-POST /oauth2/token
 POST /api/v2/credentials/issue
 POST /api/v1/credentials/verify
 POST /api/v1/credentials/{id}/revoke
 POST /api/v1/oidc4vp/start
+```
+
+**Example request header:**
+```
+x-api-key: <your-api-key>
 ```
 
 ### 5.2 iSHARE Service (`ishareService.js`)
@@ -823,7 +826,7 @@ Response: { status: "ok", timestamp, uptime, db: "connected" }
 
 1. **Setup PostgreSQL** via docker-compose
 2. **Run migrations** to create schema
-3. **Configure Credenco** (get API credentials, template IDs)
+3. **Configure Credenco** (generate API key in Business Wallet → Settings → IAM → API Access, get template IDs)
 4. **Configure iSHARE** (get participant ID, private key)
 5. **Seed test organizations** (run npm run seed)
 6. **Test each story** with provided curl commands
