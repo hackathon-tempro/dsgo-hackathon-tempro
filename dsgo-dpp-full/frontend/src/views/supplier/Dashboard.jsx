@@ -280,4 +280,3 @@ function WalletView({ credentials }) {
   );
 }
 
-export default Dashboard;

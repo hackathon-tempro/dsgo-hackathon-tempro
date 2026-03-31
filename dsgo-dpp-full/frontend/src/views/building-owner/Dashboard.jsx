@@ -188,4 +188,3 @@ function VerificationView() {
   );
 }
 
-export default Dashboard;

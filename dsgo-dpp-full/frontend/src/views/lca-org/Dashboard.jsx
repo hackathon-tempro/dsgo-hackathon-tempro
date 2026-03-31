@@ -169,4 +169,3 @@ function LCAWorkspace({ projects, onUpdate }) {
   );
 }
 
-export default Dashboard;

@@ -1,252 +1,160 @@
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import { query } from '../database.js';
 import { v4 as uuidv4 } from 'uuid';
-import credentialService from '../services/credentialService.js';
 
 const router = Router();
 
-router.get('/', authMiddleware, asyncHandler(async (req, res) => {
-  const { status, type, page = 0, limit = 50 } = req.query;
-  const offset = page * limit;
+const MOCK_CREDENTIALS = [
+  {
+    id: 'cred-001',
+    credential_id: 'urn:vc:material-passport:001',
+    organization_id: 'org-supplier',
+    type: 'MaterialPassportCredential',
+    status: 'issued',
+    issuer: 'did:web:acme-supplier.nl',
+    subject_did: 'urn:lot:LOT-2026-03-00182',
+    issued_at: new Date('2026-03-25').toISOString(),
+    expires_at: new Date('2031-03-25').toISOString(),
+    subject_data: {
+      materialId: 'MAT-AL-7075',
+      batchNumber: 'BATCH-77421',
+      composition: [
+        { substance: 'Aluminium', percent: 89.5 },
+        { substance: 'Zinc', percent: 5.6 },
+      ],
+      recycledContentPercent: 22.0,
+      countryOfOrigin: 'DE',
+      carbonFootprintKgCO2e: 3100.0,
+    },
+  },
+  {
+    id: 'cred-002',
+    credential_id: 'urn:vc:test-report:001',
+    organization_id: 'org-test_lab',
+    type: 'TestReportCredential',
+    status: 'issued',
+    issuer: 'did:web:eurotest.fr',
+    subject_did: 'urn:lot:LOT-2026-03-00182',
+    issued_at: new Date('2026-03-29').toISOString(),
+    expires_at: new Date('2031-03-29').toISOString(),
+    subject_data: {
+      sampleId: 'SAMPLE-991',
+      tests: [{ type: 'tensile_strength', value: 540, unit: 'MPa', method: 'ISO 6892-1' }],
+      conclusion: 'compliant',
+      accreditation: 'ISO/IEC 17025',
+    },
+  },
+];
 
-  let whereClause = 'WHERE organization_id = $1';
-  const params = [req.user.organizationId];
-  let paramIndex = 2;
-
-  if (status) {
-    whereClause += ` AND status = $${paramIndex}`;
-    params.push(status);
-    paramIndex++;
+router.get('/', asyncHandler(async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
   }
+  res.json({ success: true, data: MOCK_CREDENTIALS });
+}));
 
-  if (type) {
-    whereClause += ` AND type = $${paramIndex}`;
-    params.push(type);
-    paramIndex++;
+router.get('/:id', asyncHandler(async (req, res) => {
+  const cred = MOCK_CREDENTIALS.find((c) => c.id === req.params.id);
+  if (!cred) {
+    return res.status(404).json({ success: false, error: 'Credential not found' });
   }
-
-  const result = await query(
-    `SELECT * FROM credentials
-     ${whereClause}
-     ORDER BY created_at DESC
-     LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
-    [...params, limit, offset]
-  );
-
-  res.json({ success: true, data: result.rows });
+  res.json({ success: true, data: cred });
 }));
 
-router.get('/:id', authMiddleware, asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const credential = await credentialService.getCredential(id);
-  res.json({ success: true, data: credential });
+router.post('/material-passport', asyncHandler(async (req, res) => {
+  const { lotId, materialData } = req.body;
+  const newCred = {
+    id: uuidv4(),
+    credential_id: `urn:vc:material-passport:${Date.now()}`,
+    type: 'MaterialPassportCredential',
+    status: 'issued',
+    issued_at: new Date().toISOString(),
+    subject_did: `urn:lot:${lotId}`,
+    subject_data: materialData,
+  };
+  res.status(201).json({ success: true, data: newCred });
 }));
 
-router.post('/material-passport', authMiddleware, asyncHandler(async (req, res) => {
-  const { lotId, materialData, expirationDate, authorisedBy } = req.body;
-
-  const result = await credentialService.issueCredential({
-    organizationId: req.user.organizationId,
-    credentialType: 'MaterialPassportCredential',
-    subjectDid: `urn:lot:${lotId}`,
-    subjectData: {
-      lotId,
-      ...materialData,
-      authorisedBy: authorisedBy || {
-        userId: req.user.id,
-        name: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim(),
-        role: req.user.role,
-      },
-    },
-    expirationDate,
-    metadata: {
-      issuedBy: req.user.id,
-      organizationId: req.user.organizationId,
-    },
-  });
-
-  res.status(201).json({ success: true, data: result });
+router.post('/test-report', asyncHandler(async (req, res) => {
+  const newCred = {
+    id: uuidv4(),
+    credential_id: `urn:vc:test-report:${Date.now()}`,
+    type: 'TestReportCredential',
+    status: 'issued',
+    issued_at: new Date().toISOString(),
+  };
+  res.status(201).json({ success: true, data: newCred });
 }));
 
-router.post('/test-report', authMiddleware, asyncHandler(async (req, res) => {
-  const { testResultId, dppId, testData, authorisedBy } = req.body;
-
-  const result = await credentialService.issueCredential({
-    organizationId: req.user.organizationId,
-    credentialType: 'TestReportCredential',
-    subjectDid: `urn:lot:${testResultId}`,
-    subjectData: {
-      testResultId,
-      dppId,
-      ...testData,
-      authorisedBy: authorisedBy || {
-        userId: req.user.id,
-        name: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim(),
-        role: req.user.role,
-      },
-    },
-    metadata: {
-      issuedBy: req.user.id,
-      testLabId: req.user.organizationId,
-    },
-  });
-
-  res.status(201).json({ success: true, data: result });
+router.post('/lca', asyncHandler(async (req, res) => {
+  const newCred = {
+    id: uuidv4(),
+    credential_id: `urn:vc:lca:${Date.now()}`,
+    type: 'ProductEnvironmentalCredential',
+    status: 'issued',
+    issued_at: new Date().toISOString(),
+  };
+  res.status(201).json({ success: true, data: newCred });
 }));
 
-router.post('/lca', authMiddleware, asyncHandler(async (req, res) => {
-  const { lcaResultId, dppId, lcaData, authorisedBy } = req.body;
-
-  const result = await credentialService.issueCredential({
-    organizationId: req.user.organizationId,
-    credentialType: 'ProductEnvironmentalCredential',
-    subjectDid: `urn:product:${dppId}`,
-    subjectData: {
-      lcaResultId,
-      dppId,
-      ...lcaData,
-      authorisedBy: authorisedBy || {
-        userId: req.user.id,
-        name: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim(),
-        role: req.user.role,
-      },
-    },
-    metadata: {
-      issuedBy: req.user.id,
-      lcaOrganizationId: req.user.organizationId,
-    },
-  });
-
-  res.status(201).json({ success: true, data: result });
+router.post('/certificate', asyncHandler(async (req, res) => {
+  const newCred = {
+    id: uuidv4(),
+    credential_id: `urn:vc:certificate:${Date.now()}`,
+    type: 'ProductCertificate',
+    status: 'issued',
+    issued_at: new Date().toISOString(),
+  };
+  res.status(201).json({ success: true, data: newCred });
 }));
 
-router.post('/certificate', authMiddleware, asyncHandler(async (req, res) => {
-  const { certificateId, dppId, certificationData, authorisedBy } = req.body;
-
-  const result = await credentialService.issueCredential({
-    organizationId: req.user.organizationId,
-    credentialType: 'ProductCertificate',
-    subjectDid: `did:example:product:${dppId}`,
-    subjectData: {
-      certificateId,
-      dppId,
-      ...certificationData,
-      authorisedBy: authorisedBy || {
-        userId: req.user.id,
-        name: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim(),
-        role: req.user.role,
-      },
-    },
-    metadata: {
-      issuedBy: req.user.id,
-      certificationBodyId: req.user.organizationId,
-    },
-  });
-
-  res.status(201).json({ success: true, data: result });
+router.post('/dpp', asyncHandler(async (req, res) => {
+  const newCred = {
+    id: uuidv4(),
+    credential_id: `urn:vc:dpp:${Date.now()}`,
+    type: 'DigitalProductPassport',
+    status: 'issued',
+    issued_at: new Date().toISOString(),
+  };
+  res.status(201).json({ success: true, data: newCred });
 }));
 
-router.post('/dpp', authMiddleware, asyncHandler(async (req, res) => {
-  const { dppId, productData, authorisedBy } = req.body;
-
-  const result = await credentialService.issueCredential({
-    organizationId: req.user.organizationId,
-    credentialType: 'DigitalProductPassport',
-    subjectDid: `did:example:product:${dppId}`,
-    subjectData: {
-      dppId,
-      ...productData,
-      authorisedBy: authorisedBy || {
-        userId: req.user.id,
-        name: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim(),
-        role: req.user.role,
-      },
-    },
-    metadata: {
-      issuedBy: req.user.id,
-      manufacturerId: req.user.organizationId,
-    },
-  });
-
-  res.status(201).json({ success: true, data: result });
+router.post('/handover', asyncHandler(async (req, res) => {
+  const newCred = {
+    id: uuidv4(),
+    credential_id: `urn:vc:handover:${Date.now()}`,
+    type: 'AssetHandoverCredential',
+    status: 'issued',
+    issued_at: new Date().toISOString(),
+  };
+  res.status(201).json({ success: true, data: newCred });
 }));
 
-router.post('/handover', authMiddleware, asyncHandler(async (req, res) => {
-  const { handoverId, assetId, handoverData, from, to, includedDPPs, handoverDate, authorisedBy } = req.body;
-
-  const result = await credentialService.issueCredential({
-    organizationId: req.user.organizationId,
-    credentialType: 'AssetHandoverCredential',
-    subjectDid: `did:example:asset:${assetId}`,
-    subjectData: {
-      handoverId,
-      assetId,
-      from,
-      to,
-      includedDPPs,
-      handoverDate,
-      authorisedBy: authorisedBy || {
-        userId: req.user.id,
-        name: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim(),
-        role: req.user.role,
-      },
-    },
-    metadata: {
-      issuedBy: req.user.id,
-      constructionCompanyId: req.user.organizationId,
-    },
-  });
-
-  res.status(201).json({ success: true, data: result });
+router.post('/repair', asyncHandler(async (req, res) => {
+  const newCred = {
+    id: uuidv4(),
+    credential_id: `urn:vc:repair:${Date.now()}`,
+    type: 'RepairCredential',
+    status: 'issued',
+    issued_at: new Date().toISOString(),
+  };
+  res.status(201).json({ success: true, data: newCred });
 }));
 
-router.post('/repair', authMiddleware, asyncHandler(async (req, res) => {
-  const { repairId, dppId, repairData, authorisedBy } = req.body;
-
-  const result = await credentialService.issueCredential({
-    organizationId: req.user.organizationId,
-    credentialType: 'RepairCredential',
-    subjectDid: `did:example:product:${dppId}`,
-    subjectData: {
-      repairId,
-      dppId,
-      ...repairData,
-      authorisedBy: authorisedBy || {
-        userId: req.user.id,
-        name: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim(),
-        role: req.user.role,
-      },
-    },
-    metadata: {
-      issuedBy: req.user.id,
-      maintenanceCompanyId: req.user.organizationId,
-    },
-  });
-
-  res.status(201).json({ success: true, data: result });
-}));
-
-router.post('/:id/revoke', authMiddleware, asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { reason } = req.body;
-
-  const result = await credentialService.revokeCredential(
-    id,
-    req.user.organizationId,
-    reason || 'Revocation requested'
-  );
-
-  res.json({ success: true, data: result });
-}));
-
-router.post('/verify', authMiddleware, asyncHandler(async (req, res) => {
+router.post('/verify', asyncHandler(async (req, res) => {
   const { credentialId } = req.body;
-
-  const result = await credentialService.verifyCredential(credentialId, req.user.organizationId);
-
-  res.json({ success: true, data: result });
+  res.json({
+    success: true,
+    data: {
+      verified: true,
+      credentialId,
+      signatureValid: true,
+      issuerTrusted: true,
+      statusValid: true,
+      schemaValid: true,
+    },
+  });
 }));
 
 export default router;

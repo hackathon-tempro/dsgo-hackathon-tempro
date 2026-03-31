@@ -129,4 +129,3 @@ function IntakeWorkflow() {
   );
 }
 
-export default Dashboard;

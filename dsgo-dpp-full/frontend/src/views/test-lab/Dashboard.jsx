@@ -178,4 +178,3 @@ function TestRequestsView({ requests, onUpdate }) {
   );
 }
 
-export default Dashboard;

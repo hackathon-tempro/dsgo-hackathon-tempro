@@ -190,4 +190,3 @@ function DetailRow({ label, value }) {
   );
 }
 
-export default Dashboard;

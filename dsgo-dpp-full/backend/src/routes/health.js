@@ -1,47 +1,36 @@
 import { Router } from 'express';
-import { authMiddleware } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import { query } from '../database.js';
+import { healthCheck as dbHealthCheck } from '../database.js';
 
 const router = Router();
 
 router.get('/', asyncHandler(async (req, res) => {
-  const { dbHealthCheck } = await import('../database.js');
-  const dbHealth = await dbHealthCheck();
+  let dbStatus = 'not_configured';
+  
+  try {
+    const dbHealth = await dbHealthCheck();
+    dbStatus = dbHealth.status;
+  } catch (error) {
+    dbStatus = 'unavailable';
+  }
 
   res.json({
     success: true,
     data: {
-      status: 'healthy',
+      status: dbStatus === 'healthy' ? 'healthy' : 'degraded',
       timestamp: new Date().toISOString(),
       services: {
-        database: dbHealth.status,
+        database: { status: dbStatus },
+        demoMode: process.env.DEMO_MODE === 'true' ? 'enabled' : 'disabled',
       },
+      environment: process.env.NODE_ENV || 'development',
+      version: '1.0.0',
     },
   });
 }));
 
-router.get('/audit-log', authMiddleware, asyncHandler(async (req, res) => {
-  const { page = 0, limit = 100 } = req.query;
-  const offset = page * limit;
-
-  let whereClause = '';
-  const params = [req.user.organizationId];
-  let paramIndex = 2;
-
-  if (req.user.role !== 'admin') {
-    whereClause = 'WHERE organization_id = $1';
-  }
-
-  const result = await query(
-    `SELECT * FROM audit_logs
-     ${whereClause}
-     ORDER BY created_at DESC
-     LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
-    [...params, limit, offset]
-  );
-
-  res.json({ success: true, data: result.rows });
+router.get('/audit-log', asyncHandler(async (req, res) => {
+  res.json({ success: true, data: [] });
 }));
 
 export default router;

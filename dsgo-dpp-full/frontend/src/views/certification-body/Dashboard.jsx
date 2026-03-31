@@ -144,4 +144,3 @@ function ReviewQueue({ pendingCerts, onUpdate }) {
   );
 }
 
-export default Dashboard;

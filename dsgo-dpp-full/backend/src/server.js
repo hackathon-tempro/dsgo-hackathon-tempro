@@ -259,15 +259,27 @@ const initServer = async () => {
     console.log(`📝 Environment: ${NODE_ENV}`);
     console.log(`🔌 Port: ${PORT}`);
 
-    // Initialize database
+    // Initialize database (with fallback to demo mode)
     console.log('\n📊 Initializing database...');
-    await initDatabase();
-    console.log('✓ Database initialized');
+    try {
+      await initDatabase();
+      console.log('✓ Database initialized');
+    } catch (dbError) {
+      console.warn('⚠ Database connection failed:', dbError.message);
+      console.log('🔄 Running in DEMO MODE (mock data)');
+      process.env.DEMO_MODE = 'true';
+    }
 
-    // Initialize audit logging
-    console.log('\n📋 Initializing audit logging...');
-    await initAuditLogging();
-    console.log('✓ Audit logging initialized');
+    // Initialize audit logging (graceful failure)
+    if (process.env.DEMO_MODE !== 'true') {
+      try {
+        console.log('\n📋 Initializing audit logging...');
+        await initAuditLogging();
+        console.log('✓ Audit logging initialized');
+      } catch (auditError) {
+        console.warn('⚠ Audit logging init failed:', auditError.message);
+      }
+    }
 
     // Test Credenco connection
     if (process.env.FEATURE_CREDENCO_ENABLED === 'true') {
@@ -296,6 +308,9 @@ const initServer = async () => {
       console.log(`\n✅ Server running on http://localhost:${PORT}`);
       console.log(`📚 API documentation: http://localhost:${PORT}/api/info`);
       console.log(`🏥 Health check: http://localhost:${PORT}/health`);
+      if (process.env.DEMO_MODE === 'true') {
+        console.log('\n⚠️  Running in DEMO MODE - using mock data');
+      }
       console.log('\n🎉 Backend initialization complete!\n');
     });
   } catch (error) {
