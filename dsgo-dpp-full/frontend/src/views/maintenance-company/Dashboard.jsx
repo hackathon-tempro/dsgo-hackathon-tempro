@@ -1,18 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { Layout } from '../shared/Layout';
 import { Wrench, ClipboardList, CheckCircle, History } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { repairsService, credentialsService, dppService } from '../../services/api';
 
+const navItems = [
+  { label: "Active Repairs", path: "/maintenance-company" },
+  { label: "Completed", path: "/maintenance-company/completed" },
+  { label: "Schedule", path: "/maintenance-company/schedule" },
+];
+
 export default function Dashboard() {
   return (
-    <Layout title="Maintenance Company Dashboard">
+    <Layout title="Maintenance Company Dashboard" navItems={navItems}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <StatCard icon={Wrench} label="Active Repairs" value="-" />
         <StatCard icon={ClipboardList} label="Completed" value="-" />
         <StatCard icon={CheckCircle} label="Credentials Issued" value="-" />
       </div>
-      <RepairWorkflow />
+
+      <Routes>
+        <Route path="" element={<RepairWorkflow />} />
+        <Route path="completed" element={<CompletedView />} />
+        <Route path="schedule" element={<ScheduleView />} />
+      </Routes>
     </Layout>
   );
 }
@@ -186,6 +198,104 @@ function DetailRow({ label, value }) {
     <div className="flex justify-between py-2 border-b">
       <span className="text-gray-500">{label}</span>
       <span className="font-medium">{value}</span>
+    </div>
+  );
+}
+
+function CompletedView() {
+  const [repairs, setRepairs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRepairs = async () => {
+      try {
+        const data = await repairsService.list().catch(() => ({ data: [] }));
+        setRepairs(data.data || []);
+      } catch (error) {
+        console.error('Failed to load repairs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRepairs();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Completed Repairs</h2>
+      {repairs.length === 0 ? (
+        <div className="card text-center py-12 text-gray-500">
+          <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <p>No completed repairs yet</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {repairs.map((repair) => (
+            <div key={repair.id} className="card">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-medium">{repair.repair_type}</h3>
+                <span className="badge badge-success">Completed</span>
+              </div>
+              <p className="text-xs text-gray-500">DPP: {repair.dpp_id}</p>
+              <p className="text-xs text-gray-400 mt-2">{repair.repair_date}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ScheduleView() {
+  const [schedule, setSchedule] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        const data = await repairsService.list().catch(() => ({ data: [] }));
+        setSchedule(data.data || []);
+      } catch (error) {
+        console.error('Failed to load schedule:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSchedule();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Maintenance Schedule</h2>
+      {schedule.length === 0 ? (
+        <div className="card text-center py-12 text-gray-500">
+          <History className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <p>No scheduled maintenance</p>
+          <p className="text-sm text-gray-400 mt-2">Repairs will appear here when scheduled</p>
+        </div>
+      ) : (
+        <div className="card">
+          <div className="space-y-3">
+            {schedule.map((item) => (
+              <div key={item.id} className="p-3 border rounded-lg flex justify-between items-center">
+                <div>
+                  <p className="font-medium">{item.repair_type}</p>
+                  <p className="text-xs text-gray-500">DPP: {item.dpp_id}</p>
+                </div>
+                <span className="badge badge-warning">{item.status}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

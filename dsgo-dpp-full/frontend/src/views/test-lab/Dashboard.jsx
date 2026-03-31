@@ -284,12 +284,48 @@ function IssuedCredentialsView() {
 }
 
 function ReportsView() {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const data = await testLabsService.getReports?.().catch(() => ({ data: [] })) || {};
+        setReports(data.data || []);
+      } catch (error) {
+        console.error('Failed to load reports:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReports();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold">Reports</h2>
-      <div className="card text-center py-12 text-gray-500">
-        <p>Test reports will be available here</p>
-      </div>
+      <h2 className="text-lg font-semibold">Test Reports</h2>
+      {reports.length === 0 ? (
+        <div className="card text-center py-12 text-gray-500">
+          <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <p>No test reports generated yet</p>
+          <p className="text-sm text-gray-400 mt-2">Complete tests to generate reports</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {reports.map((report) => (
+            <div key={report.id} className="card">
+              <h3 className="font-medium mb-2">{report.test_type}</h3>
+              <p className="text-xs text-gray-500">DPP: {report.dpp_id}</p>
+              <p className="text-xs text-gray-400 mt-2">{report.date}</p>
+              <button className="btn btn-outline text-xs mt-3">Download PDF</button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

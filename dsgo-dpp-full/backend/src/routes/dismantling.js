@@ -8,6 +8,11 @@ import dppService from '../services/dppService.js';
 
 const router = Router();
 
+// Get all dismantling operations
+router.get('/', authMiddleware, asyncHandler(async (req, res) => {
+  res.json({ success: true, data: [] });
+}));
+
 router.post('/intake', authMiddleware, validateBody('dismantling'), asyncHandler(async (req, res) => {
   const { dppId, facilityId, dismantlingDate, outcome, components } = req.body;
   const dismantlingId = uuidv4();

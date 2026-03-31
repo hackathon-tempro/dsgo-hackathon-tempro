@@ -1,19 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { Layout } from '../shared/Layout';
-import { Shield, FileSearch, CheckCircle, XCircle } from 'lucide-react';
+import { Shield, FileSearch, CheckCircle, XCircle, FolderOpen } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { auditService, presentationsService } from '../../services/api';
 
+const navItems = [
+  { label: "Audit Requests", path: "/regulatory-authority" },
+  { label: "Access Grants", path: "/regulatory-authority/grants" },
+  { label: "Submissions", path: "/regulatory-authority/submissions" },
+];
+
 export default function Dashboard() {
   return (
-    <Layout title="Regulatory Authority Dashboard">
+    <Layout title="Regulatory Authority Dashboard" navItems={navItems}>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <StatCard icon={FileSearch} label="Active Audits" value="-" />
         <StatCard icon={CheckCircle} label="Completed" value="-" />
         <StatCard icon={XCircle} label="Non-Compliant" value="-" />
         <StatCard icon={Shield} label="Framework" value="EU DPP" />
       </div>
-      <AuditWorkflow />
+
+      <Routes>
+        <Route path="" element={<AuditWorkflow />} />
+        <Route path="grants" element={<AccessGrantsView />} />
+        <Route path="submissions" element={<SubmissionsView />} />
+      </Routes>
     </Layout>
   );
 }
@@ -176,6 +188,74 @@ function DetailRow({ label, value }) {
     <div className="flex justify-between py-2 border-b">
       <span className="text-gray-500">{label}</span>
       <span className="font-medium">{value}</span>
+    </div>
+  );
+}
+
+function AccessGrantsView() {
+  const [grants, setGrants] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchGrants = async () => {
+      try {
+        const data = await auditService.getLogs?.().catch(() => ({ data: [] })) || {};
+        setGrants(data.data || []);
+      } catch (error) {
+        console.error('Failed to load grants:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGrants();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Access Grants</h2>
+      <div className="card text-center py-12 text-gray-500">
+        <FolderOpen className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+        <p>Access grants from organizations will appear here</p>
+        <p className="text-sm text-gray-400 mt-2">Organizations grant time-bounded access for audits</p>
+      </div>
+    </div>
+  );
+}
+
+function SubmissionsView() {
+  const [submissions, setSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      try {
+        const data = await auditService.getRequests?.().catch(() => ({ data: [] })) || {};
+        setSubmissions(data.data || []);
+      } catch (error) {
+        console.error('Failed to load submissions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSubmissions();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Audit Submissions</h2>
+      <div className="card text-center py-12 text-gray-500">
+        <FileSearch className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+        <p>Organization submissions will appear here</p>
+        <p className="text-sm text-gray-400 mt-2">Organizations submit credentials for audit review</p>
+      </div>
     </div>
   );
 }

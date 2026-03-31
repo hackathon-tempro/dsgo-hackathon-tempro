@@ -8,6 +8,16 @@ import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
+// Get all audit requests
+router.get('/', authMiddleware, asyncHandler(async (req, res) => {
+  res.json({ success: true, data: [] });
+}));
+
+// Get audit requests
+router.get('/requests', authMiddleware, asyncHandler(async (req, res) => {
+  res.json({ success: true, data: [] });
+}));
+
 router.post('/requests', authMiddleware, validateBody('auditRequest'), asyncHandler(async (req, res) => {
   const { organizationId, auditorId, scope, startDate, endDate, resources } = req.body;
   const requestId = uuidv4();

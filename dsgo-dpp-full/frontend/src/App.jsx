@@ -134,7 +134,10 @@ function RoleBasedRouter() {
           </ProtectedRoute>
         }
       />
-      <Route path="/" element={<Navigate to={`/${user.role}`} replace />} />
+      <Route
+        path="/"
+        element={<Navigate to={`/${user?.role?.replace(/_/g, "-")}`} replace />}
+      />
     </Routes>
   );
 }

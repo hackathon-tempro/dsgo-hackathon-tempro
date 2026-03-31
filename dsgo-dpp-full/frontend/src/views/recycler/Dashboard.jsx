@@ -1,19 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { Layout } from '../shared/Layout';
-import { RefreshCw, Package, CheckCircle, Leaf } from 'lucide-react';
+import { RefreshCw, Package, CheckCircle, Leaf, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { recyclingService } from '../../services/api';
 
+const navItems = [
+  { label: "Intake", path: "/recycler" },
+  { label: "Processing", path: "/recycler/processing" },
+  { label: "Impact Reports", path: "/recycler/impact" },
+];
+
 export default function Dashboard() {
   return (
-    <Layout title="Recycler Dashboard">
+    <Layout title="Recycler Dashboard" navItems={navItems}>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <StatCard icon={Package} label="Pending Intake" value="-" />
         <StatCard icon={RefreshCw} label="In Process" value="-" />
         <StatCard icon={CheckCircle} label="Completed" value="-" />
         <StatCard icon={Leaf} label="Recycling Rate" value="85%" />
       </div>
-      <IntakeWorkflow />
+
+      <Routes>
+        <Route path="" element={<IntakeWorkflow />} />
+        <Route path="processing" element={<ProcessingView />} />
+        <Route path="impact" element={<ImpactReportsView />} />
+      </Routes>
     </Layout>
   );
 }
@@ -181,6 +193,109 @@ function IntakeWorkflow() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function ProcessingView() {
+  const [processing, setProcessing] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProcessing = async () => {
+      try {
+        const data = await recyclingService.list().catch(() => ({ data: [] }));
+        setProcessing(data.data || []);
+      } catch (error) {
+        console.error('Failed to load processing:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProcessing();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Material Processing</h2>
+      {processing.length === 0 ? (
+        <div className="card text-center py-12 text-gray-500">
+          <RefreshCw className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <p>No materials currently in processing</p>
+          <p className="text-sm text-gray-400 mt-2">Received materials will appear here</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {processing.map((item) => (
+            <div key={item.id} className="card">
+              <div className="flex justify-between items-start mb-2">
+                <h3 className="font-medium">Lot: {item.lot_id}</h3>
+                <span className="badge badge-warning">{item.status}</span>
+              </div>
+              <p className="text-xs text-gray-500">Process: {item.process_type}</p>
+              <p className="text-xs text-gray-400 mt-2">Weight: {item.weight}kg</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ImpactReportsView() {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const data = await recyclingService.list().catch(() => ({ data: [] }));
+        setReports(data.data || []);
+      } catch (error) {
+        console.error('Failed to load reports:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReports();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-12">Loading...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Environmental Impact Reports</h2>
+      <div className="card">
+        <h3 className="font-medium mb-4">Summary Statistics</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="text-center p-4 bg-green-50 rounded-lg">
+            <p className="text-2xl font-bold text-green-600">2,450 kg</p>
+            <p className="text-sm text-gray-600">CO2e Saved</p>
+          </div>
+          <div className="text-center p-4 bg-blue-50 rounded-lg">
+            <p className="text-2xl font-bold text-blue-600">850 kg</p>
+            <p className="text-sm text-gray-600">Materials Recovered</p>
+          </div>
+          <div className="text-center p-4 bg-purple-50 rounded-lg">
+            <p className="text-2xl font-bold text-purple-600">92%</p>
+            <p className="text-sm text-gray-600">Recovery Rate</p>
+          </div>
+          <div className="text-center p-4 bg-orange-50 rounded-lg">
+            <p className="text-2xl font-bold text-orange-600">15</p>
+            <p className="text-sm text-gray-600">Batches Processed</p>
+          </div>
+        </div>
+      </div>
+      <div className="card text-center py-12 text-gray-500">
+        <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+        <p>Detailed impact reports will be generated here</p>
+      </div>
     </div>
   );
 }

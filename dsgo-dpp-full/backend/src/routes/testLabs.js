@@ -7,6 +7,23 @@ import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
+// Get all test labs
+router.get('/', authMiddleware, asyncHandler(async (req, res) => {
+  const result = await query('SELECT * FROM test_labs ORDER BY name');
+  res.json({ success: true, data: result.rows });
+}));
+
+// Get test requests
+router.get('/requests', authMiddleware, asyncHandler(async (req, res) => {
+  const result = await query(
+    `SELECT * FROM tests 
+     WHERE test_lab_id = $1 OR status = 'requested'
+     ORDER BY created_at DESC`,
+    [req.user.organizationId]
+  );
+  res.json({ success: true, data: result.rows });
+}));
+
 router.post('/register', authMiddleware, asyncHandler(async (req, res) => {
   const { name, eori, accreditationNumber, website, contactEmail } = req.body;
 
@@ -122,6 +139,25 @@ router.get('/results', authMiddleware, asyncHandler(async (req, res) => {
   );
 
   res.json({ success: true, data: result.rows });
+}));
+
+// Submit test results
+router.post('/submit-results', authMiddleware, asyncHandler(async (req, res) => {
+  const { testRequestId, results, status } = req.body;
+
+  const result = await query(
+    `UPDATE tests 
+     SET results = $1, status = $2, completed_at = NOW()
+     WHERE id = $3 OR test_id = $3
+     RETURNING *`,
+    [JSON.stringify(results), status || 'completed', testRequestId]
+  );
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({ success: false, error: 'Test request not found' });
+  }
+
+  res.json({ success: true, data: result.rows[0] });
 }));
 
 export default router;

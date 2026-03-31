@@ -7,6 +7,26 @@ import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
+// Get all certifications (with optional status filter)
+router.get('/', authMiddleware, asyncHandler(async (req, res) => {
+  const { status } = req.query;
+  let queryText = 'SELECT * FROM certifications WHERE issuer = $1';
+  const params = [req.user.organizationId];
+
+  if (status === 'pending') {
+    queryText += ' AND is_revoked = false AND issue_date IS NULL';
+  } else if (status === 'issued') {
+    queryText += ' AND is_revoked = false AND issue_date IS NOT NULL';
+  } else if (status === 'active') {
+    queryText += ' AND is_revoked = false AND expiration_date > NOW()';
+  }
+
+  queryText += ' ORDER BY created_at DESC';
+
+  const result = await query(queryText, params);
+  res.json({ success: true, data: result.rows });
+}));
+
 router.get('/pending', authMiddleware, asyncHandler(async (req, res) => {
   const result = await query(
     `SELECT * FROM certifications 

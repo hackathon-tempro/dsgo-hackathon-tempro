@@ -120,6 +120,12 @@ export const dppService = {
   update: async (id, data) => {
     return apiClient.put(`/dpp/${id}`, data);
   },
+  transfer: async (data) => {
+    return apiClient.post("/dpp/transfer", data);
+  },
+  assemble: async (data) => {
+    return apiClient.post("/dpp/assemble", data);
+  },
 };
 
 // ============================================
@@ -183,11 +189,17 @@ export const testLabsService = {
   getResults: async () => {
     return apiClient.get("/test-results");
   },
+  getReports: async () => {
+    return apiClient.get("/test-results");
+  },
   acceptRequest: async (id) => {
     return apiClient.post(`/test-requests/${id}/accept`, {});
   },
   submitResult: async (id, data) => {
     return apiClient.post(`/test-results/${id}`, data);
+  },
+  submitResults: async (data) => {
+    return apiClient.post("/test-results", data);
   },
 };
 
@@ -204,6 +216,21 @@ export const lcaService = {
   create: async (data) => {
     return apiClient.post("/lca", data);
   },
+  createProject: async (data) => {
+    return apiClient.post("/lca/projects", data);
+  },
+  getPending: async () => {
+    return apiClient.get("/lca?status=pending");
+  },
+  getCompleted: async () => {
+    return apiClient.get("/lca?status=completed");
+  },
+  submitResults: async (data) => {
+    return apiClient.post("/lca/results", data);
+  },
+  getCredentials: async () => {
+    return apiClient.get("/credentials?type=lca");
+  },
 };
 
 // ============================================
@@ -218,6 +245,15 @@ export const certificationsService = {
   },
   getPending: async () => {
     return apiClient.get("/certifications?status=pending");
+  },
+  getIssued: async () => {
+    return apiClient.get("/certifications?status=issued");
+  },
+  getActive: async () => {
+    return apiClient.get("/certifications?status=active");
+  },
+  approve: async (id, data) => {
+    return apiClient.post(`/certifications/${id}/approve`, data);
   },
   issueCertificate: async (id, data) => {
     return apiClient.post(`/certifications/${id}/issue`, data);
@@ -293,6 +329,18 @@ export const auditService = {
       params: { org: organizationId, ...filters },
     });
   },
+  createRequest: async (data) => {
+    return apiClient.post("/audit/requests", data);
+  },
+  getRequests: async () => {
+    return apiClient.get("/audit/requests");
+  },
+  approve: async (id, data) => {
+    return apiClient.post("/audit/approve", data);
+  },
+  submit: async (data) => {
+    return apiClient.post("/audit/submit", data);
+  },
 };
 
 // ============================================
@@ -304,6 +352,9 @@ export const complianceService = {
   },
   getReport: async (organizationId) => {
     return apiClient.get(`/compliance/${organizationId}/report`);
+  },
+  check: async (data) => {
+    return apiClient.post("/compliance/check", data);
   },
 };
 
@@ -341,6 +392,12 @@ export const recyclingService = {
   create: async (data) => {
     return apiClient.post("/recycling", data);
   },
+  intake: async (data) => {
+    return apiClient.post("/recycling/intake", data);
+  },
+  addEvent: async (data) => {
+    return apiClient.post("/recycling/events", data);
+  },
 };
 
 // ============================================
@@ -352,6 +409,9 @@ export const dismantlingService = {
   },
   create: async (data) => {
     return apiClient.post("/dismantling", data);
+  },
+  intake: async (data) => {
+    return apiClient.post("/dismantling/intake", data);
   },
 };
 

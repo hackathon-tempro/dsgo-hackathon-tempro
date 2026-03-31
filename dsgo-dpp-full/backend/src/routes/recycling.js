@@ -8,6 +8,11 @@ import dppService from '../services/dppService.js';
 
 const router = Router();
 
+// Get all recycling operations
+router.get('/', authMiddleware, asyncHandler(async (req, res) => {
+  res.json({ success: true, data: [] });
+}));
+
 router.post('/intake', authMiddleware, validateBody('recycling'), asyncHandler(async (req, res) => {
   const { lotId, facilityId, processType, weight, recyclingPercentage } = req.body;
   const recyclingId = uuidv4();

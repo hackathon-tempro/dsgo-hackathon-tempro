@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { Layout } from '../shared/Layout';
 import { Truck, CheckCircle, FileText, Building2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -6,18 +7,40 @@ import { dppService, credentialsService, transactionsService } from '../../servi
 import { DPPViewer } from '../../components/DPPViewer';
 import { VerificationBadge } from '../../components/VerificationBadge';
 
+const navItems = [
+  { label: "Receiving", path: "/construction-company" },
+  { label: "Assembly", path: "/construction-company/assembly" },
+  { label: "Transfer", path: "/construction-company/transfer" },
+];
+
 export default function Dashboard() {
-  const [selectedDpp, setSelectedDpp] = useState(null);
   const [credentials, setCredentials] = useState([]);
 
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await credentialsService.list().catch(() => ({ data: [] }));
+        setCredentials(data.data || []);
+      } catch (error) {
+        console.error('Failed to load data:', error);
+      }
+    };
+    loadData();
+  }, []);
+
   return (
-    <Layout title="Construction Company Dashboard">
+    <Layout title="Construction Company Dashboard" navItems={navItems}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <StatCard icon={Truck} label="Incoming Deliveries" value="-" />
         <StatCard icon={CheckCircle} label="Verified DPPs" value="-" />
         <StatCard icon={FileText} label="Active Contracts" value="-" />
       </div>
-      <ReceivingView onSelectDpp={setSelectedDpp} />
+
+      <Routes>
+        <Route path="" element={<ReceivingView />} />
+        <Route path="assembly" element={<AssemblyView />} />
+        <Route path="transfer" element={<TransferView />} />
+      </Routes>
     </Layout>
   );
 }
@@ -154,6 +177,108 @@ function HandoverSection() {
         <button onClick={handleHandover} disabled={submitting} className="btn btn-primary">
           {submitting ? 'Processing...' : 'Send to Building Owner'}
         </button>
+      </div>
+    </div>
+  );
+}
+
+function AssemblyView() {
+  const [assemblies, setAssemblies] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleCreateAssembly = async () => {
+    setLoading(true);
+    try {
+      toast.success('Assembly created');
+    } catch (error) {
+      toast.error('Failed to create assembly');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Assembly Management</h2>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="card">
+          <h3 className="font-medium mb-4">Available Components</h3>
+          <div className="space-y-3">
+            <DppCard name="Aluminium Facade Panel" id="DPP-001" onVerify={() => {}} />
+            <DppCard name="Steel Reinforcement Bar" id="DPP-002" onVerify={() => {}} />
+          </div>
+        </div>
+        <div className="card">
+          <h3 className="font-medium mb-4">Assembly Workspace</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="label">Assembly Name</label>
+              <input type="text" className="input" placeholder="Building Assembly A" />
+            </div>
+            <div>
+              <label className="label">Selected Components</label>
+              <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
+                No components selected
+              </div>
+            </div>
+            <button onClick={handleCreateAssembly} disabled={loading} className="btn btn-primary w-full">
+              {loading ? 'Creating...' : 'Create Assembly'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TransferView() {
+  const [transfers, setTransfers] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleTransfer = async () => {
+    setSubmitting(true);
+    try {
+      await credentialsService.issueDPP({
+        dppId: `DPP-TRANSFER-${Date.now()}`,
+        productData: {
+          name: 'Assembled Building',
+          components: ['DPP-001', 'DPP-002'],
+        },
+      });
+      toast.success('Transfer initiated');
+    } catch (error) {
+      toast.error('Failed to initiate transfer');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Product Transfer</h2>
+      <div className="card">
+        <h3 className="font-medium mb-4">Transfer to Next Stage</h3>
+        <div className="space-y-4">
+          <div>
+            <label className="label">Recipient Organization</label>
+            <select className="input">
+              <option value="">Select recipient...</option>
+              <option value="building_owner">Building Owner</option>
+              <option value="maintenance">Maintenance Company</option>
+            </select>
+          </div>
+          <div>
+            <label className="label">Transfer Type</label>
+            <select className="input">
+              <option value="sale">Sale</option>
+              <option value="lease">Lease</option>
+              <option value="handover">Project Handover</option>
+            </select>
+          </div>
+          <button onClick={handleTransfer} disabled={submitting} className="btn btn-primary">
+            {submitting ? 'Processing...' : 'Initiate Transfer'}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { Layout } from '../shared/Layout';
 import { Building2, FileText, CheckCircle, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { assetsService, complianceService, presentationsService } from '../../services/api';
 
-export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('portfolio');
+const navItems = [
+  { label: "Portfolio", path: "/building-owner" },
+  { label: "Compliance", path: "/building-owner/compliance" },
+  { label: "Verification", path: "/building-owner/verification" },
+];
 
+export default function Dashboard() {
   return (
-    <Layout title="Building Owner Dashboard">
+    <Layout title="Building Owner Dashboard" navItems={navItems}>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <StatCard icon={Building2} label="Buildings" value="2" />
         <StatCard icon={FileText} label="Total DPPs" value="15" />
@@ -16,27 +21,11 @@ export default function Dashboard() {
         <StatCard icon={AlertTriangle} label="Issues" value="3" />
       </div>
 
-      <div className="border-b border-gray-200 mb-6">
-        <nav className="flex gap-4">
-          {['portfolio', 'compliance', 'verification'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`pb-3 px-1 text-sm font-medium border-b-2 capitalize ${
-                activeTab === tab
-                  ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {activeTab === 'portfolio' && <PortfolioView />}
-      {activeTab === 'compliance' && <ComplianceView />}
-      {activeTab === 'verification' && <VerificationView />}
+      <Routes>
+        <Route path="" element={<PortfolioView />} />
+        <Route path="compliance" element={<ComplianceView />} />
+        <Route path="verification" element={<VerificationView />} />
+      </Routes>
     </Layout>
   );
 }
