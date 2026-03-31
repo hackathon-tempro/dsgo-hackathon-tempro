@@ -1,385 +1,358 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
-const api = axios.create({
+const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+// Add token to all requests
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-api.interceptors.response.use(
-  (response) => response,
+// Handle errors
+apiClient.interceptors.response.use(
+  (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      window.location.href = "/login";
     }
-    return Promise.reject(error);
-  }
+    throw error.response?.data || error;
+  },
 );
 
+// ============================================
+// AUTH SERVICE
+// ============================================
 export const authService = {
-  login: async (email) => {
-    const { data } = await api.post('/auth/login', { email, password: 'demo' });
-    return data;
-  },
-  logout: async () => {
-    await api.post('/auth/logout');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  login: async (email, password = "demo") => {
+    return apiClient.post("/auth/login", { email, password });
   },
   verify: async () => {
-    const { data } = await api.get('/auth/verify');
-    return data;
+    return apiClient.post("/auth/verify", {});
   },
   me: async () => {
-    const { data } = await api.get('/auth/me');
-    return data;
+    return apiClient.get("/auth/me");
+  },
+  logout: async () => {
+    return apiClient.post("/auth/logout", {});
   },
 };
 
-export const materialsService = {
-  create: async (materialData) => {
-    const { data } = await api.post('/materials', materialData);
-    return data;
+// ============================================
+// ORGANIZATIONS SERVICE
+// ============================================
+export const organizationsService = {
+  list: async (page = 0, limit = 50) => {
+    return apiClient.get("/organizations", { params: { page, limit } });
   },
   get: async (id) => {
-    const { data } = await api.get(`/materials/${id}`);
-    return data;
+    return apiClient.get(`/organizations/${id}`);
   },
-  createLot: async (lotData) => {
-    const { data } = await api.post('/materials/lots', lotData);
-    return data;
-  },
-  getLot: async (id) => {
-    const { data } = await api.get(`/materials/lots/${id}`);
-    return data;
+  create: async (data) => {
+    return apiClient.post("/organizations", data);
   },
 };
 
-export const productsService = {
-  create: async (productData) => {
-    const { data } = await api.post('/products', productData);
-    return data;
-  },
-  get: async (id) => {
-    const { data } = await api.get(`/products/${id}`);
-    return data;
-  },
-  createBOM: async (id, components) => {
-    const { data } = await api.post(`/products/${id}/bom`, { components });
-    return data;
-  },
-  getBOM: async (id) => {
-    const { data } = await api.get(`/products/${id}/bom`);
-    return data;
-  },
-};
-
-export const shipmentsService = {
-  create: async (shipmentData) => {
-    const { data } = await api.post('/shipments', shipmentData);
-    return data;
-  },
-  get: async (id) => {
-    const { data } = await api.get(`/shipments/${id}`);
-    return data;
-  },
-  updateStatus: async (id, status) => {
-    const { data } = await api.put(`/shipments/${id}/status`, { status });
-    return data;
-  },
-  receive: async (id, data) => {
-    const { data: result } = await api.post(`/shipments/${id}/receive`, data);
-    return result;
-  },
-};
-
+// ============================================
+// CREDENTIALS SERVICE
+// ============================================
 export const credentialsService = {
-  list: async (params = {}) => {
-    const { data } = await api.get('/credentials', { params });
-    return data;
+  list: async () => {
+    return apiClient.get("/credentials");
   },
   get: async (id) => {
-    const { data } = await api.get(`/credentials/${id}`);
-    return data;
+    return apiClient.get(`/credentials/${id}`);
   },
-  issueMaterialPassport: async (credentialData) => {
-    const { data } = await api.post('/credentials/material-passport', credentialData);
-    return data;
+  issueMaterialPassport: async (data) => {
+    return apiClient.post("/credentials/material-passport", data);
   },
-  issueTestReport: async (credentialData) => {
-    const { data } = await api.post('/credentials/test-report', credentialData);
-    return data;
+  issueTestReport: async (data) => {
+    return apiClient.post("/credentials/test-report", data);
   },
-  issueLCA: async (credentialData) => {
-    const { data } = await api.post('/credentials/lca', credentialData);
-    return data;
+  issueLCA: async (data) => {
+    return apiClient.post("/credentials/lca", data);
   },
-  issueCertificate: async (credentialData) => {
-    const { data } = await api.post('/credentials/certificate', credentialData);
-    return data;
+  issueCertificate: async (data) => {
+    return apiClient.post("/credentials/certificate", data);
   },
-  issueDPP: async (credentialData) => {
-    const { data } = await api.post('/credentials/dpp', credentialData);
-    return data;
+  issueDPP: async (data) => {
+    return apiClient.post("/credentials/dpp", data);
   },
-  issueHandover: async (credentialData) => {
-    const { data } = await api.post('/credentials/handover', credentialData);
-    return data;
+  issueHandover: async (data) => {
+    return apiClient.post("/credentials/handover", data);
   },
-  issueRepair: async (credentialData) => {
-    const { data } = await api.post('/credentials/repair', credentialData);
-    return data;
+  issueRepair: async (data) => {
+    return apiClient.post("/credentials/repair", data);
   },
-  revoke: async (id, reason) => {
-    const { data } = await api.post(`/credentials/${id}/revoke`, { reason });
-    return data;
-  },
-  verify: async (credentialId) => {
-    const { data } = await api.post('/credentials/verify', { credentialId });
-    return data;
+  verify: async (id) => {
+    return apiClient.post(`/credentials/verify`, { credentialId: id });
   },
 };
 
+// ============================================
+// DPP SERVICE
+// ============================================
 export const dppService = {
-  create: async (dppData) => {
-    const { data } = await api.post('/dpp/create', dppData);
-    return data;
+  list: async () => {
+    return apiClient.get("/dpp");
   },
   get: async (id) => {
-    const { data } = await api.get(`/dpp/${id}`);
-    return data;
+    return apiClient.get(`/dpp/${id}`);
   },
-  getCredentials: async (id) => {
-    const { data } = await api.get(`/dpp/${id}/credentials`);
-    return data;
-  },
-  assemble: async (id, componentCredentials) => {
-    const { data } = await api.post(`/dpp/${id}/assemble`, { componentCredentials });
-    return data;
-  },
-  transfer: async (id, toOrganizationId) => {
-    const { data } = await api.post(`/dpp/${id}/transfer`, { toOrganizationId });
-    return data;
-  },
-  append: async (id, eventData) => {
-    const { data } = await api.post(`/dpp/${id}/append`, eventData);
-    return data;
+  create: async (data) => {
+    return apiClient.post("/dpp/create", data);
   },
   getHistory: async (id) => {
-    const { data } = await api.get(`/dpp/${id}/history`);
-    return data;
+    return apiClient.get(`/dpp/${id}/history`);
+  },
+  update: async (id, data) => {
+    return apiClient.put(`/dpp/${id}`, data);
   },
 };
 
+// ============================================
+// SHIPMENTS SERVICE
+// ============================================
+export const shipmentsService = {
+  list: async () => {
+    return apiClient.get("/shipments");
+  },
+  get: async (id) => {
+    return apiClient.get(`/shipments/${id}`);
+  },
+  create: async (data) => {
+    return apiClient.post("/shipments", data);
+  },
+};
+
+// ============================================
+// MATERIALS SERVICE
+// ============================================
+export const materialsService = {
+  list: async () => {
+    return apiClient.get("/materials");
+  },
+  get: async (id) => {
+    return apiClient.get(`/materials/${id}`);
+  },
+  create: async (data) => {
+    return apiClient.post("/materials", data);
+  },
+};
+
+// ============================================
+// PRODUCTS SERVICE
+// ============================================
+export const productsService = {
+  list: async () => {
+    return apiClient.get("/products");
+  },
+  get: async (id) => {
+    return apiClient.get(`/products/${id}`);
+  },
+  create: async (data) => {
+    return apiClient.post("/products", data);
+  },
+};
+
+// ============================================
+// TEST LABS SERVICE
+// ============================================
 export const testLabsService = {
+  list: async () => {
+    return apiClient.get("/test-labs");
+  },
   getRequests: async () => {
-    const { data } = await api.get('/test-requests');
-    return data;
+    return apiClient.get("/test-requests");
   },
-  getRequest: async (id) => {
-    const { data } = await api.get(`/test-requests/${id}`);
-    return data;
+  getSamples: async () => {
+    return apiClient.get("/samples");
   },
-  submitResults: async (resultData) => {
-    const { data } = await api.post('/test-results', resultData);
-    return data;
+  getResults: async () => {
+    return apiClient.get("/test-results");
   },
-  issueCredential: async (credentialData) => {
-    const { data } = await api.post('/credentials/test-report', credentialData);
-    return data;
+  acceptRequest: async (id) => {
+    return apiClient.post(`/test-requests/${id}/accept`, {});
+  },
+  submitResult: async (id, data) => {
+    return apiClient.post(`/test-results/${id}`, data);
   },
 };
 
+// ============================================
+// LCA SERVICE
+// ============================================
 export const lcaService = {
-  createProject: async (projectData) => {
-    const { data } = await api.post('/lca/projects', projectData);
-    return data;
+  list: async () => {
+    return apiClient.get("/lca");
   },
-  getProject: async (id) => {
-    const { data } = await api.get(`/lca/projects/${id}`);
-    return data;
+  get: async (id) => {
+    return apiClient.get(`/lca/${id}`);
   },
-  submitResults: async (resultData) => {
-    const { data } = await api.post('/lca/results', resultData);
-    return data;
-  },
-  getPending: async () => {
-    const { data } = await api.get('/lca/pending-review');
-    return data;
-  },
-  approve: async (id) => {
-    const { data } = await api.post(`/lca/${id}/approve`);
-    return data;
+  create: async (data) => {
+    return apiClient.post("/lca", data);
   },
 };
 
+// ============================================
+// CERTIFICATIONS SERVICE
+// ============================================
 export const certificationsService = {
+  list: async () => {
+    return apiClient.get("/certifications");
+  },
+  get: async (id) => {
+    return apiClient.get(`/certifications/${id}`);
+  },
   getPending: async () => {
-    const { data } = await api.get('/certifications/pending');
-    return data;
+    return apiClient.get("/certifications?status=pending");
   },
-  get: async (id) => {
-    const { data } = await api.get(`/certifications/${id}`);
-    return data;
+  issueCertificate: async (id, data) => {
+    return apiClient.post(`/certifications/${id}/issue`, data);
   },
-  approve: async (id, certData) => {
-    const { data } = await api.post(`/certifications/${id}/approve`, certData);
-    return data;
-  },
-  revoke: async (id, reason) => {
-    const { data } = await api.post(`/certifications/${id}/revoke`, { reason });
-    return data;
+  reject: async (id, data) => {
+    return apiClient.post(`/certifications/${id}/reject`, data);
   },
 };
 
-export const transactionsService = {
-  create: async (txData) => {
-    const { data } = await api.post('/transactions', txData);
-    return data;
+// ============================================
+// VERIFICATIONS SERVICE
+// ============================================
+export const verificationService = {
+  verify: async (credentialId) => {
+    return apiClient.post("/verifications", { credentialId });
   },
-  get: async (id) => {
-    const { data } = await api.get(`/transactions/${id}`);
-    return data;
-  },
-};
-
-export const assetHandoversService = {
-  create: async (handoverData) => {
-    const { data } = await api.post('/asset-handovers', handoverData);
-    return data;
-  },
-  accept: async (id, data) => {
-    const { data: result } = await api.post(`/asset-handovers/${id}/accept`, data);
-    return result;
+  list: async () => {
+    return apiClient.get("/verifications");
   },
 };
 
+// ============================================
+// ASSET SERVICE
+// ============================================
 export const assetsService = {
-  get: async (id) => {
-    const { data } = await api.get(`/assets/${id}`);
-    return data;
+  list: async () => {
+    return apiClient.get("/assets");
   },
-  getDPPs: async (id) => {
-    const { data } = await api.get(`/assets/${id}/dpps`);
-    return data;
+  get: async (id) => {
+    return apiClient.get(`/assets/${id}`);
+  },
+  create: async (data) => {
+    return apiClient.post("/assets", data);
   },
 };
 
+// ============================================
+// ASSET HANDOVER SERVICE
+// ============================================
+export const assetHandoversService = {
+  list: async () => {
+    return apiClient.get("/asset-handovers");
+  },
+  create: async (data) => {
+    return apiClient.post("/asset-handovers", data);
+  },
+  accept: async (id) => {
+    return apiClient.post(`/asset-handovers/${id}/accept`, {});
+  },
+};
+
+// ============================================
+// REPAIRS SERVICE
+// ============================================
 export const repairsService = {
-  create: async (repairData) => {
-    const { data } = await api.post('/repairs', repairData);
-    return data;
+  list: async () => {
+    return apiClient.get("/repairs");
   },
-  get: async (id) => {
-    const { data } = await api.get(`/repairs/${id}`);
-    return data;
+  create: async (data) => {
+    return apiClient.post("/repairs", data);
+  },
+  complete: async (id, data) => {
+    return apiClient.post(`/repairs/${id}/complete`, data);
   },
 };
 
+// ============================================
+// AUDIT SERVICE
+// ============================================
 export const auditService = {
-  createRequest: async (requestData) => {
-    const { data } = await api.post('/audit/requests', requestData);
-    return data;
-  },
-  getRequest: async (id) => {
-    const { data } = await api.get(`/audit/requests/${id}`);
-    return data;
-  },
-  approve: async (id, accessGrant) => {
-    const { data } = await api.post('/audit/approve', { auditRequestId: id, accessGrant });
-    return data;
-  },
-  submit: async (submissionData) => {
-    const { data } = await api.post('/audit/submit', submissionData);
-    return data;
-  },
-};
-
-export const complianceService = {
-  getRequirements: async (framework) => {
-    const { data } = await api.get('/compliance/requirements', { params: { framework } });
-    return data;
-  },
-  check: async (checkData) => {
-    const { data } = await api.post('/compliance/check', checkData);
-    return data;
-  },
-  collectPresentations: async (assetIds, credentialTypes) => {
-    const { data } = await api.post('/compliance/presentations/collect', {
-      assetIds,
-      requiredCredentialTypes: credentialTypes,
+  getLogs: async (organizationId, filters = {}) => {
+    return apiClient.get(`/audit`, {
+      params: { org: organizationId, ...filters },
     });
-    return data;
   },
 };
 
+// ============================================
+// COMPLIANCE SERVICE
+// ============================================
+export const complianceService = {
+  checkPortfolio: async (organizationId) => {
+    return apiClient.get(`/compliance`, { params: { org: organizationId } });
+  },
+  getReport: async (organizationId) => {
+    return apiClient.get(`/compliance/${organizationId}/report`);
+  },
+};
+
+// ============================================
+// PRESENTATIONS SERVICE (OID4VP)
+// ============================================
 export const presentationsService = {
-  request: async (requestData) => {
-    const { data } = await api.post('/presentations/request', requestData);
-    return data;
+  createRequest: async (data) => {
+    return apiClient.post("/presentations", data);
   },
-  submit: async (submissionData) => {
-    const { data } = await api.post('/presentations/submit', submissionData);
-    return data;
-  },
-  verify: async (presentation) => {
-    const { data } = await api.post('/presentations/verify', { presentation });
-    return data;
+  submitPresentation: async (data) => {
+    return apiClient.post("/presentations/submit", data);
   },
 };
 
-export const verificationsService = {
-  verify: async (verificationData) => {
-    const { data } = await api.post('/verifications', verificationData);
-    return data;
+// ============================================
+// TRANSACTIONS SERVICE
+// ============================================
+export const transactionsService = {
+  list: async () => {
+    return apiClient.get("/transactions");
   },
-  get: async (id) => {
-    const { data } = await api.get(`/verifications/${id}`);
-    return data;
-  },
-  getHistory: async (resourceType, resourceId) => {
-    const { data } = await api.get(`/verifications/history/${resourceType}/${resourceId}`);
-    return data;
+  create: async (data) => {
+    return apiClient.post("/transactions", data);
   },
 };
 
-export const dismantlingService = {
-  intake: async (intakeData) => {
-    const { data } = await api.post('/dismantling/intake', intakeData);
-    return data;
-  },
-  get: async (id) => {
-    const { data } = await api.get(`/dismantling/${id}`);
-    return data;
-  },
-};
-
+// ============================================
+// RECYCLING SERVICE
+// ============================================
 export const recyclingService = {
-  intake: async (intakeData) => {
-    const { data } = await api.post('/recycling/intake', intakeData);
-    return data;
+  list: async () => {
+    return apiClient.get("/recycling");
   },
-  addEvent: async (eventData) => {
-    const { data } = await api.post('/recycling/events', eventData);
-    return data;
-  },
-  getStatus: async (id) => {
-    const { data } = await api.get(`/recycling/${id}/status`);
-    return data;
+  create: async (data) => {
+    return apiClient.post("/recycling", data);
   },
 };
 
-export default api;
+// ============================================
+// DISMANTLING SERVICE
+// ============================================
+export const dismantlingService = {
+  list: async () => {
+    return apiClient.get("/dismantling");
+  },
+  create: async (data) => {
+    return apiClient.post("/dismantling", data);
+  },
+};
+
+export default apiClient;

@@ -1,24 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { Layout } from '../shared/Layout';
-import { Package, CheckCircle, XCircle, FileText, Truck, ClipboardList } from 'lucide-react';
-import toast from 'react-hot-toast';
-import { dppService, credentialsService, shipmentsService } from '../../services/api';
-import { DPPViewer } from '../../components/DPPViewer';
-import { CredentialCard } from '../../components/CredentialCard';
-import { VerificationBadge } from '../../components/VerificationBadge';
+import React, { useState, useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
+import { Layout } from "../shared/Layout";
+import {
+  Package,
+  CheckCircle,
+  FileText,
+  Truck,
+  CheckCircle as CheckCircleIcon,
+  XCircle,
+} from "lucide-react";
+import toast from "react-hot-toast";
+import { dppService, credentialsService } from "../../services/api";
+import { VerificationBadge } from "../../components/VerificationBadge";
 
 const navItems = [
-  { label: 'Receiving', path: '' },
-  { label: 'DPP Overview', path: '/dpp' },
-  { label: 'Assembly', path: '/assembly' },
-  { label: 'Transfer', path: '/transfer' },
+  { label: "Receiving", path: "/manufacturer" },
+  { label: "DPP Overview", path: "/manufacturer/dpp" },
+  { label: "Assembly", path: "/manufacturer/assembly" },
+  { label: "Transfer", path: "/manufacturer/transfer" },
 ];
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState('');
-  const [shipments, setShipments] = useState([]);
   const [credentials, setCredentials] = useState([]);
   const [dpps, setDpps] = useState([]);
+  const [shipments, setShipments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,7 +37,7 @@ export default function Dashboard() {
       ]);
       setCredentials(credsData.data || []);
     } catch (error) {
-      console.error('Failed to load data:', error);
+      console.error("Failed to load data:", error);
     } finally {
       setLoading(false);
     }
@@ -41,12 +46,31 @@ export default function Dashboard() {
   return (
     <Layout title="Manufacturer Dashboard" navItems={navItems}>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={Truck} label="Incoming Shipments" value={shipments.length} />
+        <StatCard
+          icon={Truck}
+          label="Incoming Shipments"
+          value={shipments.length}
+        />
         <StatCard icon={CheckCircle} label="Verified Credentials" value="-" />
-        <StatCard icon={FileText} label="Active DPPs" value={dpps.length || 1} />
+        <StatCard
+          icon={FileText}
+          label="Active DPPs"
+          value={dpps.length || 1}
+        />
         <StatCard icon={Package} label="Products" value="-" />
       </div>
-      <ReceivingView credentials={credentials} onVerify={loadData} />
+
+      <Routes>
+        <Route
+          path=""
+          element={
+            <ReceivingView credentials={credentials} onVerify={loadData} />
+          }
+        />
+        <Route path="dpp" element={<DPPOverviewView />} />
+        <Route path="assembly" element={<AssemblyView />} />
+        <Route path="transfer" element={<TransferView />} />
+      </Routes>
     </Layout>
   );
 }
@@ -71,24 +95,29 @@ function ReceivingView({ credentials, onVerify }) {
 
   const handleVerify = async (cred) => {
     try {
-      const result = await credentialsService.verify(cred.id || cred.credential_id);
+      const result = await credentialsService.verify(
+        cred.id || cred.credential_id,
+      );
       setVerificationResult(result.data);
-      toast.success('Verification completed');
+      toast.success("Verification completed");
     } catch (error) {
-      toast.error('Verification failed');
+      toast.error("Verification failed");
     }
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold">Incoming Deliveries & Credentials</h2>
-      
+      <h2 className="text-lg font-semibold">
+        Incoming Deliveries & Credentials
+      </h2>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="card">
           <h3 className="font-medium mb-4">Received Credentials</h3>
           {credentials.length === 0 ? (
             <p className="text-gray-500 text-center py-8">
-              No credentials received yet. Shipments with MaterialPassportCredential will appear here.
+              No credentials received yet. Shipments with
+              MaterialPassportCredential will appear here.
             </p>
           ) : (
             <div className="space-y-3">
@@ -101,7 +130,9 @@ function ReceivingView({ credentials, onVerify }) {
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="font-medium text-sm">{cred.type}</p>
-                      <p className="text-xs text-gray-500 font-mono">{cred.credential_id}</p>
+                      <p className="text-xs text-gray-500 font-mono">
+                        {cred.credential_id}
+                      </p>
                     </div>
                     <button
                       onClick={(e) => {
@@ -123,17 +154,36 @@ function ReceivingView({ credentials, onVerify }) {
           <h3 className="font-medium mb-4">Verification Result</h3>
           {verificationResult ? (
             <div className="space-y-3">
-              <VerificationBadge verified={verificationResult.verified} size="lg" />
+              <VerificationBadge
+                verified={verificationResult.verified}
+                size="lg"
+              />
               <div className="mt-4 space-y-2">
-                <CheckItem label="Signature Valid" passed={verificationResult.verified} />
-                <CheckItem label="Issuer Trusted" passed={verificationResult.verified} />
-                <CheckItem label="Status Valid" passed={verificationResult.verified} />
-                <CheckItem label="Schema Valid" passed={verificationResult.verified} />
+                <CheckItem
+                  label="Signature Valid"
+                  passed={verificationResult.verified}
+                />
+                <CheckItem
+                  label="Issuer Trusted"
+                  passed={verificationResult.verified}
+                />
+                <CheckItem
+                  label="Status Valid"
+                  passed={verificationResult.verified}
+                />
+                <CheckItem
+                  label="Schema Valid"
+                  passed={verificationResult.verified}
+                />
               </div>
               {verificationResult.verified ? (
-                <button className="btn btn-success w-full mt-4">Accept Delivery</button>
+                <button className="btn btn-success w-full mt-4">
+                  Accept Delivery
+                </button>
               ) : (
-                <button className="btn btn-error w-full mt-4">Reject Delivery</button>
+                <button className="btn btn-error w-full mt-4">
+                  Reject Delivery
+                </button>
               )}
             </div>
           ) : (
@@ -147,12 +197,50 @@ function ReceivingView({ credentials, onVerify }) {
   );
 }
 
-function CheckItem({ label, passed }) {
+function DPPOverviewView() {
   return (
-    <div className={`flex items-center gap-2 ${passed ? 'text-green-600' : 'text-red-600'}`}>
-      {passed ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-      <span className="text-sm">{label}</span>
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">DPP Overview</h2>
+      <div className="card text-center py-12 text-gray-500">
+        DPP overview will be implemented here
+      </div>
     </div>
   );
 }
 
+function AssemblyView() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Assembly</h2>
+      <div className="card text-center py-12 text-gray-500">
+        Assembly management will be implemented here
+      </div>
+    </div>
+  );
+}
+
+function TransferView() {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Transfer</h2>
+      <div className="card text-center py-12 text-gray-500">
+        Product transfer will be implemented here
+      </div>
+    </div>
+  );
+}
+
+function CheckItem({ label, passed }) {
+  return (
+    <div
+      className={`flex items-center gap-2 ${passed ? "text-green-600" : "text-red-600"}`}
+    >
+      {passed ? (
+        <CheckCircleIcon className="w-4 h-4" />
+      ) : (
+        <XCircle className="w-4 h-4" />
+      )}
+      <span className="text-sm">{label}</span>
+    </div>
+  );
+}

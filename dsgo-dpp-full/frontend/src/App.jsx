@@ -1,19 +1,19 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
-import Login from './views/Login';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import Login from "./views/Login";
 
-import SupplierDashboard from './views/supplier/Dashboard';
-import ManufacturerDashboard from './views/manufacturer/Dashboard';
-import TestLabDashboard from './views/test-lab/Dashboard';
-import LCAOrgDashboard from './views/lca-org/Dashboard';
-import CertificationBodyDashboard from './views/certification-body/Dashboard';
-import ConstructionCompanyDashboard from './views/construction-company/Dashboard';
-import BuildingOwnerDashboard from './views/building-owner/Dashboard';
-import MaintenanceCompanyDashboard from './views/maintenance-company/Dashboard';
-import RegulatoryAuthorityDashboard from './views/regulatory-authority/Dashboard';
-import DismantlingCompanyDashboard from './views/dismantling-company/Dashboard';
-import RecyclerDashboard from './views/recycler/Dashboard';
+import SupplierDashboard from "./views/supplier/Dashboard";
+import ManufacturerDashboard from "./views/manufacturer/Dashboard";
+import TestLabDashboard from "./views/test-lab/Dashboard";
+import LCAOrgDashboard from "./views/lca-org/Dashboard";
+import CertificationBodyDashboard from "./views/certification-body/Dashboard";
+import ConstructionCompanyDashboard from "./views/construction-company/Dashboard";
+import BuildingOwnerDashboard from "./views/building-owner/Dashboard";
+import MaintenanceCompanyDashboard from "./views/maintenance-company/Dashboard";
+import RegulatoryAuthorityDashboard from "./views/regulatory-authority/Dashboard";
+import DismantlingCompanyDashboard from "./views/dismantling-company/Dashboard";
+import RecyclerDashboard from "./views/recycler/Dashboard";
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user, isAuthenticated, loading } = useAuth();
@@ -38,14 +38,18 @@ function ProtectedRoute({ children, allowedRoles }) {
 }
 
 function RoleBasedRouter() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+
+  if (!isAuthenticated || !user?.role) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <Routes>
       <Route
         path="/supplier/*"
         element={
-          <ProtectedRoute allowedRoles={['supplier']}>
+          <ProtectedRoute allowedRoles={["supplier"]}>
             <SupplierDashboard />
           </ProtectedRoute>
         }
@@ -53,7 +57,7 @@ function RoleBasedRouter() {
       <Route
         path="/manufacturer/*"
         element={
-          <ProtectedRoute allowedRoles={['manufacturer']}>
+          <ProtectedRoute allowedRoles={["manufacturer"]}>
             <ManufacturerDashboard />
           </ProtectedRoute>
         }
@@ -61,7 +65,7 @@ function RoleBasedRouter() {
       <Route
         path="/test-lab/*"
         element={
-          <ProtectedRoute allowedRoles={['test_lab']}>
+          <ProtectedRoute allowedRoles={["test_lab"]}>
             <TestLabDashboard />
           </ProtectedRoute>
         }
@@ -69,7 +73,7 @@ function RoleBasedRouter() {
       <Route
         path="/lca-org/*"
         element={
-          <ProtectedRoute allowedRoles={['lca_org']}>
+          <ProtectedRoute allowedRoles={["lca_org"]}>
             <LCAOrgDashboard />
           </ProtectedRoute>
         }
@@ -77,7 +81,7 @@ function RoleBasedRouter() {
       <Route
         path="/certification-body/*"
         element={
-          <ProtectedRoute allowedRoles={['certification_body']}>
+          <ProtectedRoute allowedRoles={["certification_body"]}>
             <CertificationBodyDashboard />
           </ProtectedRoute>
         }
@@ -85,7 +89,7 @@ function RoleBasedRouter() {
       <Route
         path="/construction-company/*"
         element={
-          <ProtectedRoute allowedRoles={['construction_company']}>
+          <ProtectedRoute allowedRoles={["construction_company"]}>
             <ConstructionCompanyDashboard />
           </ProtectedRoute>
         }
@@ -93,7 +97,7 @@ function RoleBasedRouter() {
       <Route
         path="/building-owner/*"
         element={
-          <ProtectedRoute allowedRoles={['building_owner']}>
+          <ProtectedRoute allowedRoles={["building_owner"]}>
             <BuildingOwnerDashboard />
           </ProtectedRoute>
         }
@@ -101,7 +105,7 @@ function RoleBasedRouter() {
       <Route
         path="/maintenance-company/*"
         element={
-          <ProtectedRoute allowedRoles={['maintenance_company']}>
+          <ProtectedRoute allowedRoles={["maintenance_company"]}>
             <MaintenanceCompanyDashboard />
           </ProtectedRoute>
         }
@@ -109,7 +113,7 @@ function RoleBasedRouter() {
       <Route
         path="/regulatory-authority/*"
         element={
-          <ProtectedRoute allowedRoles={['regulatory_authority']}>
+          <ProtectedRoute allowedRoles={["regulatory_authority"]}>
             <RegulatoryAuthorityDashboard />
           </ProtectedRoute>
         }
@@ -117,7 +121,7 @@ function RoleBasedRouter() {
       <Route
         path="/dismantling-company/*"
         element={
-          <ProtectedRoute allowedRoles={['dismantling_company']}>
+          <ProtectedRoute allowedRoles={["dismantling_company"]}>
             <DismantlingCompanyDashboard />
           </ProtectedRoute>
         }
@@ -125,12 +129,12 @@ function RoleBasedRouter() {
       <Route
         path="/recycler/*"
         element={
-          <ProtectedRoute allowedRoles={['recycler']}>
+          <ProtectedRoute allowedRoles={["recycler"]}>
             <RecyclerDashboard />
           </ProtectedRoute>
         }
       />
-      <Route path="/" element={<Navigate to={`/${user?.role}`} replace />} />
+      <Route path="/" element={<Navigate to={`/${user.role}`} replace />} />
     </Routes>
   );
 }
