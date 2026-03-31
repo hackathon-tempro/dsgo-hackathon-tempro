@@ -1,0 +1,13 @@
+﻿{
+    "credential_issuer":  "did:example:lagemaat",
+    "credential_endpoint":  "https://wallet.acc.credenco.com/api/v2/credential",
+    "display":  [
+                    {
+                        "locale":  "en-US",
+                        "name":  "Lagemaat"
+                    }
+                ],
+    "credential_configurations_supported":  {
+
+                                            }
+}

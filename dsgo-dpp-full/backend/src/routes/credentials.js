@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { v4 as uuidv4 } from 'uuid';
+import QRCode from 'qrcode';
+import credencoService from '../services/credencoService.js';
 
 const router = Router();
 
@@ -140,6 +142,45 @@ router.post('/repair', asyncHandler(async (req, res) => {
     issued_at: new Date().toISOString(),
   };
   res.status(201).json({ success: true, data: newCred });
+}));
+
+/**
+ * POST /api/v1/credentials/issue
+ * Issue a credential via OID4VCI flow and return a QR code + offer URI.
+ * The user scans the QR code with the Credenco wallet app to receive the credential.
+ *
+ * Body: { template_id, claims }
+ * Example: { "template_id": "alkondor_co2", "claims": { "CO2-uitstoot": "12.5 kg CO2e" } }
+ */
+router.post('/issue', asyncHandler(async (req, res) => {
+  const { template_id, claims } = req.body;
+
+  if (!template_id) {
+    return res.status(400).json({ success: false, error: 'template_id is required' });
+  }
+
+  const offer = await credencoService.issueToWallet({ template_id, claims: claims || {} });
+  const qrCodeDataUrl = await QRCode.toDataURL(offer.request_uri, { width: 300 });
+
+  res.json({
+    success: true,
+    data: {
+      correlation_id: offer.correlation_id,
+      request_uri: offer.request_uri,
+      status_uri: offer.status_uri,
+      qr_code: qrCodeDataUrl,
+      instructions: 'Scan de QR code met de Credenco wallet app om het credential te ontvangen.',
+    },
+  });
+}));
+
+/**
+ * GET /api/v1/credentials/issue/:correlationId/status
+ * Poll the status of a credential offer.
+ */
+router.get('/issue/:correlationId/status', asyncHandler(async (req, res) => {
+  const status = await credencoService.getOfferStatus(req.params.correlationId);
+  res.json({ success: true, data: status });
 }));
 
 router.post('/verify', asyncHandler(async (req, res) => {

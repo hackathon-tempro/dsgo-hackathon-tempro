@@ -1,0 +1,13 @@
+﻿{
+    "credential_issuer":  "did:example:vve",
+    "credential_endpoint":  "https://wallet.acc.credenco.com/api/v2/credential",
+    "display":  [
+                    {
+                        "locale":  "en-US",
+                        "name":  "VvE"
+                    }
+                ],
+    "credential_configurations_supported":  {
+
+                                            }
+}

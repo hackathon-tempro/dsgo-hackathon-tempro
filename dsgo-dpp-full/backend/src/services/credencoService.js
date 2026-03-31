@@ -1,61 +1,30 @@
 import axios from 'axios';
-import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { query } from '../database.js';
 
 /**
  * Credenco Business Wallet API Service
- * Handles credential issuance, verification, and revocation
- * Real integration with Credenco's OAuth 2.0 and credential APIs
+ * Authenticates via API key passed in the x-api-key header.
+ * Manage keys in Business Wallet → Settings → IAM → API Access.
  */
 
 class CredencoService {
   constructor() {
-    this.baseURL = process.env.CREDENCO_API_BASE_URL || 'https://business-wallet-api.credenco.com';
-    this.clientId = process.env.CREDENCO_CLIENT_ID;
-    this.clientSecret = process.env.CREDENCO_CLIENT_SECRET;
+    this.baseURL = process.env.CREDENCO_API_BASE_URL || 'https://wallet.acc.credenco.com';
+    this.apiKey = process.env.CREDENCO_API_KEY;
     this.tenantId = process.env.CREDENCO_TENANT_ID;
     this.issuerDid = process.env.CREDENCO_ISSUER_DID;
     this.webhookSecret = process.env.CREDENCO_WEBHOOK_SECRET;
-    this.accessToken = null;
-    this.tokenExpiry = null;
+
     this.client = axios.create({
       baseURL: this.baseURL,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'x-api-key': this.apiKey,
       },
     });
-  }
-
-  /**
-   * OAuth 2.0 Client Credentials Flow
-   * Obtains access token for API calls
-   */
-  async getAccessToken() {
-    try {
-      // Check if token is still valid
-      if (this.accessToken && this.tokenExpiry && Date.now() < this.tokenExpiry - 60000) {
-        return this.accessToken;
-      }
-
-      const response = await this.client.post('/oauth2/token', {
-        grant_type: 'client_credentials',
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        scope: 'credential:issue credential:verify credential:revoke',
-      });
-
-      this.accessToken = response.data.access_token;
-      this.tokenExpiry = Date.now() + response.data.expires_in * 1000;
-
-      console.log('✓ Credenco access token obtained');
-      return this.accessToken;
-    } catch (error) {
-      console.error('Failed to obtain Credenco access token:', error.message);
-      throw new Error(`Credenco authentication failed: ${error.message}`);
-    }
   }
 
   /**
@@ -68,11 +37,8 @@ class CredencoService {
     subjectData,
     expirationDate = null,
     credentialStatus = 'active',
-    issuerDataEncrypted = false,
   }) {
     try {
-      const accessToken = await this.getAccessToken();
-
       const payload = {
         '@context': [
           'https://www.w3.org/ns/credentials/v2',
@@ -94,16 +60,9 @@ class CredencoService {
         },
       };
 
-      const response = await this.client.post('/api/v2/credentials/issue', payload, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'X-Tenant-ID': this.tenantId,
-        },
-      });
-
+      const response = await this.client.post('/api/v2/credentials/issue', payload);
       const credential = response.data;
 
-      // Store credential metadata in database
       await this.storeCredentialMetadata({
         credentialId: credential.id,
         issuer: this.issuerDid,
@@ -124,11 +83,10 @@ class CredencoService {
 
   /**
    * Verify a credential
+   * POST /api/v2/credentials/verify
    */
   async verifyCredential(credentialOrProof) {
     try {
-      const accessToken = await this.getAccessToken();
-
       const response = await this.client.post('/api/v2/credentials/verify', {
         credential: credentialOrProof,
         verificationOptions: {
@@ -136,16 +94,10 @@ class CredencoService {
           checkExpiration: true,
           checkSignature: true,
         },
-      }, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'X-Tenant-ID': this.tenantId,
-        },
       });
 
       const verification = response.data;
 
-      // Log verification attempt
       await query(
         `INSERT INTO credential_verifications (credential_id, verified, verification_result, verified_at)
          VALUES ($1, $2, $3, $4)`,
@@ -167,22 +119,15 @@ class CredencoService {
 
   /**
    * Revoke a credential
+   * POST /api/v2/credentials/:id/revoke
    */
   async revokeCredential(credentialId, reason = null) {
     try {
-      const accessToken = await this.getAccessToken();
-
       const response = await this.client.post(`/api/v2/credentials/${credentialId}/revoke`, {
         reason: reason || 'Revocation requested',
         revocationDate: new Date().toISOString(),
-      }, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'X-Tenant-ID': this.tenantId,
-        },
       });
 
-      // Update credential status in database
       await query(
         `UPDATE credentials SET status = $1, revoked_at = $2, revocation_reason = $3
          WHERE credenco_id = $4`,
@@ -199,18 +144,11 @@ class CredencoService {
 
   /**
    * Get credential status
+   * GET /api/v2/credentials/:id/status
    */
   async getCredentialStatus(credentialId) {
     try {
-      const accessToken = await this.getAccessToken();
-
-      const response = await this.client.get(`/api/v2/credentials/${credentialId}/status`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'X-Tenant-ID': this.tenantId,
-        },
-      });
-
+      const response = await this.client.get(`/api/v2/credentials/${credentialId}/status`);
       return response.data;
     } catch (error) {
       console.error('Failed to get credential status:', error.message);
@@ -220,7 +158,6 @@ class CredencoService {
 
   /**
    * Create a presentation request
-   * For organizations to request credentials from others
    */
   async createPresentationRequest({
     requestingParty,
@@ -229,8 +166,6 @@ class CredencoService {
     expirationMinutes = 15,
   }) {
     try {
-      const accessToken = await this.getAccessToken();
-
       const presentationRequest = {
         '@context': 'https://w3id.org/presentation-exchange/v1',
         name: 'DSGO Credential Request',
@@ -239,16 +174,13 @@ class CredencoService {
           id: crypto.randomUUID(),
           name: type,
           purpose: `Request for ${type} credential`,
-          schema: {
-            uri: [type],
-          },
+          schema: { uri: [type] },
         })),
         challenge: challenge || crypto.randomBytes(32).toString('hex'),
         domain: process.env.API_BASE_URL || 'https://dsgo-dpp.com',
         expires_at: new Date(Date.now() + expirationMinutes * 60 * 1000).toISOString(),
       };
 
-      // Store in database
       const result = await query(
         `INSERT INTO presentation_requests (
           request_data, requesting_party, credential_types, expires_at, created_at
@@ -262,10 +194,7 @@ class CredencoService {
         ]
       );
 
-      return {
-        id: result.rows[0].id,
-        presentationRequest,
-      };
+      return { id: result.rows[0].id, presentationRequest };
     } catch (error) {
       console.error('Failed to create presentation request:', error.message);
       throw new Error(`Failed to create presentation request: ${error.message}`);
@@ -273,12 +202,11 @@ class CredencoService {
   }
 
   /**
-   * Verify a presentation (credential proof)
+   * Verify a presentation
+   * POST /api/v2/presentations/verify
    */
   async verifyPresentation(presentationSubmission) {
     try {
-      const accessToken = await this.getAccessToken();
-
       const response = await this.client.post('/api/v2/presentations/verify', {
         presentation: presentationSubmission,
         verificationOptions: {
@@ -286,11 +214,6 @@ class CredencoService {
           checkExpiration: true,
           checkSignature: true,
           checkPresentation: true,
-        },
-      }, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'X-Tenant-ID': this.tenantId,
         },
       });
 
@@ -339,31 +262,71 @@ class CredencoService {
   }
 
   /**
-   * Test connection to Credenco API
+   * Issue credential via OID4VCI flow — delivers credential to a wallet app via QR code.
+   * The returned request_uri must be scanned by the Credenco wallet app.
+   * POST /api/v2/credential/issue
+   */
+  async issueToWallet({ template_id, claims, correlation_id = null }) {
+    try {
+      const body = { template_id, claims };
+      if (correlation_id) body.correlation_id = correlation_id;
+
+      const response = await this.client.post('/api/v2/credential/issue', body);
+      const { correlation_id: corrId, request_uri, status_uri } = response.data;
+
+      console.log(`✓ Credential offer created: ${corrId}`);
+      return { correlation_id: corrId, request_uri, status_uri };
+    } catch (error) {
+      console.error('issueToWallet failed:', error.response?.data || error.message);
+      throw new Error(`Failed to create credential offer: ${error.message}`);
+    }
+  }
+
+  /**
+   * Poll the status of an OID4VCI credential offer
+   * GET /api/v2/credential/issue/:correlationId
+   */
+  async getOfferStatus(correlationId) {
+    try {
+      const response = await this.client.get(`/api/v2/credential/issue/${correlationId}`);
+      return response.data;
+    } catch (error) {
+      console.error('getOfferStatus failed:', error.message);
+      throw new Error(`Failed to get offer status: ${error.message}`);
+    }
+  }
+
+  /**
+   * Test connection — makes a lightweight API call to verify the key works
    */
   async testConnection() {
     try {
-      await this.getAccessToken();
+      if (!this.apiKey) {
+        return { status: 'error', message: 'CREDENCO_API_KEY is not set' };
+      }
+      await this.client.get('/api/v2/credentials?limit=1');
       return { status: 'connected', message: 'Credenco API is accessible' };
     } catch (error) {
+      if (error.response?.status === 401) {
+        return { status: 'error', message: 'Invalid API key (401 Unauthorized)' };
+      }
+      if (error.response?.status === 403) {
+        return { status: 'error', message: 'API key lacks required permissions (403 Forbidden)' };
+      }
       return { status: 'error', message: error.message };
     }
   }
 
   /**
-   * Handle Credenco webhook (alias for handleWebhook)
+   * Handle Credenco webhook
    */
   async handleCredencoWebhook(payload) {
     const signature = payload.signature || 'no-signature';
     return this.handleWebhook(payload, signature);
   }
 
-  /**
-   * Handle Credenco webhook for credential events
-   */
   async handleWebhook(payload, signature) {
     try {
-      // Verify webhook signature
       const computedSignature = crypto
         .createHmac('sha256', this.webhookSecret)
         .update(JSON.stringify(payload))
@@ -374,7 +337,6 @@ class CredencoService {
       }
 
       const { event, data } = payload;
-
       console.log(`📥 Credenco webhook event: ${event}`);
 
       switch (event) {
@@ -398,73 +360,38 @@ class CredencoService {
     }
   }
 
-  /**
-   * Handle credential issued webhook
-   */
   async handleCredentialIssued(data) {
-    try {
-      await query(
-        `UPDATE credentials SET status = $1, credenco_webhook_received = true
-         WHERE credenco_id = $2`,
-        ['issued', data.credentialId]
-      );
-    } catch (error) {
-      console.error('Failed to handle credential issued event:', error.message);
-    }
+    await query(
+      `UPDATE credentials SET status = $1, credenco_webhook_received = true WHERE credenco_id = $2`,
+      ['issued', data.credentialId]
+    );
   }
 
-  /**
-   * Handle credential revoked webhook
-   */
   async handleCredentialRevoked(data) {
-    try {
-      await query(
-        `UPDATE credentials SET status = $1, revoked_at = $2, revocation_reason = $3
-         WHERE credenco_id = $4`,
-        ['revoked', new Date(), data.reason, data.credentialId]
-      );
-    } catch (error) {
-      console.error('Failed to handle credential revoked event:', error.message);
-    }
+    await query(
+      `UPDATE credentials SET status = $1, revoked_at = $2, revocation_reason = $3 WHERE credenco_id = $4`,
+      ['revoked', new Date(), data.reason, data.credentialId]
+    );
   }
 
-  /**
-   * Handle credential expired webhook
-   */
   async handleCredentialExpired(data) {
-    try {
-      await query(
-        `UPDATE credentials SET status = $1, expired_at = $2
-         WHERE credenco_id = $3`,
-        ['expired', new Date(), data.credentialId]
-      );
-    } catch (error) {
-      console.error('Failed to handle credential expired event:', error.message);
-    }
+    await query(
+      `UPDATE credentials SET status = $1, expired_at = $2 WHERE credenco_id = $3`,
+      ['expired', new Date(), data.credentialId]
+    );
   }
 
   /**
-   * Create a DID (Decentralized Identifier) for organization
+   * Create a DID for an organization
    */
   async createOrgDID(organizationId, organizationName) {
     try {
-      const accessToken = await this.getAccessToken();
-
       const response = await this.client.post('/api/v2/dids/create', {
         method: 'key',
         displayName: organizationName,
-        metadata: {
-          organizationId,
-          createdAt: new Date().toISOString(),
-        },
-      }, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'X-Tenant-ID': this.tenantId,
-        },
+        metadata: { organizationId, createdAt: new Date().toISOString() },
       });
 
-      // Store DID in database
       await query(
         `INSERT INTO organization_dids (organization_id, did, created_at)
          VALUES ($1, $2, $3)
@@ -480,76 +407,38 @@ class CredencoService {
     }
   }
 
-  /**
-   * Get organization DID
-   */
   async getOrgDID(organizationId) {
-    try {
-      const result = await query(
-        'SELECT did FROM organization_dids WHERE organization_id = $1',
-        [organizationId]
-      );
-
-      if (result.rows.length === 0) {
-        throw new Error('Organization DID not found');
-      }
-
-      return result.rows[0].did;
-    } catch (error) {
-      console.error('Failed to get organization DID:', error.message);
-      throw error;
-    }
+    const result = await query(
+      'SELECT did FROM organization_dids WHERE organization_id = $1',
+      [organizationId]
+    );
+    if (result.rows.length === 0) throw new Error('Organization DID not found');
+    return result.rows[0].did;
   }
 
-  /**
-   * Batch issue credentials
-   */
   async batchIssueCredentials(credentials) {
-    try {
-      const results = [];
-      const errors = [];
-
-      for (const cred of credentials) {
-        try {
-          const issued = await this.issueCredential(cred);
-          results.push(issued);
-        } catch (error) {
-          errors.push({
-            credential: cred,
-            error: error.message,
-          });
-        }
+    const results = [];
+    const errors = [];
+    for (const cred of credentials) {
+      try {
+        results.push(await this.issueCredential(cred));
+      } catch (error) {
+        errors.push({ credential: cred, error: error.message });
       }
-
-      return { issued: results, failed: errors };
-    } catch (error) {
-      console.error('Batch credential issuance failed:', error.message);
-      throw error;
     }
+    return { issued: results, failed: errors };
   }
 
-  /**
-   * Check credential health/status batch
-   */
   async checkCredentialHealth(credentialIds) {
-    try {
-      const accessToken = await this.getAccessToken();
-
-      const statuses = [];
-      for (const credId of credentialIds) {
-        try {
-          const status = await this.getCredentialStatus(credId);
-          statuses.push({ credentialId: credId, status });
-        } catch (error) {
-          statuses.push({ credentialId: credId, error: error.message });
-        }
+    const statuses = [];
+    for (const credId of credentialIds) {
+      try {
+        statuses.push({ credentialId: credId, status: await this.getCredentialStatus(credId) });
+      } catch (error) {
+        statuses.push({ credentialId: credId, error: error.message });
       }
-
-      return statuses;
-    } catch (error) {
-      console.error('Credential health check failed:', error.message);
-      throw error;
     }
+    return statuses;
   }
 }
 

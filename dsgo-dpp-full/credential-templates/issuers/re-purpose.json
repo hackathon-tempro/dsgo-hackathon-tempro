@@ -1,0 +1,13 @@
+﻿{
+    "credential_issuer":  "did:example:re-purpose",
+    "credential_endpoint":  "https://wallet.acc.credenco.com/api/v2/credential",
+    "display":  [
+                    {
+                        "locale":  "en-US",
+                        "name":  "RE-Purpose"
+                    }
+                ],
+    "credential_configurations_supported":  {
+
+                                            }
+}

@@ -1,0 +1,139 @@
+﻿{
+    "credential_issuer":  "did:example:heijmans",
+    "credential_endpoint":  "https://wallet.acc.credenco.com/api/v2/credential",
+    "display":  [
+                    {
+                        "locale":  "en-US",
+                        "name":  "Heijmans"
+                    }
+                ],
+    "credential_configurations_supported":  {
+                                                "AssetHandoverCredential":  {
+                                                                                "format":  "jwt_vc_json",
+                                                                                "scope":  "AssetHandoverCredential",
+                                                                                "cryptographic_binding_methods_supported":  [
+                                                                                                                                "did",
+                                                                                                                                "jwk"
+                                                                                                                            ],
+                                                                                "proof_types_supported":  {
+                                                                                                              "jwt":  {
+                                                                                                                          "proof_signing_alg_values_supported":  [
+                                                                                                                                                                     "ES256",
+                                                                                                                                                                     "RS256"
+                                                                                                                                                                 ]
+                                                                                                                      }
+                                                                                                          },
+                                                                                "credential_signing_alg_values_supported":  [
+                                                                                                                                "ES256",
+                                                                                                                                "RS256"
+                                                                                                                            ],
+                                                                                "credential_definition":  {
+                                                                                                              "type":  [
+                                                                                                                           "VerifiableCredential",
+                                                                                                                           "AssetHandoverCredential"
+                                                                                                                       ],
+                                                                                                              "credentialSubject":  {
+                                                                                                                                        "handoverId":  {
+                                                                                                                                                           "mandatory":  true,
+                                                                                                                                                           "display":  [
+                                                                                                                                                                           {
+                                                                                                                                                                               "name":  "Handover ID",
+                                                                                                                                                                               "locale":  "en-US"
+                                                                                                                                                                           }
+                                                                                                                                                                       ]
+                                                                                                                                                       },
+                                                                                                                                        "assetId":  {
+                                                                                                                                                        "mandatory":  true,
+                                                                                                                                                        "display":  [
+                                                                                                                                                                        {
+                                                                                                                                                                            "name":  "Asset / Product ID",
+                                                                                                                                                                            "locale":  "en-US"
+                                                                                                                                                                        }
+                                                                                                                                                                    ]
+                                                                                                                                                    },
+                                                                                                                                        "fromOrganizationName":  {
+                                                                                                                                                                     "mandatory":  true,
+                                                                                                                                                                     "display":  [
+                                                                                                                                                                                     {
+                                                                                                                                                                                         "name":  "Transferring Organization",
+                                                                                                                                                                                         "locale":  "en-US"
+                                                                                                                                                                                     }
+                                                                                                                                                                                 ]
+                                                                                                                                                                 },
+                                                                                                                                        "fromOrganizationEori":  {
+                                                                                                                                                                     "mandatory":  true,
+                                                                                                                                                                     "display":  [
+                                                                                                                                                                                     {
+                                                                                                                                                                                         "name":  "Transferring Organization EORI",
+                                                                                                                                                                                         "locale":  "en-US"
+                                                                                                                                                                                     }
+                                                                                                                                                                                 ]
+                                                                                                                                                                 },
+                                                                                                                                        "toOrganizationName":  {
+                                                                                                                                                                   "mandatory":  true,
+                                                                                                                                                                   "display":  [
+                                                                                                                                                                                   {
+                                                                                                                                                                                       "name":  "Receiving Organization",
+                                                                                                                                                                                       "locale":  "en-US"
+                                                                                                                                                                                   }
+                                                                                                                                                                               ]
+                                                                                                                                                               },
+                                                                                                                                        "toOrganizationEori":  {
+                                                                                                                                                                   "mandatory":  true,
+                                                                                                                                                                   "display":  [
+                                                                                                                                                                                   {
+                                                                                                                                                                                       "name":  "Receiving Organization EORI",
+                                                                                                                                                                                       "locale":  "en-US"
+                                                                                                                                                                                   }
+                                                                                                                                                                               ]
+                                                                                                                                                               },
+                                                                                                                                        "handoverDate":  {
+                                                                                                                                                             "mandatory":  true,
+                                                                                                                                                             "display":  [
+                                                                                                                                                                             {
+                                                                                                                                                                                 "name":  "Handover Date",
+                                                                                                                                                                                 "locale":  "en-US"
+                                                                                                                                                                             }
+                                                                                                                                                                         ]
+                                                                                                                                                         },
+                                                                                                                                        "handoverType":  {
+                                                                                                                                                             "mandatory":  false,
+                                                                                                                                                             "display":  [
+                                                                                                                                                                             {
+                                                                                                                                                                                 "name":  "Handover Type (sale/transfer/lease)",
+                                                                                                                                                                                 "locale":  "en-US"
+                                                                                                                                                                             }
+                                                                                                                                                                         ]
+                                                                                                                                                         },
+                                                                                                                                        "location":  {
+                                                                                                                                                         "mandatory":  false,
+                                                                                                                                                         "display":  [
+                                                                                                                                                                         {
+                                                                                                                                                                             "name":  "Handover Location",
+                                                                                                                                                                             "locale":  "en-US"
+                                                                                                                                                                         }
+                                                                                                                                                                     ]
+                                                                                                                                                     },
+                                                                                                                                        "notes":  {
+                                                                                                                                                      "mandatory":  false,
+                                                                                                                                                      "display":  [
+                                                                                                                                                                      {
+                                                                                                                                                                          "name":  "Notes",
+                                                                                                                                                                          "locale":  "en-US"
+                                                                                                                                                                      }
+                                                                                                                                                                  ]
+                                                                                                                                                  }
+                                                                                                                                    }
+                                                                                                          },
+                                                                                "display":  [
+                                                                                                {
+                                                                                                    "name":  "Asset Handover",
+                                                                                                    "locale":  "en-US",
+                                                                                                    "description":  "Verifiable credential recording the transfer of an asset or product between two organizations in the supply chain.",
+                                                                                                    "background_color":  "#7a3b00",
+                                                                                                    "text_color":  "#ffffff"
+                                                                                                }
+                                                                                            ]
+                                                                            }
+                                            }
+}

@@ -1,0 +1,133 @@
+﻿{
+    "credential_issuer":  "did:example:skg-ikob",
+    "credential_endpoint":  "https://wallet.acc.credenco.com/api/v2/credential",
+    "credential_configurations_supported":  {
+                                                "ProductCertificate":  {
+                                                                           "format":  "jwt_vc_json",
+                                                                           "scope":  "ProductCertificate",
+                                                                           "cryptographic_binding_methods_supported":  [
+                                                                                                                           "did",
+                                                                                                                           "jwk"
+                                                                                                                       ],
+                                                                           "proof_types_supported":  {
+                                                                                                         "jwt":  {
+                                                                                                                     "proof_signing_alg_values_supported":  [
+                                                                                                                                                                "ES256",
+                                                                                                                                                                "RS256"
+                                                                                                                                                            ]
+                                                                                                                 }
+                                                                                                     },
+                                                                           "credential_signing_alg_values_supported":  [
+                                                                                                                           "ES256",
+                                                                                                                           "RS256"
+                                                                                                                       ],
+                                                                           "credential_definition":  {
+                                                                                                         "type":  [
+                                                                                                                      "VerifiableCredential",
+                                                                                                                      "ProductCertificate"
+                                                                                                                  ],
+                                                                                                         "credentialSubject":  {
+                                                                                                                                   "certificateId":  {
+                                                                                                                                                         "mandatory":  true,
+                                                                                                                                                         "display":  [
+                                                                                                                                                                         {
+                                                                                                                                                                             "name":  "Certificate ID",
+                                                                                                                                                                             "locale":  "en-US"
+                                                                                                                                                                         }
+                                                                                                                                                                     ]
+                                                                                                                                                     },
+                                                                                                                                   "productId":  {
+                                                                                                                                                     "mandatory":  true,
+                                                                                                                                                     "display":  [
+                                                                                                                                                                     {
+                                                                                                                                                                         "name":  "Product ID",
+                                                                                                                                                                         "locale":  "en-US"
+                                                                                                                                                                     }
+                                                                                                                                                                 ]
+                                                                                                                                                 },
+                                                                                                                                   "certificateType":  {
+                                                                                                                                                           "mandatory":  true,
+                                                                                                                                                           "display":  [
+                                                                                                                                                                           {
+                                                                                                                                                                               "name":  "Certificate Type",
+                                                                                                                                                                               "locale":  "en-US"
+                                                                                                                                                                           }
+                                                                                                                                                                       ]
+                                                                                                                                                       },
+                                                                                                                                   "certificationBody":  {
+                                                                                                                                                             "mandatory":  true,
+                                                                                                                                                             "display":  [
+                                                                                                                                                                             {
+                                                                                                                                                                                 "name":  "Certification Body",
+                                                                                                                                                                                 "locale":  "en-US"
+                                                                                                                                                                             }
+                                                                                                                                                                         ]
+                                                                                                                                                         },
+                                                                                                                                   "certificationBodyEori":  {
+                                                                                                                                                                 "mandatory":  false,
+                                                                                                                                                                 "display":  [
+                                                                                                                                                                                 {
+                                                                                                                                                                                     "name":  "Certification Body EORI",
+                                                                                                                                                                                     "locale":  "en-US"
+                                                                                                                                                                                 }
+                                                                                                                                                                             ]
+                                                                                                                                                             },
+                                                                                                                                   "standard":  {
+                                                                                                                                                    "mandatory":  true,
+                                                                                                                                                    "display":  [
+                                                                                                                                                                    {
+                                                                                                                                                                        "name":  "Applicable Standard",
+                                                                                                                                                                        "locale":  "en-US"
+                                                                                                                                                                    }
+                                                                                                                                                                ]
+                                                                                                                                                },
+                                                                                                                                   "issueDate":  {
+                                                                                                                                                     "mandatory":  true,
+                                                                                                                                                     "display":  [
+                                                                                                                                                                     {
+                                                                                                                                                                         "name":  "Issue Date",
+                                                                                                                                                                         "locale":  "en-US"
+                                                                                                                                                                     }
+                                                                                                                                                                 ]
+                                                                                                                                                 },
+                                                                                                                                   "expirationDate":  {
+                                                                                                                                                          "mandatory":  true,
+                                                                                                                                                          "display":  [
+                                                                                                                                                                          {
+                                                                                                                                                                              "name":  "Expiration Date",
+                                                                                                                                                                              "locale":  "en-US"
+                                                                                                                                                                          }
+                                                                                                                                                                      ]
+                                                                                                                                                      },
+                                                                                                                                   "scope":  {
+                                                                                                                                                 "mandatory":  false,
+                                                                                                                                                 "display":  [
+                                                                                                                                                                 {
+                                                                                                                                                                     "name":  "Certification Scope",
+                                                                                                                                                                     "locale":  "en-US"
+                                                                                                                                                                 }
+                                                                                                                                                             ]
+                                                                                                                                             },
+                                                                                                                                   "remarks":  {
+                                                                                                                                                   "mandatory":  false,
+                                                                                                                                                   "display":  [
+                                                                                                                                                                   {
+                                                                                                                                                                       "name":  "Remarks",
+                                                                                                                                                                       "locale":  "en-US"
+                                                                                                                                                                   }
+                                                                                                                                                               ]
+                                                                                                                                               }
+                                                                                                                               }
+                                                                                                     },
+                                                                           "display":  [
+                                                                                           {
+                                                                                               "name":  "Product Certificate",
+                                                                                               "locale":  "en-US",
+                                                                                               "description":  "Verifiable credential issued by a certification body confirming a product meets a specific standard or regulatory requirement.",
+                                                                                               "background_color":  "#5a2d82",
+                                                                                               "text_color":  "#ffffff"
+                                                                                           }
+                                                                                       ]
+                                                                       }
+                                            }
+}

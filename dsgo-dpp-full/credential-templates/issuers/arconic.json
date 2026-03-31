@@ -1,0 +1,139 @@
+﻿{
+    "credential_issuer":  "did:example:arconic",
+    "credential_endpoint":  "https://wallet.acc.credenco.com/api/v2/credential",
+    "display":  [
+                    {
+                        "locale":  "en-US",
+                        "name":  "Arconic"
+                    }
+                ],
+    "credential_configurations_supported":  {
+                                                "MaterialPassportCredential":  {
+                                                                                   "format":  "jwt_vc_json",
+                                                                                   "scope":  "MaterialPassportCredential",
+                                                                                   "cryptographic_binding_methods_supported":  [
+                                                                                                                                   "did",
+                                                                                                                                   "jwk"
+                                                                                                                               ],
+                                                                                   "proof_types_supported":  {
+                                                                                                                 "jwt":  {
+                                                                                                                             "proof_signing_alg_values_supported":  [
+                                                                                                                                                                        "ES256",
+                                                                                                                                                                        "RS256"
+                                                                                                                                                                    ]
+                                                                                                                         }
+                                                                                                             },
+                                                                                   "credential_signing_alg_values_supported":  [
+                                                                                                                                   "ES256",
+                                                                                                                                   "RS256"
+                                                                                                                               ],
+                                                                                   "credential_definition":  {
+                                                                                                                 "type":  [
+                                                                                                                              "VerifiableCredential",
+                                                                                                                              "MaterialPassportCredential"
+                                                                                                                          ],
+                                                                                                                 "credentialSubject":  {
+                                                                                                                                           "materialId":  {
+                                                                                                                                                              "mandatory":  true,
+                                                                                                                                                              "display":  [
+                                                                                                                                                                              {
+                                                                                                                                                                                  "name":  "Material ID",
+                                                                                                                                                                                  "locale":  "en-US"
+                                                                                                                                                                              }
+                                                                                                                                                                          ]
+                                                                                                                                                          },
+                                                                                                                                           "materialName":  {
+                                                                                                                                                                "mandatory":  true,
+                                                                                                                                                                "display":  [
+                                                                                                                                                                                {
+                                                                                                                                                                                    "name":  "Material Name",
+                                                                                                                                                                                    "locale":  "en-US"
+                                                                                                                                                                                }
+                                                                                                                                                                            ]
+                                                                                                                                                            },
+                                                                                                                                           "batchNumber":  {
+                                                                                                                                                               "mandatory":  true,
+                                                                                                                                                               "display":  [
+                                                                                                                                                                               {
+                                                                                                                                                                                   "name":  "Batch Number",
+                                                                                                                                                                                   "locale":  "en-US"
+                                                                                                                                                                               }
+                                                                                                                                                                           ]
+                                                                                                                                                           },
+                                                                                                                                           "composition":  {
+                                                                                                                                                               "mandatory":  true,
+                                                                                                                                                               "display":  [
+                                                                                                                                                                               {
+                                                                                                                                                                                   "name":  "Material Composition",
+                                                                                                                                                                                   "locale":  "en-US"
+                                                                                                                                                                               }
+                                                                                                                                                                           ]
+                                                                                                                                                           },
+                                                                                                                                           "recycledContentPercent":  {
+                                                                                                                                                                          "mandatory":  false,
+                                                                                                                                                                          "display":  [
+                                                                                                                                                                                          {
+                                                                                                                                                                                              "name":  "Recycled Content (%)",
+                                                                                                                                                                                              "locale":  "en-US"
+                                                                                                                                                                                          }
+                                                                                                                                                                                      ]
+                                                                                                                                                                      },
+                                                                                                                                           "carbonFootprint":  {
+                                                                                                                                                                   "mandatory":  false,
+                                                                                                                                                                   "display":  [
+                                                                                                                                                                                   {
+                                                                                                                                                                                       "name":  "Carbon Footprint (kg CO2e)",
+                                                                                                                                                                                       "locale":  "en-US"
+                                                                                                                                                                                   }
+                                                                                                                                                                               ]
+                                                                                                                                                               },
+                                                                                                                                           "countryOfOrigin":  {
+                                                                                                                                                                   "mandatory":  false,
+                                                                                                                                                                   "display":  [
+                                                                                                                                                                                   {
+                                                                                                                                                                                       "name":  "Country of Origin",
+                                                                                                                                                                                       "locale":  "en-US"
+                                                                                                                                                                                   }
+                                                                                                                                                                               ]
+                                                                                                                                                               },
+                                                                                                                                           "supplierEori":  {
+                                                                                                                                                                "mandatory":  false,
+                                                                                                                                                                "display":  [
+                                                                                                                                                                                {
+                                                                                                                                                                                    "name":  "Supplier EORI",
+                                                                                                                                                                                    "locale":  "en-US"
+                                                                                                                                                                                }
+                                                                                                                                                                            ]
+                                                                                                                                                            },
+                                                                                                                                           "productionDate":  {
+                                                                                                                                                                  "mandatory":  false,
+                                                                                                                                                                  "display":  [
+                                                                                                                                                                                  {
+                                                                                                                                                                                      "name":  "Production Date",
+                                                                                                                                                                                      "locale":  "en-US"
+                                                                                                                                                                                  }
+                                                                                                                                                                              ]
+                                                                                                                                                              },
+                                                                                                                                           "hazardousSubstances":  {
+                                                                                                                                                                       "mandatory":  false,
+                                                                                                                                                                       "display":  [
+                                                                                                                                                                                       {
+                                                                                                                                                                                           "name":  "Hazardous Substances",
+                                                                                                                                                                                           "locale":  "en-US"
+                                                                                                                                                                                       }
+                                                                                                                                                                                   ]
+                                                                                                                                                                   }
+                                                                                                                                       }
+                                                                                                             },
+                                                                                   "display":  [
+                                                                                                   {
+                                                                                                       "name":  "Material Passport",
+                                                                                                       "locale":  "en-US",
+                                                                                                       "description":  "Verifiable credential containing material composition, origin, and sustainability data for a specific material lot.",
+                                                                                                       "background_color":  "#1a3c5e",
+                                                                                                       "text_color":  "#ffffff"
+                                                                                                   }
+                                                                                               ]
+                                                                               }
+                                            }
+}

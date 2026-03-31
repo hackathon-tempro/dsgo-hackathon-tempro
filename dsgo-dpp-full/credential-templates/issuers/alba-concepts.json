@@ -1,0 +1,139 @@
+﻿{
+    "credential_issuer":  "did:example:alba-concepts",
+    "credential_endpoint":  "https://wallet.acc.credenco.com/api/v2/credential",
+    "display":  [
+                    {
+                        "locale":  "en-US",
+                        "name":  "Alba Concepts"
+                    }
+                ],
+    "credential_configurations_supported":  {
+                                                "ProductEnvironmentalCredential":  {
+                                                                                       "format":  "jwt_vc_json",
+                                                                                       "scope":  "ProductEnvironmentalCredential",
+                                                                                       "cryptographic_binding_methods_supported":  [
+                                                                                                                                       "did",
+                                                                                                                                       "jwk"
+                                                                                                                                   ],
+                                                                                       "proof_types_supported":  {
+                                                                                                                     "jwt":  {
+                                                                                                                                 "proof_signing_alg_values_supported":  [
+                                                                                                                                                                            "ES256",
+                                                                                                                                                                            "RS256"
+                                                                                                                                                                        ]
+                                                                                                                             }
+                                                                                                                 },
+                                                                                       "credential_signing_alg_values_supported":  [
+                                                                                                                                       "ES256",
+                                                                                                                                       "RS256"
+                                                                                                                                   ],
+                                                                                       "credential_definition":  {
+                                                                                                                     "type":  [
+                                                                                                                                  "VerifiableCredential",
+                                                                                                                                  "ProductEnvironmentalCredential"
+                                                                                                                              ],
+                                                                                                                     "credentialSubject":  {
+                                                                                                                                               "productId":  {
+                                                                                                                                                                 "mandatory":  true,
+                                                                                                                                                                 "display":  [
+                                                                                                                                                                                 {
+                                                                                                                                                                                     "name":  "Product ID",
+                                                                                                                                                                                     "locale":  "en-US"
+                                                                                                                                                                                 }
+                                                                                                                                                                             ]
+                                                                                                                                                             },
+                                                                                                                                               "assessmentDate":  {
+                                                                                                                                                                      "mandatory":  true,
+                                                                                                                                                                      "display":  [
+                                                                                                                                                                                      {
+                                                                                                                                                                                          "name":  "Assessment Date",
+                                                                                                                                                                                          "locale":  "en-US"
+                                                                                                                                                                                      }
+                                                                                                                                                                                  ]
+                                                                                                                                                                  },
+                                                                                                                                               "assessingOrganization":  {
+                                                                                                                                                                             "mandatory":  true,
+                                                                                                                                                                             "display":  [
+                                                                                                                                                                                             {
+                                                                                                                                                                                                 "name":  "Assessing Organization",
+                                                                                                                                                                                                 "locale":  "en-US"
+                                                                                                                                                                                             }
+                                                                                                                                                                                         ]
+                                                                                                                                                                         },
+                                                                                                                                               "carbonFootprint":  {
+                                                                                                                                                                       "mandatory":  true,
+                                                                                                                                                                       "display":  [
+                                                                                                                                                                                       {
+                                                                                                                                                                                           "name":  "Carbon Footprint (kg CO2e)",
+                                                                                                                                                                                           "locale":  "en-US"
+                                                                                                                                                                                       }
+                                                                                                                                                                                   ]
+                                                                                                                                                                   },
+                                                                                                                                               "waterFootprint":  {
+                                                                                                                                                                      "mandatory":  false,
+                                                                                                                                                                      "display":  [
+                                                                                                                                                                                      {
+                                                                                                                                                                                          "name":  "Water Footprint (litres)",
+                                                                                                                                                                                          "locale":  "en-US"
+                                                                                                                                                                                      }
+                                                                                                                                                                                  ]
+                                                                                                                                                                  },
+                                                                                                                                               "wasteGenerated":  {
+                                                                                                                                                                      "mandatory":  false,
+                                                                                                                                                                      "display":  [
+                                                                                                                                                                                      {
+                                                                                                                                                                                          "name":  "Waste Generated (kg)",
+                                                                                                                                                                                          "locale":  "en-US"
+                                                                                                                                                                                      }
+                                                                                                                                                                                  ]
+                                                                                                                                                                  },
+                                                                                                                                               "renewableEnergyPercentage":  {
+                                                                                                                                                                                 "mandatory":  false,
+                                                                                                                                                                                 "display":  [
+                                                                                                                                                                                                 {
+                                                                                                                                                                                                     "name":  "Renewable Energy Used (%)",
+                                                                                                                                                                                                     "locale":  "en-US"
+                                                                                                                                                                                                 }
+                                                                                                                                                                                             ]
+                                                                                                                                                                             },
+                                                                                                                                               "lcaStandard":  {
+                                                                                                                                                                   "mandatory":  false,
+                                                                                                                                                                   "display":  [
+                                                                                                                                                                                   {
+                                                                                                                                                                                       "name":  "LCA Standard (e.g. ISO 14040)",
+                                                                                                                                                                                       "locale":  "en-US"
+                                                                                                                                                                                   }
+                                                                                                                                                                               ]
+                                                                                                                                                               },
+                                                                                                                                               "functionalUnit":  {
+                                                                                                                                                                      "mandatory":  false,
+                                                                                                                                                                      "display":  [
+                                                                                                                                                                                      {
+                                                                                                                                                                                          "name":  "Functional Unit",
+                                                                                                                                                                                          "locale":  "en-US"
+                                                                                                                                                                                      }
+                                                                                                                                                                                  ]
+                                                                                                                                                                  },
+                                                                                                                                               "systemBoundary":  {
+                                                                                                                                                                      "mandatory":  false,
+                                                                                                                                                                      "display":  [
+                                                                                                                                                                                      {
+                                                                                                                                                                                          "name":  "System Boundary",
+                                                                                                                                                                                          "locale":  "en-US"
+                                                                                                                                                                                      }
+                                                                                                                                                                                  ]
+                                                                                                                                                                  }
+                                                                                                                                           }
+                                                                                                                 },
+                                                                                       "display":  [
+                                                                                                       {
+                                                                                                           "name":  "Product Environmental Credential",
+                                                                                                           "locale":  "en-US",
+                                                                                                           "description":  "Verifiable credential containing Life Cycle Assessment (LCA) data including carbon footprint, water usage, and renewable energy for a product.",
+                                                                                                           "background_color":  "#2e6b3e",
+                                                                                                           "text_color":  "#ffffff"
+                                                                                                       }
+                                                                                                   ]
+                                                                                   }
+                                            }
+}

@@ -1,0 +1,139 @@
+﻿{
+    "credential_issuer":  "did:example:dsg-gevelmontage",
+    "credential_endpoint":  "https://wallet.acc.credenco.com/api/v2/credential",
+    "display":  [
+                    {
+                        "locale":  "en-US",
+                        "name":  "DSG-gevelmontage"
+                    }
+                ],
+    "credential_configurations_supported":  {
+                                                "RepairCredential":  {
+                                                                         "format":  "jwt_vc_json",
+                                                                         "scope":  "RepairCredential",
+                                                                         "cryptographic_binding_methods_supported":  [
+                                                                                                                         "did",
+                                                                                                                         "jwk"
+                                                                                                                     ],
+                                                                         "proof_types_supported":  {
+                                                                                                       "jwt":  {
+                                                                                                                   "proof_signing_alg_values_supported":  [
+                                                                                                                                                              "ES256",
+                                                                                                                                                              "RS256"
+                                                                                                                                                          ]
+                                                                                                               }
+                                                                                                   },
+                                                                         "credential_signing_alg_values_supported":  [
+                                                                                                                         "ES256",
+                                                                                                                         "RS256"
+                                                                                                                     ],
+                                                                         "credential_definition":  {
+                                                                                                       "type":  [
+                                                                                                                    "VerifiableCredential",
+                                                                                                                    "RepairCredential"
+                                                                                                                ],
+                                                                                                       "credentialSubject":  {
+                                                                                                                                 "repairId":  {
+                                                                                                                                                  "mandatory":  true,
+                                                                                                                                                  "display":  [
+                                                                                                                                                                  {
+                                                                                                                                                                      "name":  "Repair ID",
+                                                                                                                                                                      "locale":  "en-US"
+                                                                                                                                                                  }
+                                                                                                                                                              ]
+                                                                                                                                              },
+                                                                                                                                 "assetId":  {
+                                                                                                                                                 "mandatory":  true,
+                                                                                                                                                 "display":  [
+                                                                                                                                                                 {
+                                                                                                                                                                     "name":  "Asset / Product ID",
+                                                                                                                                                                     "locale":  "en-US"
+                                                                                                                                                                 }
+                                                                                                                                                             ]
+                                                                                                                                             },
+                                                                                                                                 "repairType":  {
+                                                                                                                                                    "mandatory":  true,
+                                                                                                                                                    "display":  [
+                                                                                                                                                                    {
+                                                                                                                                                                        "name":  "Repair Type",
+                                                                                                                                                                        "locale":  "en-US"
+                                                                                                                                                                    }
+                                                                                                                                                                ]
+                                                                                                                                                },
+                                                                                                                                 "repairDate":  {
+                                                                                                                                                    "mandatory":  true,
+                                                                                                                                                    "display":  [
+                                                                                                                                                                    {
+                                                                                                                                                                        "name":  "Repair Date",
+                                                                                                                                                                        "locale":  "en-US"
+                                                                                                                                                                    }
+                                                                                                                                                                ]
+                                                                                                                                                },
+                                                                                                                                 "repairedBy":  {
+                                                                                                                                                    "mandatory":  true,
+                                                                                                                                                    "display":  [
+                                                                                                                                                                    {
+                                                                                                                                                                        "name":  "Repaired By (Organization)",
+                                                                                                                                                                        "locale":  "en-US"
+                                                                                                                                                                    }
+                                                                                                                                                                ]
+                                                                                                                                                },
+                                                                                                                                 "repairedByEori":  {
+                                                                                                                                                        "mandatory":  false,
+                                                                                                                                                        "display":  [
+                                                                                                                                                                        {
+                                                                                                                                                                            "name":  "Repairing Organization EORI",
+                                                                                                                                                                            "locale":  "en-US"
+                                                                                                                                                                        }
+                                                                                                                                                                    ]
+                                                                                                                                                    },
+                                                                                                                                 "partsReplaced":  {
+                                                                                                                                                       "mandatory":  false,
+                                                                                                                                                       "display":  [
+                                                                                                                                                                       {
+                                                                                                                                                                           "name":  "Parts Replaced",
+                                                                                                                                                                           "locale":  "en-US"
+                                                                                                                                                                       }
+                                                                                                                                                                   ]
+                                                                                                                                                   },
+                                                                                                                                 "partsReplacedWithRecycled":  {
+                                                                                                                                                                   "mandatory":  false,
+                                                                                                                                                                   "display":  [
+                                                                                                                                                                                   {
+                                                                                                                                                                                       "name":  "Replaced with Recycled Parts",
+                                                                                                                                                                                       "locale":  "en-US"
+                                                                                                                                                                                   }
+                                                                                                                                                                               ]
+                                                                                                                                                               },
+                                                                                                                                 "description":  {
+                                                                                                                                                     "mandatory":  false,
+                                                                                                                                                     "display":  [
+                                                                                                                                                                     {
+                                                                                                                                                                         "name":  "Repair Description",
+                                                                                                                                                                         "locale":  "en-US"
+                                                                                                                                                                     }
+                                                                                                                                                                 ]
+                                                                                                                                                 },
+                                                                                                                                 "warrantyUntil":  {
+                                                                                                                                                       "mandatory":  false,
+                                                                                                                                                       "display":  [
+                                                                                                                                                                       {
+                                                                                                                                                                           "name":  "Warranty Valid Until",
+                                                                                                                                                                           "locale":  "en-US"
+                                                                                                                                                                       }
+                                                                                                                                                                   ]
+                                                                                                                                                   }
+                                                                                                                             }
+                                                                                                   },
+                                                                         "display":  [
+                                                                                         {
+                                                                                             "name":  "Repair Record",
+                                                                                             "locale":  "en-US",
+                                                                                             "description":  "Verifiable credential documenting maintenance or repair work performed on an asset, including parts replaced and the organization responsible.",
+                                                                                             "background_color":  "#4a4a00",
+                                                                                             "text_color":  "#ffffff"
+                                                                                         }
+                                                                                     ]
+                                                                     }
+                                            }
+}

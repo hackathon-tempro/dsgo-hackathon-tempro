@@ -47,7 +47,8 @@
     "crypto": "^1.0.1",
     "node-cache": "^5.1.2",
     "winston": "^3.11.0",
-    "winston-daily-rotate-file": "^4.7.1"
+    "winston-daily-rotate-file": "^4.7.1",
+    "qrcode": "^1.5.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",
