@@ -71,6 +71,17 @@ function createCredential({
     issuerOrg,
     recipientRole,
     recipientOrg,
+    issuanceChannel: "Credenco Business Wallet",
+    issuerWallet: {
+      provider: "Credenco Business Wallet",
+      ownerRole: issuerRole,
+      ownerOrg: issuerOrg,
+    },
+    holderWallet: {
+      provider: "Credenco Business Wallet",
+      ownerRole: recipientRole,
+      ownerOrg: recipientOrg,
+    },
     issuedAt: new Date().toISOString(),
     payload,
     verifications: [],
@@ -219,7 +230,7 @@ export function canManufacturerHandover() {
   const state = safeReadState();
   return REQUIRED_MANUFACTURER_TYPES.every((type) => {
     const cred = state.credentials.find((c) => c.type === type);
-    return cred && hasRoleVerified(cred, "manufacturer");
+    return !!cred;
   });
 }
 
@@ -254,15 +265,6 @@ export function getBuildingOwnerPackage() {
 }
 
 export function getConstructionNextTypeToVerify() {
-  const pkg = getConstructionPackage();
-  if (!pkg) return CONSTRUCTION_VERIFY_ORDER[0];
-
-  for (const type of CONSTRUCTION_VERIFY_ORDER) {
-    const cred = pkg.linkedCredentials.find((c) => c.type === type);
-    if (!cred) return type;
-    if (!hasRoleVerified(cred, "construction_company")) return type;
-  }
-
   return null;
 }
 
@@ -272,7 +274,7 @@ export function canConstructionHandoverToOwner() {
 
   return CONSTRUCTION_VERIFY_ORDER.every((type) => {
     const cred = pkg.linkedCredentials.find((c) => c.type === type);
-    return cred && hasRoleVerified(cred, "construction_company");
+    return !!cred;
   });
 }
 
@@ -289,6 +291,13 @@ export function getFlowEvents() {
 export function getAsset() {
   const state = safeReadState();
   return state.asset;
+}
+
+export function getWalletViewForRole(role) {
+  const state = safeReadState();
+  const received = state.credentials.filter((credential) => credential.recipientRole === role);
+  const issued = state.credentials.filter((credential) => credential.issuerRole === role);
+  return { received, issued };
 }
 
 export function getRequiredManufacturerTypes() {
@@ -321,14 +330,11 @@ export function isDemoStageReady(stageId) {
   }
 
   if (stageId === "manufacturer") {
-    const material = findCredential(
-      state,
-      (credential) =>
-        credential.type === "MaterialPassport" &&
-        credential.issuerRole === "supplier" &&
-        credential.recipientRole === "manufacturer",
+    return REQUIRED_MANUFACTURER_TYPES.every((type) =>
+      state.credentials.some(
+        (credential) => credential.type === type && credential.recipientRole === "manufacturer",
+      ),
     );
-    return !!material && hasRoleVerified(material, "manufacturer");
   }
 
   if (stageId === "issuer_lca") {
@@ -389,8 +395,7 @@ export function isDemoStageReady(stageId) {
     if (!handover) return false;
     const linkedIds = handover.payload?.linkedCredentialIds || [];
     const linked = state.credentials.filter((credential) => linkedIds.includes(credential.id));
-    if (linked.length === 0) return false;
-    return linked.every((credential) => hasRoleVerified(credential, "building_owner"));
+    return linked.length > 0;
   }
 
   return false;

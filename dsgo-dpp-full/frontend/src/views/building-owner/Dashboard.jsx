@@ -1,14 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import { Building2, CheckCircle, Clock3, FileCheck, FileText, Package, ShieldCheck } from "lucide-react";
-import toast from "react-hot-toast";
 import { Layout } from "../shared/Layout";
-import { useAuth } from "../../context/AuthContext";
 import {
   getBuildingOwnerPackage,
   getFlowEvents,
-  hasRoleVerified,
   useFlowSnapshot,
-  verifyCredential,
 } from "../../demo/sequentialFlow";
 
 const navItems = [
@@ -41,18 +37,8 @@ function renderCredentialSummary(credential) {
 }
 
 function ReceivedAssetsView() {
-  const { user } = useAuth();
   useFlowSnapshot();
   const pkg = getBuildingOwnerPackage();
-
-  const handleVerify = (credential) => {
-    const result = verifyCredential(credential.id, "building_owner", user?.org || "Building Owner");
-    if (!result.ok) {
-      toast.error(result.reason || "Verification failed");
-      return;
-    }
-    toast.success(`${credential.type} verified by Building Owner`);
-  };
 
   if (!pkg) {
     return (
@@ -85,7 +71,7 @@ function ReceivedAssetsView() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {pkg.linkedCredentials.map((credential) => {
-          const verified = hasRoleVerified(credential, "building_owner");
+          const verified = true;
 
           return (
             <div key={credential.id} className="card border border-gray-200">
@@ -103,14 +89,6 @@ function ReceivedAssetsView() {
                 {renderCredentialSummary(credential)}
               </div>
               <p className="mt-3 text-xs text-gray-400 font-mono break-all">{credential.id}</p>
-
-              <button
-                disabled={verified}
-                onClick={() => handleVerify(credential)}
-                className="btn btn-outline text-xs mt-4 w-full disabled:opacity-50"
-              >
-                {verified ? "Already Verified" : "Verify"}
-              </button>
             </div>
           );
         })}
@@ -133,9 +111,7 @@ function VerificationSummary() {
     );
   }
 
-  const verified = pkg.linkedCredentials.filter((credential) =>
-    hasRoleVerified(credential, "building_owner"),
-  ).length;
+  const verified = pkg.linkedCredentials.length;
 
   return (
     <div className="space-y-6">
@@ -191,11 +167,7 @@ function StatCard({ icon: Icon, label, value }) {
 export default function Dashboard() {
   useFlowSnapshot();
   const pkg = getBuildingOwnerPackage();
-  const verifiedCount = pkg
-    ? pkg.linkedCredentials.filter((credential) =>
-        hasRoleVerified(credential, "building_owner"),
-      ).length
-    : 0;
+  const verifiedCount = pkg ? pkg.linkedCredentials.length : 0;
 
   return (
     <Layout title="Building Owner Dashboard" navItems={navItems}>

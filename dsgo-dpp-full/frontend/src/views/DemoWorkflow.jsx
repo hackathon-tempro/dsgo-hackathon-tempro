@@ -20,10 +20,21 @@ import {
   readDemoProgress,
   resetDemoProgress,
 } from "../demo/workflow";
-import { resetFlowState } from "../demo/sequentialFlow";
+import { getWalletViewForRole, resetFlowState, useFlowSnapshot } from "../demo/sequentialFlow";
 
 const STAGE_BY_ID = Object.fromEntries(DEMO_STAGES.map((stage) => [stage.id, stage]));
 const ISSUER_IDS = ["issuer_lca", "tester", "issuer_ce"];
+
+function actorLabel(role) {
+  if (role === "supplier") return "Supplier";
+  if (role === "manufacturer") return "Manufacturer";
+  if (role === "lca_org") return "LCA Organisation";
+  if (role === "test_lab") return "Test Lab";
+  if (role === "certification_body") return "SKG IKOB";
+  if (role === "construction_company") return "Construction Company";
+  if (role === "building_owner") return "Building Owner";
+  return role;
+}
 
 function UseCaseCard({ icon: Icon, title, description, done }) {
   return (
@@ -42,7 +53,10 @@ function UseCaseCard({ icon: Icon, title, description, done }) {
   );
 }
 
-function StageCard({ stage, done, locked, onOpen }) {
+function StageCard({ stage, done, locked, onOpen, walletView }) {
+  const issued = walletView?.issued || [];
+  const received = walletView?.received || [];
+
   return (
     <div
       className={`rounded-xl border-2 p-4 transition-all ${
@@ -60,8 +74,6 @@ function StageCard({ stage, done, locked, onOpen }) {
           </div>
           <div>
             <h3 className="font-semibold text-gray-900 text-sm">{stage.title}</h3>
-            <p className="text-xs text-gray-600 mt-1">{stage.objective}</p>
-            <p className="text-xs text-gray-500 mt-2">Outcome: {stage.outcome}</p>
           </div>
         </div>
       </div>
@@ -78,6 +90,37 @@ function StageCard({ stage, done, locked, onOpen }) {
           Open Interface <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
+
+      <div className="mt-3 rounded-lg border bg-gray-50 p-3 space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-semibold text-gray-800">Credenco Wallet VCs</p>
+          <span className="text-[11px] text-gray-500">Issued {issued.length} · Received {received.length}</span>
+        </div>
+        <div>
+          <p className="text-xs font-semibold text-gray-700">Issued from this wallet</p>
+          {issued.length === 0 ? (
+            <p className="text-xs text-gray-500 mt-1">No issued credentials yet.</p>
+          ) : (
+            issued.map((credential) => (
+              <p key={credential.id} className="text-xs text-gray-700 mt-1">
+                {credential.type} · {actorLabel(credential.issuerRole)} Wallet -&gt; {actorLabel(credential.recipientRole)} Wallet
+              </p>
+            ))
+          )}
+        </div>
+        <div>
+          <p className="text-xs font-semibold text-gray-700">Contained in this wallet (received)</p>
+          {received.length === 0 ? (
+            <p className="text-xs text-gray-500 mt-1">No received credentials yet.</p>
+          ) : (
+            received.map((credential) => (
+              <p key={credential.id} className="text-xs text-gray-700 mt-1">
+                {credential.type} · from {credential.issuerOrg}
+              </p>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -85,6 +128,7 @@ function StageCard({ stage, done, locked, onOpen }) {
 export default function DemoWorkflow() {
   const navigate = useNavigate();
   const { switchToCompany, user } = useAuth();
+  useFlowSnapshot();
   const [completed, setCompleted] = useState(readDemoProgress());
 
   const completedSet = useMemo(() => new Set(completed), [completed]);
@@ -175,28 +219,13 @@ export default function DemoWorkflow() {
           )}
 
           <div className="space-y-4">
-            {["supplier", "manufacturer"].map((id) => {
-              const stage = STAGE_BY_ID[id];
-              const done = completedSet.has(stage.id);
-              const locked = !done && !isStageUnlocked(stage.id, completedSet);
-
-              return (
-                <div key={stage.id}>
-                  <StageCard stage={stage} done={done} locked={locked} onOpen={() => openStage(stage)} />
-                  <div className="flex justify-center text-gray-400 py-2">
-                    <ArrowRight className="w-5 h-5" />
-                  </div>
-                </div>
-              );
-            })}
-
             <div>
               <div className="flex items-center justify-between mb-2">
-                <h2 className="text-sm font-semibold text-gray-700">Three Certification Flows (parallel)</h2>
-                <span className="text-xs text-gray-500">All three are required before construction handover</span>
+                <h2 className="text-sm font-semibold text-gray-700">Upstream Issuers (parallel)</h2>
+                <span className="text-xs text-gray-500">All issuers send credentials to Manufacturer</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {ISSUER_IDS.map((id) => {
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+                {["supplier", ...ISSUER_IDS].map((id) => {
                   const stage = STAGE_BY_ID[id];
                   const done = completedSet.has(stage.id);
                   const locked = !done && !isStageUnlocked(stage.id, completedSet);
@@ -207,14 +236,40 @@ export default function DemoWorkflow() {
                       done={done}
                       locked={locked}
                       onOpen={() => openStage(stage)}
+                      walletView={getWalletViewForRole(stage.role)}
                     />
                   );
                 })}
               </div>
             </div>
 
+            <div className="flex justify-center text-gray-400 py-1">
+              <span className="text-xs font-medium">All upstream flows</span>
+            </div>
+            <div className="flex justify-center text-gray-400">
+              <ArrowRight className="w-5 h-5 rotate-90" />
+            </div>
+
+            {["manufacturer"].map((id) => {
+              const stage = STAGE_BY_ID[id];
+              const done = completedSet.has(stage.id);
+              const locked = !done && !isStageUnlocked(stage.id, completedSet);
+
+              return (
+                <div key={stage.id}>
+                  <StageCard
+                    stage={stage}
+                    done={done}
+                    locked={locked}
+                    onOpen={() => openStage(stage)}
+                    walletView={getWalletViewForRole(stage.role)}
+                  />
+                </div>
+              );
+            })}
+
             <div className="flex justify-center text-gray-400 py-2">
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-5 h-5 rotate-90" />
             </div>
 
             {["construction", "owner"].map((id, idx, arr) => {
@@ -224,10 +279,16 @@ export default function DemoWorkflow() {
 
               return (
                 <div key={stage.id}>
-                  <StageCard stage={stage} done={done} locked={locked} onOpen={() => openStage(stage)} />
+                  <StageCard
+                    stage={stage}
+                    done={done}
+                    locked={locked}
+                    onOpen={() => openStage(stage)}
+                    walletView={getWalletViewForRole(stage.role)}
+                  />
                   {idx < arr.length - 1 && (
                     <div className="flex justify-center text-gray-400 py-2">
-                      <ArrowRight className="w-5 h-5" />
+                      <ArrowRight className="w-5 h-5 rotate-90" />
                     </div>
                   )}
                 </div>
@@ -239,7 +300,7 @@ export default function DemoWorkflow() {
             <h2 className="text-sm font-semibold text-gray-800">Demo Presenter Flow</h2>
             <p className="text-xs text-gray-600 mt-2">
               Supplier issues MaterialPassport, manufacturer receives all credentials, LCA + Test Lab + SKG IKOB run in parallel,
-              then Manufacturer and Construction Company each issue AssetHandoverCredential until owner verifies the linked package.
+              then Manufacturer and Construction Company each issue AssetHandoverCredential until owner receives the linked package.
             </p>
             <div className="mt-3 space-y-1.5">
               {unlockedEvidence.length === 0 ? (

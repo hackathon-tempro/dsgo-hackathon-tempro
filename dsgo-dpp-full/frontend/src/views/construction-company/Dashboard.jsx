@@ -5,13 +5,10 @@ import { Layout } from "../shared/Layout";
 import { useAuth } from "../../context/AuthContext";
 import {
   canConstructionHandoverToOwner,
-  getConstructionNextTypeToVerify,
   getConstructionPackage,
   getConstructionVerificationOrder,
-  hasRoleVerified,
   issueFlowCredential,
   useFlowSnapshot,
-  verifyCredential,
 } from "../../demo/sequentialFlow";
 
 const navItems = [
@@ -52,7 +49,6 @@ function renderCredentialSummary(credential) {
 }
 
 function ReceivingView() {
-  const { user } = useAuth();
   useFlowSnapshot();
   const pkg = getConstructionPackage();
 
@@ -62,29 +58,13 @@ function ReceivingView() {
         <FileText className="w-12 h-12 mx-auto mb-4 text-gray-300" />
         <p>Waiting for AssetHandoverCredential from Manufacturer.</p>
         <p className="text-xs text-gray-400 mt-2">
-          Go to Manufacturer → Asset Handover and issue the credential first.
+          Go to Manufacturer -&gt; Asset Handover and issue the credential first.
         </p>
       </div>
     );
   }
 
   const order = getConstructionVerificationOrder();
-  const nextType = getConstructionNextTypeToVerify();
-
-  const handleVerify = (credential) => {
-    if (nextType && credential.type !== nextType) {
-      toast.error(`Verify ${nextType} first`);
-      return;
-    }
-
-    const result = verifyCredential(credential.id, "construction_company", user?.org || "Construction Company");
-    if (!result.ok) {
-      toast.error(result.reason || "Verification failed");
-      return;
-    }
-
-    toast.success(`${credential.type} verified by Construction Company`);
-  };
 
   return (
     <div className="space-y-6">
@@ -106,8 +86,7 @@ function ReceivingView() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {order.map((type) => {
           const credential = pkg.linkedCredentials.find((item) => item.type === type);
-          const verified = credential ? hasRoleVerified(credential, "construction_company") : false;
-          const isCurrent = nextType === type;
+          const verified = !!credential;
 
           return (
             <div key={type} className="card border border-gray-200">
@@ -118,8 +97,8 @@ function ReceivingView() {
                     {credential ? `From ${credential.issuerOrg}` : "Missing from package"}
                   </p>
                 </div>
-                <span className={`badge ${verified ? "badge-success" : isCurrent ? "badge-warning" : "badge-gray"}`}>
-                  {verified ? "Verified" : isCurrent ? "Verify now" : "Locked"}
+                <span className={`badge ${verified ? "badge-success" : "badge-gray"}`}>
+                  {verified ? "Verified (auto)" : "Missing"}
                 </span>
               </div>
 
@@ -134,14 +113,6 @@ function ReceivingView() {
               {credential && (
                 <p className="mt-3 text-xs text-gray-400 font-mono break-all">{credential.id}</p>
               )}
-
-              <button
-                disabled={!credential || verified || (!!nextType && !isCurrent)}
-                onClick={() => handleVerify(credential)}
-                className="btn btn-outline text-xs mt-4 w-full disabled:opacity-50"
-              >
-                {verified ? "Verified" : "Verify"}
-              </button>
             </div>
           );
         })}
@@ -167,7 +138,7 @@ function HandoverToOwner() {
       return;
     }
     if (!canConstructionHandoverToOwner()) {
-      toast.error("Verify TestReport, CE marking, and LCA report in order before handover");
+      toast.error("Missing linked credentials on the incoming package");
       return;
     }
 
@@ -194,7 +165,7 @@ function HandoverToOwner() {
       <div className="card">
         <h2 className="text-lg font-semibold">Construction Company -&gt; Building Owner</h2>
         <p className="text-sm text-gray-600 mt-2">
-          Forward the same asset product and linked credentials to the building owner after verification.
+          Forward the same asset product and linked credentials to the building owner.
         </p>
         <button
           disabled={!canConstructionHandoverToOwner()}
@@ -235,19 +206,14 @@ function StatCard({ icon: Icon, label, value }) {
 export default function Dashboard() {
   useFlowSnapshot();
   const pkg = getConstructionPackage();
-  const nextType = getConstructionNextTypeToVerify();
-  const verifiedCount = pkg
-    ? pkg.linkedCredentials.filter((credential) =>
-        hasRoleVerified(credential, "construction_company"),
-      ).length
-    : 0;
+  const linkedCount = pkg ? pkg.linkedCredentials.length : 0;
 
   return (
     <Layout title="Construction Company Dashboard" navItems={navItems}>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <StatCard icon={Package} label="Asset Received" value={pkg ? "Yes" : "No"} />
-        <StatCard icon={ClipboardCheck} label="Verified Linked Credentials" value={verifiedCount} />
-        <StatCard icon={ArrowRight} label="Next Required" value={nextType || "Done"} />
+        <StatCard icon={ClipboardCheck} label="Linked Credentials" value={linkedCount} />
+        <StatCard icon={ArrowRight} label="Verification Mode" value="Auto" />
         <StatCard icon={Building2} label="Ready for Owner" value={canConstructionHandoverToOwner() ? "Yes" : "No"} />
       </div>
 

@@ -7,10 +7,8 @@ import {
   canManufacturerHandover,
   getDownstreamLinkedTypes,
   getRequiredManufacturerTypes,
-  hasRoleVerified,
   issueFlowCredential,
   useFlowSnapshot,
-  verifyCredential,
 } from "../../demo/sequentialFlow";
 
 const navItems = [
@@ -79,26 +77,25 @@ function renderCredentialPayload(credential) {
 }
 
 function IncomingCredentials() {
-  const { user } = useAuth();
   const { asset, credentials } = useFlowSnapshot();
   const requiredTypes = getRequiredManufacturerTypes();
-  const downstreamTypes = getDownstreamLinkedTypes();
   const incomingCredentials = credentials.filter(
     (credential) =>
       credential.recipientRole === "manufacturer" && requiredTypes.includes(credential.type),
   );
 
-  const handleVerify = (credential) => {
-    const result = verifyCredential(credential.id, "manufacturer", user?.org || "Manufacturer");
-    if (!result.ok) {
-      toast.error(result.reason || "Verification failed");
-      return;
-    }
-    toast.success(`${credential.type} verified by Manufacturer`);
-  };
-
   return (
     <div className="space-y-6">
+      <div className="card border border-primary-200 bg-primary-50">
+        <h3 className="text-sm font-semibold text-primary-900">Next Action</h3>
+        <p className="text-xs text-primary-800 mt-1">
+          After verifying all incoming credentials, issue the AssetHandoverCredential to Construction Company.
+        </p>
+        <Link to="/manufacturer/handover" className="btn btn-primary text-xs mt-3 inline-flex">
+          Go To Handover Screen
+        </Link>
+      </div>
+
       <div className="card border border-primary-200 bg-primary-50">
         <div className="flex items-center gap-3">
           <Package className="w-5 h-5 text-primary-600" />
@@ -114,7 +111,7 @@ function IncomingCredentials() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {requiredTypes.map((type) => {
           const credential = incomingCredentials.find((item) => item.type === type);
-          const isVerified = credential ? hasRoleVerified(credential, "manufacturer") : false;
+          const isVerified = !!credential;
 
           return (
             <div key={type} className="card border border-gray-200">
@@ -145,26 +142,12 @@ function IncomingCredentials() {
                 </div>
               )}
 
-              <button
-                disabled={!credential || isVerified}
-                onClick={() => handleVerify(credential)}
-                className="btn btn-outline text-xs mt-4 w-full disabled:opacity-50"
-              >
-                {isVerified ? "Already Verified" : "Verify"}
-              </button>
+              <div className="mt-4 text-xs text-gray-500">
+                {credential ? "Auto-verified on issuance" : "Awaiting issuance from upstream"}
+              </div>
             </div>
           );
         })}
-      </div>
-
-      <div className="card border border-primary-200 bg-primary-50">
-        <h3 className="text-sm font-semibold text-primary-900">Next Action</h3>
-        <p className="text-xs text-primary-800 mt-1">
-          After verifying all incoming credentials, issue the AssetHandoverCredential to Construction Company.
-        </p>
-        <Link to="/manufacturer/handover" className="btn btn-primary text-xs mt-3 inline-flex">
-          Go To Handover Screen
-        </Link>
       </div>
     </div>
   );
@@ -216,7 +199,7 @@ function AssetHandover() {
       <div className="card">
         <h2 className="text-lg font-semibold">Manufacturer -&gt; Construction Company</h2>
         <p className="text-sm text-gray-600 mt-2">
-          Send the asset product with the exact linked credentials that were received and verified here.
+          Send the asset product with the exact linked credentials that were received here.
         </p>
         <button
           disabled={!canManufacturerHandover()}
@@ -261,15 +244,13 @@ export default function Dashboard() {
     (credential) =>
       credential.recipientRole === "manufacturer" && requiredTypes.includes(credential.type),
   );
-  const verifiedCount = incomingCredentials.filter((credential) =>
-    hasRoleVerified(credential, "manufacturer"),
-  ).length;
+  const availableCount = incomingCredentials.length;
 
   return (
     <Layout title="Manufacturer Dashboard" navItems={navItems}>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <StatCard icon={Truck} label="Incoming Credentials" value={incomingCredentials.length} />
-        <StatCard icon={ShieldCheck} label="Verified by Manufacturer" value={verifiedCount} />
+        <StatCard icon={ShieldCheck} label="Auto-Verified" value={availableCount} />
         <StatCard icon={Package} label="Required for Handover" value={requiredTypes.length} />
         <StatCard icon={FileUp} label="Ready to Handover" value={canManufacturerHandover() ? "Yes" : "No"} />
       </div>

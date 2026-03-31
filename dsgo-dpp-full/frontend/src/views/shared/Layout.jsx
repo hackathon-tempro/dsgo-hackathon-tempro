@@ -10,7 +10,7 @@ import {
   markDemoStageComplete,
   readDemoProgress,
 } from "../../demo/workflow";
-import { isDemoStageReady } from "../../demo/sequentialFlow";
+import { isDemoStageReady, useFlowSnapshot } from "../../demo/sequentialFlow";
 import toast from "react-hot-toast";
 
 const ROLE_LABELS = {
@@ -29,6 +29,7 @@ const ROLE_LABELS = {
 
 export function Layout({ children, title, actions, navItems = [] }) {
   const { user, logout } = useAuth();
+  useFlowSnapshot();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -191,7 +192,11 @@ export function Layout({ children, title, actions, navItems = [] }) {
                   className="btn btn-primary text-xs inline-flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  {stageCompleted ? "Stage Completed" : "Complete Stage & Return"}
+                  {stageCompleted
+                    ? "Stage Completed"
+                    : stageReady
+                      ? "Complete Stage & Return"
+                      : "Complete Required Action First"}
                 </button>
               </div>
             </div>
