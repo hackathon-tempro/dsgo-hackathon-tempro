@@ -17,10 +17,10 @@
       },
 
       "partyInfo": {
-        "id": "did:ishare:EU.NL.NTRNL-12345678",
+        "id": "did:ishare:EU.EORI.NL000000001012",
         "alsoKnownAs": [
           "kvk:12345678",
-          "eori:EU.EORI.NL000012345"
+          "EU.EORI.NL000000001012"
         ],
         "name": "Arconic B.V.",
         "claims": [
@@ -196,7 +196,7 @@
           {
             "title": "MaterialPassport Credential Issuance",
             "description": "Issues W3C Verifiable Credentials containing material composition data for aluminium facade panels. Includes alloy type, recycled content percentage, origin country, REACH/RoHS compliance status, and EN 15804 environmental product declaration reference. Credential is signed with Arconic's DID and delivered to the specified holder wallet.",
-            "partyId": "did:ishare:EU.NL.NTRNL-12345678",
+            "partyId": "did:ishare:EU.EORI.NL000000001012",
             "capability": "/credentials/material-passport/issue",
             "licenses": ["DSGO.0001"],
             "accessRights": "Access restricted to DSGO participants with active MaterialConsumer or Manufacturer role. Credential issuance requires a valid purchase order reference.",
@@ -218,7 +218,7 @@
           {
             "title": "MaterialPassport Credential Verification",
             "description": "Verifies the integrity and authenticity of MaterialPassport credentials issued by Arconic. Returns cryptographic verification result, issuer trust chain status, credential expiration, and revocation check.",
-            "partyId": "did:ishare:EU.NL.NTRNL-12345678",
+            "partyId": "did:ishare:EU.EORI.NL000000001012",
             "capability": "/credentials/material-passport/verify",
             "licenses": ["DSGO.0001"],
             "accessRights": "Access open to all DSGO participants with active membership.",
@@ -250,7 +250,7 @@
       },
 
       "partyInfo": {
-        "id": "did:ishare:EU.NL.NTRNL-23456789",
+        "id": "did:ishare:EU.EORI.NL000000004056",
         "alsoKnownAs": [
           "kvk:23456789"
         ],
@@ -429,7 +429,7 @@
           {
             "title": "ProductEnvironmentalCredential Issuance",
             "description": "Issues Verifiable Credentials containing LCA results for construction products. Credential payload includes: GWP total (kg CO₂e) per declared/functional unit, LCA module breakdown (A1-A3 production, C3-C4 end-of-life, D benefits beyond system boundary per EN 15804+A2), data quality indicators per ISO 14044, reference to underlying NMD category 3 data or product-specific EPD, and assessment date. LCA methodology follows SBK Bepalingsmethode and NEN-EN 15804+A2.",
-            "partyId": "did:ishare:EU.NL.NTRNL-23456789",
+            "partyId": "did:ishare:EU.EORI.NL000000004056",
             "capability": "/credentials/product-environmental/issue",
             "licenses": ["DSGO.0001", "DSGO.0003"],
             "accessRights": "Access restricted to DSGO participants with active Manufacturer or ConstructionCompany role. Issuance requires a valid product identifier and LCA assessment scope agreement.",
@@ -451,7 +451,7 @@
           {
             "title": "ProductEnvironmentalCredential Verification",
             "description": "Verifies the integrity, authenticity, and LCA methodology compliance of ProductEnvironmentalCredential VCs issued by Alba Concepts. Returns cryptographic verification, issuer trust chain, credential expiration, revocation status, and an LCA methodology compliance flag.",
-            "partyId": "did:ishare:EU.NL.NTRNL-23456789",
+            "partyId": "did:ishare:EU.EORI.NL000000004056",
             "capability": "/credentials/product-environmental/verify",
             "licenses": ["DSGO.0001"],
             "accessRights": "Open to all DSGO participants with active membership.",
@@ -483,7 +483,7 @@
       },
 
       "partyInfo": {
-        "id": "did:ishare:EU.NL.NTRNL-34567890",
+        "id": "did:ishare:EU.EORI.BE000000005067",
         "alsoKnownAs": [
           "kvk:34567890"
         ],
@@ -662,7 +662,7 @@
           {
             "title": "FireSafetyCredential Issuance",
             "description": "Issues Verifiable Credentials containing fire safety classification results for construction products and assemblies. Credential payload includes: fire resistance class per EN 13501-2 (e.g. EI60, EI90, REI120), reaction to fire class per EN 13501-1 (e.g. A2-s1,d0), test report number, SKG-IKOB certification number, product scope description, and certificate validity period. Classification based on physical testing per EN 1364/EN 1365 series or extended application per EN 15725.",
-            "partyId": "did:ishare:EU.NL.NTRNL-34567890",
+            "partyId": "did:ishare:EU.EORI.BE000000005067",
             "capability": "/credentials/fire-safety/issue",
             "licenses": ["DSGO.0001", "DSGO.0002"],
             "accessRights": "Access restricted to DSGO participants with active Manufacturer role and a valid certification agreement with SKG-IKOB. Credential issuance requires completed fire testing and assessment.",
@@ -684,7 +684,7 @@
           {
             "title": "FireSafetyCredential Verification",
             "description": "Verifies integrity, authenticity, RvA accreditation validity, and certificate currency of FireSafetyCredential VCs issued by SKG-IKOB. Returns cryptographic verification, issuer trust chain, credential expiration, revocation status, and accreditation compliance flag.",
-            "partyId": "did:ishare:EU.NL.NTRNL-34567890",
+            "partyId": "did:ishare:EU.EORI.BE000000005067",
             "capability": "/credentials/fire-safety/verify",
             "licenses": ["DSGO.0001"],
             "accessRights": "Open to all DSGO participants with active membership.",
@@ -716,10 +716,10 @@
       },
 
       "partyInfo": {
-        "id": "did:ishare:EU.NL.NTRNL-45678901",
+        "id": "did:ishare:EU.EORI.DE000000002034",
         "alsoKnownAs": [
           "kvk:45678901",
-          "eori:EU.EORI.NL000045678"
+          "EU.EORI.DE000000002034"
         ],
         "name": "Alkondor Hengelo B.V.",
         "claims": [
@@ -927,7 +927,7 @@
           {
             "title": "AssetHandoverCredential Issuance",
             "description": "Issues Verifiable Credentials that bundle multiple source credentials into a single handover package for construction product transfer. The AssetHandoverCredential contains: product identification (GTIN, serial, product type), assembly/system description, an array of linked credential references (each with credentialId, issuerDID, credentialType, and a verification snapshot timestamp), handover metadata (date, from-party DID, to-party DID, purpose), and Alkondor's manufacturer declaration. All linked credentials are recursively verified at issuance time; the verification snapshot is included in the credential payload.",
-            "partyId": "did:ishare:EU.NL.NTRNL-45678901",
+            "partyId": "did:ishare:EU.EORI.DE000000002034",
             "capability": "/credentials/asset-handover/issue",
             "licenses": ["DSGO.0001"],
             "accessRights": "Access restricted to DSGO participants with active ConstructionCompany or BuildingOwner role and a valid project/contract reference with Alkondor.",
@@ -949,7 +949,7 @@
           {
             "title": "AssetHandoverCredential Verification",
             "description": "Verifies an AssetHandoverCredential including recursive verification of all linked credentials. Returns per-credential verification status covering: cryptographic integrity, issuer trust chain, expiration, revocation, and domain-specific compliance flags (material composition, LCA methodology, fire safety accreditation).",
-            "partyId": "did:ishare:EU.NL.NTRNL-45678901",
+            "partyId": "did:ishare:EU.EORI.DE000000002034",
             "capability": "/credentials/asset-handover/verify",
             "licenses": ["DSGO.0001"],
             "accessRights": "Open to all DSGO participants with active membership.",
@@ -981,10 +981,10 @@
       },
 
       "partyInfo": {
-        "id": "did:ishare:EU.NL.NTRNL-56789012",
+        "id": "did:ishare:EU.EORI.NL000000006078",
         "alsoKnownAs": [
           "kvk:56789012",
-          "eori:EU.EORI.NL000056789"
+          "EU.EORI.NL000000006078"
         ],
         "name": "Heijmans N.V.",
         "claims": [
@@ -1192,7 +1192,7 @@
           {
             "title": "AssetHandoverCredential Issuance (Construction → Owner)",
             "description": "Issues Verifiable Credentials that transfer construction asset ownership from Heijmans to the building owner/VvE. The credential bundles: the upstream AssetHandoverCredential from the manufacturer (with its full linked chain), construction-phase metadata (installation date, location within building, as-built BIM element reference, project identifier, installer declaration), and Heijmans's construction company declaration confirming correct installation per manufacturer specifications and Bouwbesluit requirements.",
-            "partyId": "did:ishare:EU.NL.NTRNL-56789012",
+            "partyId": "did:ishare:EU.EORI.NL000000006078",
             "capability": "/credentials/asset-handover/issue",
             "licenses": ["DSGO.0001"],
             "accessRights": "Access restricted to DSGO participants with active BuildingOwner or AssetManager role and a valid project/contract reference with Heijmans.",
@@ -1214,7 +1214,7 @@
           {
             "title": "AssetHandoverCredential Verification (Full Chain)",
             "description": "Full-chain verification of AssetHandoverCredentials issued by Heijmans. Recursively verifies all nested credentials down to the material origin (MaterialPassport from Arconic, ProductEnvironmentalCredential from Alba Concepts, FireSafetyCredential from SKG-IKOB). Returns per-credential verification status with domain-specific compliance flags.",
-            "partyId": "did:ishare:EU.NL.NTRNL-56789012",
+            "partyId": "did:ishare:EU.EORI.NL000000006078",
             "capability": "/credentials/asset-handover/verify",
             "licenses": ["DSGO.0001"],
             "accessRights": "Open to all DSGO participants with active membership.",
@@ -1246,7 +1246,7 @@
       },
 
       "partyInfo": {
-        "id": "did:ishare:EU.NL.NTRNL-67890123",
+        "id": "did:ishare:EU.EORI.DE000000007089",
         "alsoKnownAs": [
           "kvk:67890123"
         ],
@@ -1403,7 +1403,7 @@
           {
             "title": "Building Product Credential Archive",
             "description": "Provides read access to the VvE's building product credential archive. Stores and serves AssetHandoverCredentials received during construction handover, enabling future verification of material origin, environmental impact, and fire safety compliance for maintenance, renovation, or end-of-life recycling decisions. Supports credential chain resolution for full provenance tracing.",
-            "partyId": "did:ishare:EU.NL.NTRNL-67890123",
+            "partyId": "did:ishare:EU.EORI.DE000000007089",
             "capability": "/wallet/credentials",
             "licenses": ["DSGO.0001"],
             "accessRights": "Access restricted to the VvE board members and authorised asset managers. Third-party access (e.g. maintenance contractors, future recyclers) requires explicit delegation via DSGO delegation evidence.",
