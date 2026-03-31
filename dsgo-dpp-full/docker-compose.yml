@@ -23,22 +23,6 @@ services:
       - dsgo_network
     restart: unless-stopped
 
-  redis:
-    image: redis:7-alpine
-    container_name: dsgo-redis
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - dsgo_network
-    restart: unless-stopped
-
   backend:
     build:
       context: ./backend
@@ -54,7 +38,6 @@ services:
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
       DB_NAME: ${DB_NAME:-dsgo_dpp}
-      REDIS_URL: redis://redis:6379
       LOG_LEVEL: ${LOG_LEVEL:-info}
       CREDENCO_BASE_URL: ${CREDENCO_BASE_URL:-https://wallet.acc.credenco.com}
       CREDENCO_CLIENT_ID: ${CREDENCO_CLIENT_ID}
@@ -63,11 +46,9 @@ services:
       ISHARE_CLIENT_ID: ${ISHARE_CLIENT_ID}
       ISHARE_CLIENT_SECRET: ${ISHARE_CLIENT_SECRET}
       JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-in-production}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3001,http://localhost:3002,http://localhost:3003,http://localhost:3004,http://localhost:3005}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3001}
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     volumes:
       - ./backend/src:/app/src
@@ -76,176 +57,15 @@ services:
       - dsgo_network
     restart: unless-stopped
 
-  supplier-frontend:
+  frontend:
     build:
-      context: ./frontends/supplier
+      context: ./frontend
       dockerfile: Dockerfile
-    container_name: dsgo-supplier-frontend
+    container_name: dsgo-frontend
     ports:
       - "3001:3000"
     environment:
       REACT_APP_API_URL: http://localhost:3000/api/v1
-      REACT_APP_ORG_ROLE: supplier
-    depends_on:
-      - backend
-    networks:
-      - dsgo_network
-    restart: unless-stopped
-
-  manufacturer-frontend:
-    build:
-      context: ./frontends/manufacturer
-      dockerfile: Dockerfile
-    container_name: dsgo-manufacturer-frontend
-    ports:
-      - "3002:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:3000/api/v1
-      REACT_APP_ORG_ROLE: manufacturer
-    depends_on:
-      - backend
-    networks:
-      - dsgo_network
-    restart: unless-stopped
-
-  test-lab-frontend:
-    build:
-      context: ./frontends/test-lab
-      dockerfile: Dockerfile
-    container_name: dsgo-test-lab-frontend
-    ports:
-      - "3003:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:3000/api/v1
-      REACT_APP_ORG_ROLE: test-lab
-    depends_on:
-      - backend
-    networks:
-      - dsgo_network
-    restart: unless-stopped
-
-  lca-org-frontend:
-    build:
-      context: ./frontends/lca-org
-      dockerfile: Dockerfile
-    container_name: dsgo-lca-org-frontend
-    ports:
-      - "3004:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:3000/api/v1
-      REACT_APP_ORG_ROLE: lca-org
-    depends_on:
-      - backend
-    networks:
-      - dsgo_network
-    restart: unless-stopped
-
-  certification-body-frontend:
-    build:
-      context: ./frontends/certification-body
-      dockerfile: Dockerfile
-    container_name: dsgo-certification-body-frontend
-    ports:
-      - "3005:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:3000/api/v1
-      REACT_APP_ORG_ROLE: certification-body
-    depends_on:
-      - backend
-    networks:
-      - dsgo_network
-    restart: unless-stopped
-
-  construction-frontend:
-    build:
-      context: ./frontends/construction-company
-      dockerfile: Dockerfile
-    container_name: dsgo-construction-frontend
-    ports:
-      - "3006:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:3000/api/v1
-      REACT_APP_ORG_ROLE: construction-company
-    depends_on:
-      - backend
-    networks:
-      - dsgo_network
-    restart: unless-stopped
-
-  building-owner-frontend:
-    build:
-      context: ./frontends/building-owner
-      dockerfile: Dockerfile
-    container_name: dsgo-building-owner-frontend
-    ports:
-      - "3007:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:3000/api/v1
-      REACT_APP_ORG_ROLE: building-owner
-    depends_on:
-      - backend
-    networks:
-      - dsgo_network
-    restart: unless-stopped
-
-  maintenance-frontend:
-    build:
-      context: ./frontends/maintenance-company
-      dockerfile: Dockerfile
-    container_name: dsgo-maintenance-frontend
-    ports:
-      - "3008:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:3000/api/v1
-      REACT_APP_ORG_ROLE: maintenance-company
-    depends_on:
-      - backend
-    networks:
-      - dsgo_network
-    restart: unless-stopped
-
-  authority-frontend:
-    build:
-      context: ./frontends/regulatory-authority
-      dockerfile: Dockerfile
-    container_name: dsgo-authority-frontend
-    ports:
-      - "3009:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:3000/api/v1
-      REACT_APP_ORG_ROLE: regulatory-authority
-    depends_on:
-      - backend
-    networks:
-      - dsgo_network
-    restart: unless-stopped
-
-  dismantling-frontend:
-    build:
-      context: ./frontends/dismantling-company
-      dockerfile: Dockerfile
-    container_name: dsgo-dismantling-frontend
-    ports:
-      - "3010:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:3000/api/v1
-      REACT_APP_ORG_ROLE: dismantling-company
-    depends_on:
-      - backend
-    networks:
-      - dsgo_network
-    restart: unless-stopped
-
-  recycler-frontend:
-    build:
-      context: ./frontends/recycler
-      dockerfile: Dockerfile
-    container_name: dsgo-recycler-frontend
-    ports:
-      - "3011:3000"
-    environment:
-      REACT_APP_API_URL: http://localhost:3000/api/v1
-      REACT_APP_ORG_ROLE: recycler
     depends_on:
       - backend
     networks:
@@ -254,7 +74,6 @@ services:
 
 volumes:
   postgres_data:
-  redis_data:
 
 networks:
   dsgo_network:

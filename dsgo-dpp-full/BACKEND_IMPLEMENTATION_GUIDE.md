@@ -2,14 +2,15 @@
 
 ## Architecture Overview
 
-This is a **complete, production-ready backend** for the DSGO/DPP platform supporting all 13 user stories, real Credenco integration, iSHARE authentication, and multi-org flows.
+This is a **complete, production-ready backend** for the DSGO/DPP platform supporting all 13 user stories, real Credenco integration, iSHARE B2B delegation, and multi-org flows.
 
 ### Tech Stack
 - **Framework:** Express.js (Node.js)
 - **Database:** PostgreSQL
-- **Authentication:** OAuth 2.0 (iSHARE)
-- **Credential Service:** Credenco Business Wallet API
-- **Security:** JWT, API Keys, HTTPS
+- **Session Auth:** Username → platform JWT (HS256); mock flow for hackathon
+- **B2B Trust:** iSHARE (participant registry, public cert lookup, delegation evidence — not user auth)
+- **Credential Service:** Credenco Business Wallet API (holds org keys, signs VCs)
+- **Security:** JWT, HTTPS
 
 ---
 
@@ -22,12 +23,12 @@ dsgo-dpp-backend/
 │   ├── database.js              # PostgreSQL connection pool
 │   ├── config.js                # Environment & configuration
 │   ├── middleware/
-│   │   ├── auth.js              # iSHARE & API key authentication
+│   │   ├── auth.js              # Platform JWT (session) + iSHARE delegation evidence (cross-org)
 │   │   ├── auditLog.js          # Audit trail logging
 │   │   └── errorHandler.js      # Global error handling
 │   ├── services/
-│   │   ├── credencoService.js   # Credenco Wallet API integration
-│   │   ├── ishareService.js     # iSHARE OAuth 2.0 & delegation
+│   │   ├── credencoService.js   # Credenco Wallet API (VC issuance, verification, org key signing)
+│   │   ├── ishareService.js     # iSHARE B2B trust (participant registry, cert lookup, delegation)
 │   │   ├── credentialService.js # W3C VC creation & verification
 │   │   ├── dppService.js        # DPP assembly & lifecycle
 │   │   ├── verificationService.js # Credential verification
@@ -61,7 +62,7 @@ dsgo-dpp-backend/
 │       └── validators.js        # Input validation
 ├── .env                          # Configuration (git-ignored)
 ├── .env.example                  # Example configuration
-├── docker-compose.yml           # PostgreSQL + Redis
+├── docker-compose.yml           # PostgreSQL
 ├── package.json
 └── README.md
 ```
@@ -73,7 +74,6 @@ dsgo-dpp-backend/
 ### 2.1 Prerequisites
 - Node.js 18+
 - PostgreSQL 14+
-- Redis 7+ (optional, for caching)
 - Docker & Docker Compose (recommended)
 
 ### 2.2 Installation Steps
@@ -122,9 +122,6 @@ DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=dsgo_dpp
 
-# Redis (optional)
-REDIS_URL=redis://localhost:6379
-
 # Credenco Integration
 CREDENCO_BASE_URL=https://wallet.acc.credenco.com
 CREDENCO_CLIENT_ID=<your-client-id>
@@ -140,12 +137,16 @@ CREDENCO_TEMPLATE_DPP=<template-id>
 CREDENCO_TEMPLATE_HANDOVER=<template-id>
 CREDENCO_TEMPLATE_REPAIR=<template-id>
 
-# iSHARE Integration
+# iSHARE Integration (B2B inter-org trust — NOT user auth)
+# iSHARE uses PKI assertion auth (x5c cert chain + RS256). No client_secret.
 ISHARE_BASE_URL=https://scheme.ishare.eu
 ISHARE_CLIENT_ID=<your-ishare-client-id>
-ISHARE_CLIENT_SECRET=<your-ishare-client-secret>
-ISHARE_PRIVATE_KEY_PATH=./keys/private.pem
-ISHARE_PUBLIC_KEY_PATH=./keys/public.pem
+ISHARE_EORI=EU.EORI.XXXXXXXXXX
+ISHARE_PRIVATE_KEY_PATH=./keys/ishare-private.pem
+ISHARE_CERTIFICATE_PATH=./keys/ishare-cert.pem
+# Simulation mode: true = use local self-signed certs for all 10 simulated orgs
+# (only 1 real iSHARE identity available for hackathon)
+ISHARE_SIMULATION_MODE=true
 
 # DPP Service
 DPP_SERVICE_DID=did:web:dpp-service.example.com
@@ -206,7 +207,7 @@ The schema includes 25+ tables covering all data models:
 - OAuth 2.0 client credentials flow for token
 - Template ID mapping for each credential type
 - Error handling for rate limits & timeouts
-- Credential caching in Redis
+- In-memory token caching (via Map in ishareService)
 
 **Key Endpoints Called:**
 ```
@@ -447,7 +448,7 @@ GET    /api/v1/recycling/status/:id   Get recycling status
 
 ```
 GET    /api/v1/orgs/:id               Get organization details
-POST   /api/v1/auth/token             Get iSHARE access token
+POST   /api/v1/auth/login             Username lookup → platform JWT (hackathon: mock, no password)
 GET    /api/v1/dpp/:id                Get DPP (with all credentials)
 GET    /api/v1/audit-log              Get audit trail (admin)
 POST   /api/v1/presentations/verify   Verify presentation
@@ -457,47 +458,51 @@ POST   /api/v1/presentations/verify   Verify presentation
 
 ## 7. AUTHENTICATION & AUTHORIZATION
 
-### 7.1 iSHARE Authentication Flow
+See **AUTH_ARCHITECTURE.md** for the full two-layer model. Summary below.
+
+### 7.1 UI Session Auth (Layer 1 — every request)
+
+Simple username lookup. For the hackathon this is a mock flow — no password verification needed. The goal is role routing, not security.
 
 ```
-1. Client requests access token
-   POST /api/v1/auth/token
-   {
-     "client_id": "urn:example:client",
-     "client_secret": "...",
-     "grant_type": "client_credentials"
-   }
+POST /api/v1/auth/login
+{ "username": "supplier1" }
 
-2. Server requests iSHARE token
-   POST https://scheme.ishare.eu/oauth2/token
-   With JWT assertion (signed with private key)
+Response: { "token": "<JWT-HS256>", "organisationId": "...", "role": "supplier" }
 
-3. iSHARE returns access token
-   { "access_token": "...", "expires_in": 3600 }
+All subsequent requests:
+  Authorization: Bearer <platform-jwt>
 
-4. Server adds token to request headers
-   Authorization: Bearer <iSHARE-token>
-
-5. Server validates delegation
-   - Check if requester has delegation for scope
-   - Verify signature of delegation evidence
-   - Check Participant Registry for validity
+Middleware (auth.js Layer 1):
+  1. Verify JWT signature (platform JWT_SECRET)
+  2. Extract { userId, organisationId, role }
+  3. Set req.user, req.organisationId, req.role
+  4. Reject 401 if missing or invalid
 ```
 
-### 7.2 API Key Authentication (Fallback)
+### 7.2 iSHARE Delegation Evidence (Layer 2 — cross-org endpoints only)
 
-For simpler scenarios:
+iSHARE is **not** a user auth system. It is used only when one organisation is requesting access to another organisation's data (e.g. Maintenance Company reading a Building Owner's DPP). The requesting party presents a delegation evidence JWT signed by the resource owner.
+
+**iSHARE does NOT use client_secret. It uses PKI assertion auth (x5c cert chain + RS256 private key).**
 
 ```
-GET /api/v1/dpp/123
-Authorization: Bearer sk_live_xxxxx
+GET /api/v1/dpp/abc-123
+Authorization: Bearer <platform-jwt>              ← Layer 1: who is the human
+X-Delegation-Evidence: <iSHARE-delegation-jwt>   ← Layer 2: org A authorised org B
 
-Middleware checks:
-1. Extract API key from header
-2. Lookup organization by API key
-3. Verify organization status (active)
-4. Attach org context to request
+Middleware (auth.js Layer 2):
+  1. Decode delegation JWT, extract policyIssuer EORI
+  2. If ISHARE_SIMULATION_MODE=true:
+       fetch cert from local organisations table
+     Else:
+       call iSHARE participant registry for cert
+  3. Verify JWT signature with cert
+  4. Check resource + action match current request
+  5. Reject 403 if delegation does not cover this request
 ```
+
+**Hackathon constraint:** Only 1 real iSHARE identity available. `ISHARE_SIMULATION_MODE=true` uses locally-generated self-signed certs for the other 10 simulated organisations.
 
 ### 7.3 Access Control
 
@@ -693,22 +698,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-
   backend:
     build: .
     ports:
       - "3000:3000"
     environment:
       DB_HOST: postgres
-      REDIS_URL: redis://redis:6379
       NODE_ENV: production
     depends_on:
       - postgres
-      - redis
     volumes:
       - ./keys:/app/keys:ro
 
@@ -823,7 +821,7 @@ Response: { status: "ok", timestamp, uptime, db: "connected" }
 
 ## 14. NEXT STEPS
 
-1. **Setup PostgreSQL & Redis** via docker-compose
+1. **Setup PostgreSQL** via docker-compose
 2. **Run migrations** to create schema
 3. **Configure Credenco** (get API credentials, template IDs)
 4. **Configure iSHARE** (get participant ID, private key)
