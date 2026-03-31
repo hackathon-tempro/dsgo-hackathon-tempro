@@ -27,14 +27,13 @@ const PRE_MANUFACTURER_ORDER = ["supplier", "issuer_lca", "issuer_ce"];
 const REQUIRED_MANUFACTURER_TYPES = [
   "MaterialPassport",
   "EnvironmentalFootprintTestPassport",
-  "CEMArkingTestREport",
+  "FireSafetyCredential",
 ];
 
 function actorLabel(role) {
   if (role === "supplier") return "Supplier";
   if (role === "manufacturer") return "Manufacturer";
   if (role === "lca_org") return "LCA Organisation";
-  if (role === "test_lab") return "Test Lab";
   if (role === "certification_body") return "SKG IKOB";
   if (role === "construction_company") return "Construction Company";
   if (role === "building_owner") return "Building Owner";
@@ -146,8 +145,8 @@ export default function DemoWorkflow() {
     const items = [];
     if (completedSet.has("supplier")) items.push("MaterialPassport");
     if (completedSet.has("manufacturer")) items.push("Manufacturer receiving and verification");
-    if (completedSet.has("issuer_lca")) items.push("EnvironmentalFootprintTestPassport");
-    if (completedSet.has("issuer_ce")) items.push("CEMArkingTestREport");
+    if (completedSet.has("issuer_lca")) items.push("EnvironmentalFootprintTestPassport (carbon emissions)");
+    if (completedSet.has("issuer_ce")) items.push("FireSafetyCredential (fire safety)");
     if (completedSet.has("construction")) items.push("AssetHandoverCredential to construction company");
     if (completedSet.has("owner")) items.push("Final owner verification completed");
     return items;

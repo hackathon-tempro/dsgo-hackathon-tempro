@@ -147,7 +147,7 @@ function HandoverToOwner() {
       issuerRole: "construction_company",
       issuerOrg: user?.org || "Construction Company",
       recipientRole: "building_owner",
-      recipientOrg: "PropInvest Real Estate",
+      recipientOrg: "VvE",
       payload: {
         assetId: pkg.asset.id,
         assetName: pkg.asset.productName,

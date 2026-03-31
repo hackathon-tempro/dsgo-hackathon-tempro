@@ -4,7 +4,7 @@ export const DEMO_PROGRESS_KEY = "demo_workflow_completed";
 export const DEMO_STAGES = [
   {
     id: "supplier",
-    title: "Supplier",
+    title: "Arconic",
     role: "supplier",
     companyId: "acme-supplier",
     interfacePath: "/supplier/passport-issuance",
@@ -14,7 +14,7 @@ export const DEMO_STAGES = [
   },
   {
     id: "issuer_lca",
-    title: "LCA -> Manufacturer",
+    title: "Alba Concepts -> Alkondor",
     role: "lca_org",
     companyId: "greenlife",
     interfacePath: "/lca-org",
@@ -24,7 +24,7 @@ export const DEMO_STAGES = [
   },
   {
     id: "issuer_ce",
-    title: "SKG IKOB -> Manufacturer",
+    title: "SKG IKOB -> Alkondor",
     role: "certification_body",
     companyId: "certifyeu",
     interfacePath: "/certification-body",
@@ -34,7 +34,7 @@ export const DEMO_STAGES = [
   },
   {
     id: "manufacturer",
-    title: "Manufacturer",
+    title: "Alkondor",
     role: "manufacturer",
     companyId: "buildcorp",
     interfacePath: "/manufacturer",
@@ -44,7 +44,7 @@ export const DEMO_STAGES = [
   },
   {
     id: "construction",
-    title: "Manufacturer -> Construction Company",
+    title: "Alkondor -> Heijmans",
     role: "construction_company",
     companyId: "constructa",
     interfacePath: "/construction-company",
@@ -54,7 +54,7 @@ export const DEMO_STAGES = [
   },
   {
     id: "owner",
-    title: "Construction Company -> Building Owner",
+    title: "Heijmans -> VvE",
     role: "building_owner",
     companyId: "propinvest",
     interfacePath: "/building-owner",

@@ -6,12 +6,12 @@ const FLOW_STORAGE_EVENT = "demo-sequential-flow-updated";
 const REQUIRED_MANUFACTURER_TYPES = [
   "MaterialPassport",
   "EnvironmentalFootprintTestPassport",
-  "CEMArkingTestREport",
+  "FireSafetyCredential",
 ];
 
 const DOWNSTREAM_LINKED_TYPES = [
   "MaterialPassport",
-  "CEMArkingTestREport",
+  "FireSafetyCredential",
   "EnvironmentalFootprintTestPassport",
 ];
 
@@ -20,7 +20,7 @@ let cachedParsedState = null;
 
 const CONSTRUCTION_VERIFY_ORDER = [
   "MaterialPassport",
-  "CEMArkingTestREport",
+  "FireSafetyCredential",
   "EnvironmentalFootprintTestPassport",
 ];
 
@@ -30,7 +30,7 @@ const DEFAULT_STATE = {
     productId: "AFP-001",
     productName: "Aluminium Facade Panel",
     gtin: "08712345670012",
-    manufacturer: "BuildCorp Manufacturers",
+    manufacturer: "Alkondor",
   },
   credentials: [],
   events: [],
@@ -350,7 +350,7 @@ export function isDemoStageReady(stageId) {
     return !!findCredential(
       state,
       (credential) =>
-        credential.type === "CEMArkingTestREport" &&
+        credential.type === "FireSafetyCredential" &&
         credential.issuerRole === "certification_body" &&
         credential.recipientRole === "manufacturer",
     );

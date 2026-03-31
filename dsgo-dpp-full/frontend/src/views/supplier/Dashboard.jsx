@@ -188,7 +188,7 @@ function ProductsOverview({ onSelectProduct }) {
                     </div>
                   </div>
                   <p className="text-xs text-gray-400 mt-2">
-                    Source: GreenLife LCA · EN 15804+A2 · Verification pending
+                    Source: Alba Concepts · EN 15804+A2 · Verification pending
                   </p>
                 </div>
 
@@ -253,7 +253,7 @@ function PassportIssuance({ selectedProduct, onIssued }) {
       issuerRole: "supplier",
       issuerOrg: user?.org || "Supplier",
       recipientRole: "manufacturer",
-      recipientOrg: "BuildCorp Manufacturers",
+      recipientOrg: "Alkondor",
       payload: {
         productId: formData.materialId,
         productName: selectedProduct?.name || formData.materialId,

@@ -180,7 +180,7 @@ function AssetHandover() {
       issuerRole: "manufacturer",
       issuerOrg: user?.org || "Manufacturer",
       recipientRole: "construction_company",
-      recipientOrg: "Constructa BV",
+      recipientOrg: "Heijmans",
       payload: {
         assetId: asset.id,
         assetName: asset.productName,

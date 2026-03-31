@@ -32,7 +32,7 @@ function AssessmentWorkspace() {
       issuerRole: "lca_org",
       issuerOrg: user?.org || "LCA Organisation",
       recipientRole: "manufacturer",
-      recipientOrg: "BuildCorp Manufacturers",
+      recipientOrg: "Alkondor",
       payload: {
         productId: asset.productId,
         productName: asset.productName,

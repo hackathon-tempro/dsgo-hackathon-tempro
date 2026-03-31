@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 export const DEMO_COMPANIES = [
   {
     id: 'acme-supplier',
-    name: 'Acme Aluminium Supplier',
+    name: 'Arconic',
     ishareId: 'EU.EORI.NL000000001012',
     role: 'supplier',
     country: 'NL',
@@ -16,7 +16,7 @@ export const DEMO_COMPANIES = [
   },
   {
     id: 'buildcorp',
-    name: 'BuildCorp Manufacturers',
+    name: 'Alkondor',
     ishareId: 'EU.EORI.DE000000002034',
     role: 'manufacturer',
     country: 'DE',
@@ -38,7 +38,7 @@ export const DEMO_COMPANIES = [
   },
   {
     id: 'greenlife',
-    name: 'GreenLife LCA',
+    name: 'Alba Concepts',
     ishareId: 'EU.EORI.NL000000004056',
     role: 'lca_org',
     country: 'NL',
@@ -59,7 +59,7 @@ export const DEMO_COMPANIES = [
   },
   {
     id: 'constructa',
-    name: 'Constructa BV',
+    name: 'Heijmans',
     ishareId: 'EU.EORI.NL000000006078',
     role: 'construction_company',
     country: 'NL',
@@ -69,7 +69,7 @@ export const DEMO_COMPANIES = [
   },
   {
     id: 'propinvest',
-    name: 'PropInvest Real Estate',
+    name: 'VvE',
     ishareId: 'EU.EORI.DE000000007089',
     role: 'building_owner',
     country: 'DE',

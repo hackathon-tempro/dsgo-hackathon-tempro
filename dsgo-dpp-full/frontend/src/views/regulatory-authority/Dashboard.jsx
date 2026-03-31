@@ -109,8 +109,8 @@ function AuditWorkflow() {
                 required
               >
                 <option value="">Select organisation...</option>
-                <option value="org-manufacturer">BuildCorp Manufacturers</option>
-                <option value="org-supplier">Acme Aluminium Supplier</option>
+                <option value="org-manufacturer">Alkondor</option>
+                <option value="org-supplier">Arconic</option>
               </select>
             </div>
             <div>
