@@ -245,14 +245,14 @@
       "_context": {
         "entity": "Alba Concepts",
         "role": "LCA Organisation",
-        "action": "Perform LCA and issue ProductEnvironmentalCredential (kg CO₂e)",
-        "output": "ProductEnvironmentalCredential VC → Alkondor wallet"
+        "action": "Perform LCA and issue EnvironmentalFootprintTestPassport (kg CO₂e)",
+        "output": "EnvironmentalFootprintTestPassport VC → Alkondor wallet"
       },
 
       "partyInfo": {
         "id": "did:ishare:EU.EORI.NL000000004056",
         "alsoKnownAs": [
-          "kvk:23456789"
+          "kvk:23456789", "EU.EORI.NL000000004056"
         ],
         "name": "Alba Concepts B.V.",
         "claims": [
@@ -356,7 +356,7 @@
         "restrictedServices": [
           {
             "identifier": "/credentials/product-environmental/issue",
-            "title": "Issue ProductEnvironmentalCredential",
+            "title": "Issue EnvironmentalFootprintTestPassport",
             "description": "Issues a Verifiable Credential containing life cycle assessment results for construction products. Includes GWP (kg CO₂e) per functional unit, LCA phases covered (A1-A3, C3-C4, D per EN 15804+A2), data quality rating, and reference to the underlying EPD or LCA study.",
             "endpointDescription": "https://api.albaconcepts.nl/dsgo/openapi.yaml#/credentials/product-environmental/issue",
             "endpointUrl": "https://api.albaconcepts.nl/dsgo/credentials/product-environmental/issue",
@@ -378,8 +378,8 @@
           },
           {
             "identifier": "/credentials/product-environmental/{credentialId}",
-            "title": "Retrieve ProductEnvironmentalCredential",
-            "description": "Retrieves a previously issued ProductEnvironmentalCredential by its unique identifier.",
+            "title": "Retrieve EnvironmentalFootprintTestPassport",
+            "description": "Retrieves a previously issued EnvironmentalFootprintTestPassport by its unique identifier.",
             "endpointDescription": "https://api.albaconcepts.nl/dsgo/openapi.yaml#/credentials/product-environmental/{credentialId}",
             "endpointUrl": "https://api.albaconcepts.nl/dsgo/credentials/product-environmental/{credentialId}",
             "tokenEndpoint": "https://api.albaconcepts.nl/dsgo/token",
@@ -397,8 +397,8 @@
           },
           {
             "identifier": "/credentials/product-environmental/verify",
-            "title": "Verify ProductEnvironmentalCredential",
-            "description": "Verifies integrity, authenticity, and LCA methodology compliance of a ProductEnvironmentalCredential.",
+            "title": "Verify EnvironmentalFootprintTestPassport",
+            "description": "Verifies integrity, authenticity, and LCA methodology compliance of a EnvironmentalFootprintTestPassport.",
             "endpointDescription": "https://api.albaconcepts.nl/dsgo/openapi.yaml#/credentials/product-environmental/verify",
             "endpointUrl": "https://api.albaconcepts.nl/dsgo/credentials/product-environmental/verify",
             "tokenEndpoint": "https://api.albaconcepts.nl/dsgo/token",
@@ -427,7 +427,7 @@
         "previous": "",
         "data": [
           {
-            "title": "ProductEnvironmentalCredential Issuance",
+            "title": "EnvironmentalFootprintTestPassport Issuance",
             "description": "Issues Verifiable Credentials containing LCA results for construction products. Credential payload includes: GWP total (kg CO₂e) per declared/functional unit, LCA module breakdown (A1-A3 production, C3-C4 end-of-life, D benefits beyond system boundary per EN 15804+A2), data quality indicators per ISO 14044, reference to underlying NMD category 3 data or product-specific EPD, and assessment date. LCA methodology follows SBK Bepalingsmethode and NEN-EN 15804+A2.",
             "partyId": "did:ishare:EU.EORI.NL000000004056",
             "capability": "/credentials/product-environmental/issue",
@@ -449,8 +449,8 @@
             }
           },
           {
-            "title": "ProductEnvironmentalCredential Verification",
-            "description": "Verifies the integrity, authenticity, and LCA methodology compliance of ProductEnvironmentalCredential VCs issued by Alba Concepts. Returns cryptographic verification, issuer trust chain, credential expiration, revocation status, and an LCA methodology compliance flag.",
+            "title": "EnvironmentalFootprintTestPassport Verification",
+            "description": "Verifies the integrity, authenticity, and LCA methodology compliance of EnvironmentalFootprintTestPassport VCs issued by Alba Concepts. Returns cryptographic verification, issuer trust chain, credential expiration, revocation status, and an LCA methodology compliance flag.",
             "partyId": "did:ishare:EU.EORI.NL000000004056",
             "capability": "/credentials/product-environmental/verify",
             "licenses": ["DSGO.0001"],
@@ -485,7 +485,7 @@
       "partyInfo": {
         "id": "did:ishare:EU.EORI.BE000000005067",
         "alsoKnownAs": [
-          "kvk:34567890"
+          "kvk:34567890", "EU.EORI.BE000000005067"
         ],
         "name": "SKG-IKOB B.V.",
         "claims": [
@@ -838,7 +838,7 @@
           {
             "identifier": "/credentials/asset-handover/issue",
             "title": "Issue AssetHandoverCredential",
-            "description": "Issues a Verifiable Credential that bundles linked credentials (MaterialPassport, ProductEnvironmentalCredential, FireSafetyCredential) into a single AssetHandoverCredential for transfer to the next party in the construction value chain. Includes product identification, assembly description, linked credential references with verification status, and handover metadata.",
+            "description": "Issues a Verifiable Credential that bundles linked credentials (MaterialPassport, EnvironmentalFootprintTestPassport, FireSafetyCredential) into a single AssetHandoverCredential for transfer to the next party in the construction value chain. Includes product identification, assembly description, linked credential references with verification status, and handover metadata.",
             "endpointDescription": "https://api.alkondor.nl/dsgo/openapi.yaml#/credentials/asset-handover/issue",
             "endpointUrl": "https://api.alkondor.nl/dsgo/credentials/asset-handover/issue",
             "tokenEndpoint": "https://api.alkondor.nl/dsgo/token",
@@ -877,7 +877,7 @@
           {
             "identifier": "/credentials/asset-handover/verify",
             "title": "Verify AssetHandoverCredential",
-            "description": "Verifies an AssetHandoverCredential including recursive verification of all linked credentials in the chain (MaterialPassport, ProductEnvironmentalCredential, FireSafetyCredential). Returns per-credential verification status.",
+            "description": "Verifies an AssetHandoverCredential including recursive verification of all linked credentials in the chain (MaterialPassport, EnvironmentalFootprintTestPassport, FireSafetyCredential). Returns per-credential verification status.",
             "endpointDescription": "https://api.alkondor.nl/dsgo/openapi.yaml#/credentials/asset-handover/verify",
             "endpointUrl": "https://api.alkondor.nl/dsgo/credentials/asset-handover/verify",
             "tokenEndpoint": "https://api.alkondor.nl/dsgo/token",
@@ -1213,7 +1213,7 @@
           },
           {
             "title": "AssetHandoverCredential Verification (Full Chain)",
-            "description": "Full-chain verification of AssetHandoverCredentials issued by Heijmans. Recursively verifies all nested credentials down to the material origin (MaterialPassport from Arconic, ProductEnvironmentalCredential from Alba Concepts, FireSafetyCredential from SKG-IKOB). Returns per-credential verification status with domain-specific compliance flags.",
+            "description": "Full-chain verification of AssetHandoverCredentials issued by Heijmans. Recursively verifies all nested credentials down to the material origin (MaterialPassport from Arconic, EnvironmentalFootprintTestPassport from Alba Concepts, FireSafetyCredential from SKG-IKOB). Returns per-credential verification status with domain-specific compliance flags.",
             "partyId": "did:ishare:EU.EORI.NL000000006078",
             "capability": "/credentials/asset-handover/verify",
             "licenses": ["DSGO.0001"],
@@ -1248,7 +1248,7 @@
       "partyInfo": {
         "id": "did:ishare:EU.EORI.DE000000007089",
         "alsoKnownAs": [
-          "kvk:67890123"
+          "kvk:67890123", "EU.EORI.DE000000007089"
         ],
         "name": "VvE Zonneparkhof",
         "claims": [
