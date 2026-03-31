@@ -1,0 +1,1429 @@
+{
+  "_meta": {
+    "description": "DSGO Digital Product Passport — Demo Flow: Capabilities and DataServices metadata for all stakeholders",
+    "dsgo_version": "2.0",
+    "ishare_framework": "2.1",
+    "product_context": "Aluminium Facade Panel lifecycle — from raw material to building owner"
+  },
+
+  "stakeholders": {
+
+    "arconic": {
+      "_context": {
+        "entity": "Arconic",
+        "role": "Supplier",
+        "action": "Issue MaterialPassport VC for Aluminium Facade Panel",
+        "output": "MaterialPassport VC → Alkondor wallet"
+      },
+
+      "partyInfo": {
+        "id": "did:ishare:EU.NL.NTRNL-12345678",
+        "alsoKnownAs": [
+          "kvk:12345678",
+          "eori:EU.EORI.NL000012345"
+        ],
+        "name": "Arconic B.V.",
+        "claims": [
+          {
+            "type": "dataspaceMembership",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.arconic.nl/dsgo/capabilities",
+            "dataServicesUrl": "https://api.arconic.nl/dsgo/data_services",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-06-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "a1b2c3d4-1111-4aaa-b111-000000000001"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "ServiceProvider",
+            "title": "Service Provider",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "loa": "substantial",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-06-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "a1b2c3d4-1111-4aaa-b111-000000000002"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "MaterialSupplier",
+            "title": "Material Supplier",
+            "registrarId": "did:ishare:EU.NL.NTRNL-00000100",
+            "_comment": "Role registered by a branch organisation (e.g. Holland Aluminium or Metaalunie)",
+            "loa": "substantial",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-06-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "a1b2c3d4-1111-4aaa-b111-000000000003"
+          },
+          {
+            "type": "frameworkCompliance",
+            "frameworkId": "iSHARE",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.arconic.nl/dsgo/capabilities",
+            "status": "Active",
+            "startDate": "2024-06-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "a1b2c3d4-1111-4aaa-b111-000000000004"
+          }
+        ]
+      },
+
+      "capabilitiesInfo": {
+        "publicServices": [
+          {
+            "identifier": "/capabilities",
+            "title": "Capabilities",
+            "description": "Arconic DSGO capabilities endpoint",
+            "endpointDescription": "https://api.arconic.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.arconic.nl/dsgo/capabilities",
+            "tokenEndpoint": "https://api.arconic.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal", "AdSeal"],
+            "conformsTo": [
+              "https://dev.ishare.eu/all-roles-common-endpoints/capabilities"
+            ]
+          },
+          {
+            "identifier": "/data_services",
+            "title": "Data Services",
+            "description": "Arconic DSGO data services catalogue",
+            "endpointDescription": "https://api.arconic.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.arconic.nl/dsgo/data_services",
+            "tokenEndpoint": "https://api.arconic.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal", "AdSeal"],
+            "conformsTo": [
+              "https://afsprakenstelseldsgo.atlassian.net/wiki/spaces/DSGO20/pages/976065832"
+            ]
+          }
+        ],
+        "restrictedServices": [
+          {
+            "identifier": "/credentials/material-passport/issue",
+            "title": "Issue MaterialPassport Credential",
+            "description": "Issues a W3C Verifiable Credential containing material composition, origin, recycled content percentage, and compliance declarations for aluminium facade panels. Credential is signed and delivered to the holder wallet specified in the request.",
+            "endpointDescription": "https://api.arconic.nl/dsgo/openapi.yaml#/credentials/material-passport/issue",
+            "endpointUrl": "https://api.arconic.nl/dsgo/credentials/material-passport/issue",
+            "tokenEndpoint": "https://api.arconic.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["0.9.0"]
+            },
+            "methods": ["POST"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/",
+              "https://afsprakenstelseldsgo.atlassian.net/wiki/spaces/DSGO20/pages/976066701",
+              "https://www.en-standard.eu/bs-en-15804-2012-a2-2019/"
+            ]
+          },
+          {
+            "identifier": "/credentials/material-passport/{credentialId}",
+            "title": "Retrieve MaterialPassport Credential",
+            "description": "Retrieves a previously issued MaterialPassport credential by its unique identifier. Returns the full signed VC.",
+            "endpointDescription": "https://api.arconic.nl/dsgo/openapi.yaml#/credentials/material-passport/{credentialId}",
+            "endpointUrl": "https://api.arconic.nl/dsgo/credentials/material-passport/{credentialId}",
+            "tokenEndpoint": "https://api.arconic.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["0.9.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          },
+          {
+            "identifier": "/credentials/material-passport/verify",
+            "title": "Verify MaterialPassport Credential",
+            "description": "Verifies the integrity and authenticity of a MaterialPassport credential. Returns verification result including signature validity, issuer trust chain, and expiration status.",
+            "endpointDescription": "https://api.arconic.nl/dsgo/openapi.yaml#/credentials/material-passport/verify",
+            "endpointUrl": "https://api.arconic.nl/dsgo/credentials/material-passport/verify",
+            "tokenEndpoint": "https://api.arconic.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["0.9.0"]
+            },
+            "methods": ["POST"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          }
+        ]
+      },
+
+      "dataServicesInfo": {
+        "count": 2,
+        "totalCount": 2,
+        "currentPage": 1,
+        "pageSize": 10,
+        "totalPages": 1,
+        "next": "",
+        "previous": "",
+        "data": [
+          {
+            "title": "MaterialPassport Credential Issuance",
+            "description": "Issues W3C Verifiable Credentials containing material composition data for aluminium facade panels. Includes alloy type, recycled content percentage, origin country, REACH/RoHS compliance status, and EN 15804 environmental product declaration reference. Credential is signed with Arconic's DID and delivered to the specified holder wallet.",
+            "partyId": "did:ishare:EU.NL.NTRNL-12345678",
+            "capability": "/credentials/material-passport/issue",
+            "licenses": ["DSGO.0001"],
+            "accessRights": "Access restricted to DSGO participants with active MaterialConsumer or Manufacturer role. Credential issuance requires a valid purchase order reference.",
+            "contactPoint": "dpp-support@arconic.nl",
+            "costs": "Included in product purchase; no additional per-credential fee for DSGO participants.",
+            "serviceLevelAgreements": {
+              "availability": {
+                "monday": {"start": "06:00", "end": "22:00"},
+                "tuesday": {"start": "06:00", "end": "22:00"},
+                "wednesday": {"start": "06:00", "end": "22:00"},
+                "thursday": {"start": "06:00", "end": "22:00"},
+                "friday": {"start": "06:00", "end": "22:00"},
+                "saturday": {"start": "08:00", "end": "16:00"},
+                "sunday": {"start": "00:00", "end": "00:00"}
+              },
+              "performance": "Credential issuance responds within 5 seconds for 95% of requests. Batch issuance (up to 100 credentials) completes within 60 seconds."
+            }
+          },
+          {
+            "title": "MaterialPassport Credential Verification",
+            "description": "Verifies the integrity and authenticity of MaterialPassport credentials issued by Arconic. Returns cryptographic verification result, issuer trust chain status, credential expiration, and revocation check.",
+            "partyId": "did:ishare:EU.NL.NTRNL-12345678",
+            "capability": "/credentials/material-passport/verify",
+            "licenses": ["DSGO.0001"],
+            "accessRights": "Access open to all DSGO participants with active membership.",
+            "contactPoint": "dpp-support@arconic.nl",
+            "costs": "Free for all DSGO participants.",
+            "serviceLevelAgreements": {
+              "availability": {
+                "monday": {"start": "00:00", "end": "23:59"},
+                "tuesday": {"start": "00:00", "end": "23:59"},
+                "wednesday": {"start": "00:00", "end": "23:59"},
+                "thursday": {"start": "00:00", "end": "23:59"},
+                "friday": {"start": "00:00", "end": "23:59"},
+                "saturday": {"start": "00:00", "end": "23:59"},
+                "sunday": {"start": "00:00", "end": "23:59"}
+              },
+              "performance": "Verification responds within 2 seconds for 99% of requests."
+            }
+          }
+        ]
+      }
+    },
+
+    "alba_concepts": {
+      "_context": {
+        "entity": "Alba Concepts",
+        "role": "LCA Organisation",
+        "action": "Perform LCA and issue ProductEnvironmentalCredential (kg CO₂e)",
+        "output": "ProductEnvironmentalCredential VC → Alkondor wallet"
+      },
+
+      "partyInfo": {
+        "id": "did:ishare:EU.NL.NTRNL-23456789",
+        "alsoKnownAs": [
+          "kvk:23456789"
+        ],
+        "name": "Alba Concepts B.V.",
+        "claims": [
+          {
+            "type": "dataspaceMembership",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.albaconcepts.nl/dsgo/capabilities",
+            "dataServicesUrl": "https://api.albaconcepts.nl/dsgo/data_services",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-03-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "b2c3d4e5-2222-4bbb-b222-000000000001"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "ServiceProvider",
+            "title": "Service Provider",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "loa": "substantial",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-03-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "b2c3d4e5-2222-4bbb-b222-000000000002"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "LCAOrganisation",
+            "title": "LCA Organisation",
+            "registrarId": "did:ishare:EU.NL.NTRNL-00000200",
+            "_comment": "Role registered by NIBE or Stichting Bouwkwaliteit (SBK) as LCA accreditation body",
+            "loa": "high",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-03-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "b2c3d4e5-2222-4bbb-b222-000000000003"
+          },
+          {
+            "type": "frameworkCompliance",
+            "frameworkId": "iSHARE",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.albaconcepts.nl/dsgo/capabilities",
+            "status": "Active",
+            "startDate": "2024-03-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "b2c3d4e5-2222-4bbb-b222-000000000004"
+          }
+        ]
+      },
+
+      "capabilitiesInfo": {
+        "publicServices": [
+          {
+            "identifier": "/capabilities",
+            "title": "Capabilities",
+            "description": "Alba Concepts DSGO capabilities endpoint",
+            "endpointDescription": "https://api.albaconcepts.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.albaconcepts.nl/dsgo/capabilities",
+            "tokenEndpoint": "https://api.albaconcepts.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal", "AdSeal"],
+            "conformsTo": [
+              "https://dev.ishare.eu/all-roles-common-endpoints/capabilities"
+            ]
+          },
+          {
+            "identifier": "/data_services",
+            "title": "Data Services",
+            "description": "Alba Concepts DSGO data services catalogue",
+            "endpointDescription": "https://api.albaconcepts.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.albaconcepts.nl/dsgo/data_services",
+            "tokenEndpoint": "https://api.albaconcepts.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal", "AdSeal"],
+            "conformsTo": [
+              "https://afsprakenstelseldsgo.atlassian.net/wiki/spaces/DSGO20/pages/976065832"
+            ]
+          }
+        ],
+        "restrictedServices": [
+          {
+            "identifier": "/credentials/product-environmental/issue",
+            "title": "Issue ProductEnvironmentalCredential",
+            "description": "Issues a Verifiable Credential containing life cycle assessment results for construction products. Includes GWP (kg CO₂e) per functional unit, LCA phases covered (A1-A3, C3-C4, D per EN 15804+A2), data quality rating, and reference to the underlying EPD or LCA study.",
+            "endpointDescription": "https://api.albaconcepts.nl/dsgo/openapi.yaml#/credentials/product-environmental/issue",
+            "endpointUrl": "https://api.albaconcepts.nl/dsgo/credentials/product-environmental/issue",
+            "tokenEndpoint": "https://api.albaconcepts.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["POST"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/",
+              "https://www.en-standard.eu/bs-en-15804-2012-a2-2019/",
+              "https://www.iso.org/standard/38498.html",
+              "https://www.milieudatabase.nl/"
+            ]
+          },
+          {
+            "identifier": "/credentials/product-environmental/{credentialId}",
+            "title": "Retrieve ProductEnvironmentalCredential",
+            "description": "Retrieves a previously issued ProductEnvironmentalCredential by its unique identifier.",
+            "endpointDescription": "https://api.albaconcepts.nl/dsgo/openapi.yaml#/credentials/product-environmental/{credentialId}",
+            "endpointUrl": "https://api.albaconcepts.nl/dsgo/credentials/product-environmental/{credentialId}",
+            "tokenEndpoint": "https://api.albaconcepts.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          },
+          {
+            "identifier": "/credentials/product-environmental/verify",
+            "title": "Verify ProductEnvironmentalCredential",
+            "description": "Verifies integrity, authenticity, and LCA methodology compliance of a ProductEnvironmentalCredential.",
+            "endpointDescription": "https://api.albaconcepts.nl/dsgo/openapi.yaml#/credentials/product-environmental/verify",
+            "endpointUrl": "https://api.albaconcepts.nl/dsgo/credentials/product-environmental/verify",
+            "tokenEndpoint": "https://api.albaconcepts.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["POST"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          }
+        ]
+      },
+
+      "dataServicesInfo": {
+        "count": 2,
+        "totalCount": 2,
+        "currentPage": 1,
+        "pageSize": 10,
+        "totalPages": 1,
+        "next": "",
+        "previous": "",
+        "data": [
+          {
+            "title": "ProductEnvironmentalCredential Issuance",
+            "description": "Issues Verifiable Credentials containing LCA results for construction products. Credential payload includes: GWP total (kg CO₂e) per declared/functional unit, LCA module breakdown (A1-A3 production, C3-C4 end-of-life, D benefits beyond system boundary per EN 15804+A2), data quality indicators per ISO 14044, reference to underlying NMD category 3 data or product-specific EPD, and assessment date. LCA methodology follows SBK Bepalingsmethode and NEN-EN 15804+A2.",
+            "partyId": "did:ishare:EU.NL.NTRNL-23456789",
+            "capability": "/credentials/product-environmental/issue",
+            "licenses": ["DSGO.0001", "DSGO.0003"],
+            "accessRights": "Access restricted to DSGO participants with active Manufacturer or ConstructionCompany role. Issuance requires a valid product identifier and LCA assessment scope agreement.",
+            "contactPoint": "dpp@albaconcepts.nl",
+            "costs": "Per-assessment pricing based on product complexity. See https://albaconcepts.nl/dpp-pricing for current rates.",
+            "serviceLevelAgreements": {
+              "availability": {
+                "monday": {"start": "08:00", "end": "18:00"},
+                "tuesday": {"start": "08:00", "end": "18:00"},
+                "wednesday": {"start": "08:00", "end": "18:00"},
+                "thursday": {"start": "08:00", "end": "18:00"},
+                "friday": {"start": "08:00", "end": "17:00"},
+                "saturday": {"start": "00:00", "end": "00:00"},
+                "sunday": {"start": "00:00", "end": "00:00"}
+              },
+              "performance": "Credential issuance (for pre-assessed products) responds within 3 seconds for 95% of requests. New LCA assessments are completed within 10 business days."
+            }
+          },
+          {
+            "title": "ProductEnvironmentalCredential Verification",
+            "description": "Verifies the integrity, authenticity, and LCA methodology compliance of ProductEnvironmentalCredential VCs issued by Alba Concepts. Returns cryptographic verification, issuer trust chain, credential expiration, revocation status, and an LCA methodology compliance flag.",
+            "partyId": "did:ishare:EU.NL.NTRNL-23456789",
+            "capability": "/credentials/product-environmental/verify",
+            "licenses": ["DSGO.0001"],
+            "accessRights": "Open to all DSGO participants with active membership.",
+            "contactPoint": "dpp@albaconcepts.nl",
+            "costs": "Free for all DSGO participants.",
+            "serviceLevelAgreements": {
+              "availability": {
+                "monday": {"start": "00:00", "end": "23:59"},
+                "tuesday": {"start": "00:00", "end": "23:59"},
+                "wednesday": {"start": "00:00", "end": "23:59"},
+                "thursday": {"start": "00:00", "end": "23:59"},
+                "friday": {"start": "00:00", "end": "23:59"},
+                "saturday": {"start": "00:00", "end": "23:59"},
+                "sunday": {"start": "00:00", "end": "23:59"}
+              },
+              "performance": "Verification responds within 2 seconds for 99% of requests."
+            }
+          }
+        ]
+      }
+    },
+
+    "skg_ikob": {
+      "_context": {
+        "entity": "SKG IKOB",
+        "role": "Certification Body",
+        "action": "Assess fire safety and issue FireSafetyCredential (fire resistance class e.g. EI60, EN 13501-1)",
+        "output": "FireSafetyCredential VC → Alkondor wallet"
+      },
+
+      "partyInfo": {
+        "id": "did:ishare:EU.NL.NTRNL-34567890",
+        "alsoKnownAs": [
+          "kvk:34567890"
+        ],
+        "name": "SKG-IKOB B.V.",
+        "claims": [
+          {
+            "type": "dataspaceMembership",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.skg-ikob.nl/dsgo/capabilities",
+            "dataServicesUrl": "https://api.skg-ikob.nl/dsgo/data_services",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-01-15T00:00:00.000Z",
+            "endDate": "",
+            "id": "c3d4e5f6-3333-4ccc-b333-000000000001"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "ServiceProvider",
+            "title": "Service Provider",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "loa": "high",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-01-15T00:00:00.000Z",
+            "endDate": "",
+            "id": "c3d4e5f6-3333-4ccc-b333-000000000002"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "CertificationBody",
+            "title": "Certification Body",
+            "registrarId": "did:ishare:EU.NL.NTRNL-00000300",
+            "_comment": "Role registered by RvA (Raad voor Accreditatie) as the national accreditation body",
+            "loa": "high",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-01-15T00:00:00.000Z",
+            "endDate": "",
+            "id": "c3d4e5f6-3333-4ccc-b333-000000000003"
+          },
+          {
+            "type": "frameworkCompliance",
+            "frameworkId": "iSHARE",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.skg-ikob.nl/dsgo/capabilities",
+            "status": "Active",
+            "startDate": "2024-01-15T00:00:00.000Z",
+            "endDate": "",
+            "id": "c3d4e5f6-3333-4ccc-b333-000000000004"
+          }
+        ]
+      },
+
+      "capabilitiesInfo": {
+        "publicServices": [
+          {
+            "identifier": "/capabilities",
+            "title": "Capabilities",
+            "description": "SKG-IKOB DSGO capabilities endpoint",
+            "endpointDescription": "https://api.skg-ikob.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.skg-ikob.nl/dsgo/capabilities",
+            "tokenEndpoint": "https://api.skg-ikob.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://dev.ishare.eu/all-roles-common-endpoints/capabilities"
+            ]
+          },
+          {
+            "identifier": "/data_services",
+            "title": "Data Services",
+            "description": "SKG-IKOB DSGO data services catalogue",
+            "endpointDescription": "https://api.skg-ikob.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.skg-ikob.nl/dsgo/data_services",
+            "tokenEndpoint": "https://api.skg-ikob.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://afsprakenstelseldsgo.atlassian.net/wiki/spaces/DSGO20/pages/976065832"
+            ]
+          }
+        ],
+        "restrictedServices": [
+          {
+            "identifier": "/credentials/fire-safety/issue",
+            "title": "Issue FireSafetyCredential",
+            "description": "Issues a Verifiable Credential containing fire safety classification results per EN 13501-1 / EN 13501-2. Includes fire resistance class (e.g. EI60, EI90, REI120), reaction to fire class (e.g. A2-s1,d0), test report reference, certification number, and validity period.",
+            "endpointDescription": "https://api.skg-ikob.nl/dsgo/openapi.yaml#/credentials/fire-safety/issue",
+            "endpointUrl": "https://api.skg-ikob.nl/dsgo/credentials/fire-safety/issue",
+            "tokenEndpoint": "https://api.skg-ikob.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["POST"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/",
+              "https://www.en-standard.eu/en-13501-1/",
+              "https://www.en-standard.eu/en-13501-2/",
+              "https://www.bouwbesluitonline.nl/"
+            ]
+          },
+          {
+            "identifier": "/credentials/fire-safety/{credentialId}",
+            "title": "Retrieve FireSafetyCredential",
+            "description": "Retrieves a previously issued FireSafetyCredential by its unique identifier.",
+            "endpointDescription": "https://api.skg-ikob.nl/dsgo/openapi.yaml#/credentials/fire-safety/{credentialId}",
+            "endpointUrl": "https://api.skg-ikob.nl/dsgo/credentials/fire-safety/{credentialId}",
+            "tokenEndpoint": "https://api.skg-ikob.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          },
+          {
+            "identifier": "/credentials/fire-safety/verify",
+            "title": "Verify FireSafetyCredential",
+            "description": "Verifies integrity, authenticity, RvA accreditation status, and certificate validity of a FireSafetyCredential.",
+            "endpointDescription": "https://api.skg-ikob.nl/dsgo/openapi.yaml#/credentials/fire-safety/verify",
+            "endpointUrl": "https://api.skg-ikob.nl/dsgo/credentials/fire-safety/verify",
+            "tokenEndpoint": "https://api.skg-ikob.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["POST"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          }
+        ]
+      },
+
+      "dataServicesInfo": {
+        "count": 2,
+        "totalCount": 2,
+        "currentPage": 1,
+        "pageSize": 10,
+        "totalPages": 1,
+        "next": "",
+        "previous": "",
+        "data": [
+          {
+            "title": "FireSafetyCredential Issuance",
+            "description": "Issues Verifiable Credentials containing fire safety classification results for construction products and assemblies. Credential payload includes: fire resistance class per EN 13501-2 (e.g. EI60, EI90, REI120), reaction to fire class per EN 13501-1 (e.g. A2-s1,d0), test report number, SKG-IKOB certification number, product scope description, and certificate validity period. Classification based on physical testing per EN 1364/EN 1365 series or extended application per EN 15725.",
+            "partyId": "did:ishare:EU.NL.NTRNL-34567890",
+            "capability": "/credentials/fire-safety/issue",
+            "licenses": ["DSGO.0001", "DSGO.0002"],
+            "accessRights": "Access restricted to DSGO participants with active Manufacturer role and a valid certification agreement with SKG-IKOB. Credential issuance requires completed fire testing and assessment.",
+            "contactPoint": "certificering@skg-ikob.nl",
+            "costs": "Per-certification pricing. Assessment and testing fees per SKG-IKOB tariff sheet: https://skg-ikob.nl/tarieven",
+            "serviceLevelAgreements": {
+              "availability": {
+                "monday": {"start": "08:00", "end": "17:00"},
+                "tuesday": {"start": "08:00", "end": "17:00"},
+                "wednesday": {"start": "08:00", "end": "17:00"},
+                "thursday": {"start": "08:00", "end": "17:00"},
+                "friday": {"start": "08:00", "end": "16:00"},
+                "saturday": {"start": "00:00", "end": "00:00"},
+                "sunday": {"start": "00:00", "end": "00:00"}
+              },
+              "performance": "Credential issuance (for completed certifications) responds within 5 seconds for 95% of requests. New certification assessments follow standard SKG-IKOB lead times."
+            }
+          },
+          {
+            "title": "FireSafetyCredential Verification",
+            "description": "Verifies integrity, authenticity, RvA accreditation validity, and certificate currency of FireSafetyCredential VCs issued by SKG-IKOB. Returns cryptographic verification, issuer trust chain, credential expiration, revocation status, and accreditation compliance flag.",
+            "partyId": "did:ishare:EU.NL.NTRNL-34567890",
+            "capability": "/credentials/fire-safety/verify",
+            "licenses": ["DSGO.0001"],
+            "accessRights": "Open to all DSGO participants with active membership.",
+            "contactPoint": "certificering@skg-ikob.nl",
+            "costs": "Free for all DSGO participants.",
+            "serviceLevelAgreements": {
+              "availability": {
+                "monday": {"start": "00:00", "end": "23:59"},
+                "tuesday": {"start": "00:00", "end": "23:59"},
+                "wednesday": {"start": "00:00", "end": "23:59"},
+                "thursday": {"start": "00:00", "end": "23:59"},
+                "friday": {"start": "00:00", "end": "23:59"},
+                "saturday": {"start": "00:00", "end": "23:59"},
+                "sunday": {"start": "00:00", "end": "23:59"}
+              },
+              "performance": "Verification responds within 2 seconds for 99% of requests."
+            }
+          }
+        ]
+      }
+    },
+
+    "alkondor": {
+      "_context": {
+        "entity": "Alkondor",
+        "role": "Manufacturer",
+        "action": "Receive and verify 3 incoming VCs (MaterialPassport, ProductEnvironmental, FireSafety), bundle into AssetHandoverCredential",
+        "output": "AssetHandoverCredential VC (with linked credentials) → Heijmans wallet"
+      },
+
+      "partyInfo": {
+        "id": "did:ishare:EU.NL.NTRNL-45678901",
+        "alsoKnownAs": [
+          "kvk:45678901",
+          "eori:EU.EORI.NL000045678"
+        ],
+        "name": "Alkondor Hengelo B.V.",
+        "claims": [
+          {
+            "type": "dataspaceMembership",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.alkondor.nl/dsgo/capabilities",
+            "dataServicesUrl": "https://api.alkondor.nl/dsgo/data_services",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-02-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "d4e5f6a7-4444-4ddd-b444-000000000001"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "ServiceProvider",
+            "title": "Service Provider",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "loa": "substantial",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-02-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "d4e5f6a7-4444-4ddd-b444-000000000002"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "ServiceConsumer",
+            "title": "Service Consumer",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "loa": "substantial",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-02-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "d4e5f6a7-4444-4ddd-b444-000000000003"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "Manufacturer",
+            "title": "Manufacturer",
+            "registrarId": "did:ishare:EU.NL.NTRNL-00000400",
+            "_comment": "Role registered by VMRG (Vereniging Metalen Ramen en Gevelbranche)",
+            "loa": "substantial",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2024-02-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "d4e5f6a7-4444-4ddd-b444-000000000004"
+          },
+          {
+            "type": "frameworkCompliance",
+            "frameworkId": "iSHARE",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.alkondor.nl/dsgo/capabilities",
+            "status": "Active",
+            "startDate": "2024-02-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "d4e5f6a7-4444-4ddd-b444-000000000005"
+          }
+        ]
+      },
+
+      "capabilitiesInfo": {
+        "publicServices": [
+          {
+            "identifier": "/capabilities",
+            "title": "Capabilities",
+            "description": "Alkondor DSGO capabilities endpoint",
+            "endpointDescription": "https://api.alkondor.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.alkondor.nl/dsgo/capabilities",
+            "tokenEndpoint": "https://api.alkondor.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal", "AdSeal"],
+            "conformsTo": [
+              "https://dev.ishare.eu/all-roles-common-endpoints/capabilities"
+            ]
+          },
+          {
+            "identifier": "/data_services",
+            "title": "Data Services",
+            "description": "Alkondor DSGO data services catalogue",
+            "endpointDescription": "https://api.alkondor.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.alkondor.nl/dsgo/data_services",
+            "tokenEndpoint": "https://api.alkondor.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal", "AdSeal"],
+            "conformsTo": [
+              "https://afsprakenstelseldsgo.atlassian.net/wiki/spaces/DSGO20/pages/976065832"
+            ]
+          }
+        ],
+        "restrictedServices": [
+          {
+            "identifier": "/credentials/asset-handover/issue",
+            "title": "Issue AssetHandoverCredential",
+            "description": "Issues a Verifiable Credential that bundles linked credentials (MaterialPassport, ProductEnvironmentalCredential, FireSafetyCredential) into a single AssetHandoverCredential for transfer to the next party in the construction value chain. Includes product identification, assembly description, linked credential references with verification status, and handover metadata.",
+            "endpointDescription": "https://api.alkondor.nl/dsgo/openapi.yaml#/credentials/asset-handover/issue",
+            "endpointUrl": "https://api.alkondor.nl/dsgo/credentials/asset-handover/issue",
+            "tokenEndpoint": "https://api.alkondor.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["0.9.0"]
+            },
+            "methods": ["POST"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/",
+              "https://afsprakenstelseldsgo.atlassian.net/wiki/spaces/DSGO20/pages/976066701"
+            ]
+          },
+          {
+            "identifier": "/credentials/asset-handover/{credentialId}",
+            "title": "Retrieve AssetHandoverCredential",
+            "description": "Retrieves a previously issued AssetHandoverCredential including its full linked credential chain.",
+            "endpointDescription": "https://api.alkondor.nl/dsgo/openapi.yaml#/credentials/asset-handover/{credentialId}",
+            "endpointUrl": "https://api.alkondor.nl/dsgo/credentials/asset-handover/{credentialId}",
+            "tokenEndpoint": "https://api.alkondor.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["0.9.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          },
+          {
+            "identifier": "/credentials/asset-handover/verify",
+            "title": "Verify AssetHandoverCredential",
+            "description": "Verifies an AssetHandoverCredential including recursive verification of all linked credentials in the chain (MaterialPassport, ProductEnvironmentalCredential, FireSafetyCredential). Returns per-credential verification status.",
+            "endpointDescription": "https://api.alkondor.nl/dsgo/openapi.yaml#/credentials/asset-handover/verify",
+            "endpointUrl": "https://api.alkondor.nl/dsgo/credentials/asset-handover/verify",
+            "tokenEndpoint": "https://api.alkondor.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["0.9.0"]
+            },
+            "methods": ["POST"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          },
+          {
+            "identifier": "/wallet/credentials",
+            "title": "Credential Wallet — List",
+            "description": "Lists all credentials held in Alkondor's organisational wallet. Supports filtering by credential type, issuer, and status.",
+            "endpointDescription": "https://api.alkondor.nl/dsgo/openapi.yaml#/wallet/credentials",
+            "endpointUrl": "https://api.alkondor.nl/dsgo/wallet/credentials",
+            "tokenEndpoint": "https://api.alkondor.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["0.8.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          }
+        ]
+      },
+
+      "dataServicesInfo": {
+        "count": 2,
+        "totalCount": 2,
+        "currentPage": 1,
+        "pageSize": 10,
+        "totalPages": 1,
+        "next": "",
+        "previous": "",
+        "data": [
+          {
+            "title": "AssetHandoverCredential Issuance",
+            "description": "Issues Verifiable Credentials that bundle multiple source credentials into a single handover package for construction product transfer. The AssetHandoverCredential contains: product identification (GTIN, serial, product type), assembly/system description, an array of linked credential references (each with credentialId, issuerDID, credentialType, and a verification snapshot timestamp), handover metadata (date, from-party DID, to-party DID, purpose), and Alkondor's manufacturer declaration. All linked credentials are recursively verified at issuance time; the verification snapshot is included in the credential payload.",
+            "partyId": "did:ishare:EU.NL.NTRNL-45678901",
+            "capability": "/credentials/asset-handover/issue",
+            "licenses": ["DSGO.0001"],
+            "accessRights": "Access restricted to DSGO participants with active ConstructionCompany or BuildingOwner role and a valid project/contract reference with Alkondor.",
+            "contactPoint": "dpp@alkondor.nl",
+            "costs": "Included in product delivery; no additional per-credential fee.",
+            "serviceLevelAgreements": {
+              "availability": {
+                "monday": {"start": "07:00", "end": "18:00"},
+                "tuesday": {"start": "07:00", "end": "18:00"},
+                "wednesday": {"start": "07:00", "end": "18:00"},
+                "thursday": {"start": "07:00", "end": "18:00"},
+                "friday": {"start": "07:00", "end": "17:00"},
+                "saturday": {"start": "00:00", "end": "00:00"},
+                "sunday": {"start": "00:00", "end": "00:00"}
+              },
+              "performance": "Credential issuance (including linked credential verification) responds within 10 seconds for 95% of requests. Recursive verification of 3+ linked credentials may take up to 15 seconds."
+            }
+          },
+          {
+            "title": "AssetHandoverCredential Verification",
+            "description": "Verifies an AssetHandoverCredential including recursive verification of all linked credentials. Returns per-credential verification status covering: cryptographic integrity, issuer trust chain, expiration, revocation, and domain-specific compliance flags (material composition, LCA methodology, fire safety accreditation).",
+            "partyId": "did:ishare:EU.NL.NTRNL-45678901",
+            "capability": "/credentials/asset-handover/verify",
+            "licenses": ["DSGO.0001"],
+            "accessRights": "Open to all DSGO participants with active membership.",
+            "contactPoint": "dpp@alkondor.nl",
+            "costs": "Free for all DSGO participants.",
+            "serviceLevelAgreements": {
+              "availability": {
+                "monday": {"start": "00:00", "end": "23:59"},
+                "tuesday": {"start": "00:00", "end": "23:59"},
+                "wednesday": {"start": "00:00", "end": "23:59"},
+                "thursday": {"start": "00:00", "end": "23:59"},
+                "friday": {"start": "00:00", "end": "23:59"},
+                "saturday": {"start": "00:00", "end": "23:59"},
+                "sunday": {"start": "00:00", "end": "23:59"}
+              },
+              "performance": "Verification (including recursive linked credential checks) responds within 8 seconds for 95% of requests."
+            }
+          }
+        ]
+      }
+    },
+
+    "heijmans": {
+      "_context": {
+        "entity": "Heijmans",
+        "role": "Construction Company",
+        "action": "Receive AssetHandoverCredential from Alkondor, verify linked credentials, issue new AssetHandoverCredential to transfer ownership to VvE",
+        "output": "AssetHandoverCredential VC → VvE wallet"
+      },
+
+      "partyInfo": {
+        "id": "did:ishare:EU.NL.NTRNL-56789012",
+        "alsoKnownAs": [
+          "kvk:56789012",
+          "eori:EU.EORI.NL000056789"
+        ],
+        "name": "Heijmans N.V.",
+        "claims": [
+          {
+            "type": "dataspaceMembership",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.heijmans.nl/dsgo/capabilities",
+            "dataServicesUrl": "https://api.heijmans.nl/dsgo/data_services",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2023-09-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "e5f6a7b8-5555-4eee-b555-000000000001"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "ServiceProvider",
+            "title": "Service Provider",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "loa": "substantial",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2023-09-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "e5f6a7b8-5555-4eee-b555-000000000002"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "ServiceConsumer",
+            "title": "Service Consumer",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "loa": "substantial",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2023-09-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "e5f6a7b8-5555-4eee-b555-000000000003"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "ConstructionCompany",
+            "title": "Construction Company",
+            "registrarId": "did:ishare:EU.NL.NTRNL-00000500",
+            "_comment": "Role registered by Bouwend Nederland as construction industry association",
+            "loa": "substantial",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2023-09-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "e5f6a7b8-5555-4eee-b555-000000000004"
+          },
+          {
+            "type": "frameworkCompliance",
+            "frameworkId": "iSHARE",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.heijmans.nl/dsgo/capabilities",
+            "status": "Active",
+            "startDate": "2023-09-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "e5f6a7b8-5555-4eee-b555-000000000005"
+          }
+        ]
+      },
+
+      "capabilitiesInfo": {
+        "publicServices": [
+          {
+            "identifier": "/capabilities",
+            "title": "Capabilities",
+            "description": "Heijmans DSGO capabilities endpoint",
+            "endpointDescription": "https://api.heijmans.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.heijmans.nl/dsgo/capabilities",
+            "tokenEndpoint": "https://api.heijmans.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal", "AdSeal"],
+            "conformsTo": [
+              "https://dev.ishare.eu/all-roles-common-endpoints/capabilities"
+            ]
+          },
+          {
+            "identifier": "/data_services",
+            "title": "Data Services",
+            "description": "Heijmans DSGO data services catalogue",
+            "endpointDescription": "https://api.heijmans.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.heijmans.nl/dsgo/data_services",
+            "tokenEndpoint": "https://api.heijmans.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal", "AdSeal"],
+            "conformsTo": [
+              "https://afsprakenstelseldsgo.atlassian.net/wiki/spaces/DSGO20/pages/976065832"
+            ]
+          }
+        ],
+        "restrictedServices": [
+          {
+            "identifier": "/credentials/asset-handover/issue",
+            "title": "Issue AssetHandoverCredential",
+            "description": "Issues an AssetHandoverCredential to transfer a construction asset (with its full credential chain) to the next party — typically the building owner. Bundles incoming AssetHandoverCredential from manufacturer with construction-phase metadata (installation date, as-built references, BIM model link, project identifier).",
+            "endpointDescription": "https://api.heijmans.nl/dsgo/openapi.yaml#/credentials/asset-handover/issue",
+            "endpointUrl": "https://api.heijmans.nl/dsgo/credentials/asset-handover/issue",
+            "tokenEndpoint": "https://api.heijmans.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["POST"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/",
+              "https://afsprakenstelseldsgo.atlassian.net/wiki/spaces/DSGO20/pages/976066701"
+            ]
+          },
+          {
+            "identifier": "/credentials/asset-handover/{credentialId}",
+            "title": "Retrieve AssetHandoverCredential",
+            "description": "Retrieves a previously issued AssetHandoverCredential including the full nested credential chain back to material origin.",
+            "endpointDescription": "https://api.heijmans.nl/dsgo/openapi.yaml#/credentials/asset-handover/{credentialId}",
+            "endpointUrl": "https://api.heijmans.nl/dsgo/credentials/asset-handover/{credentialId}",
+            "tokenEndpoint": "https://api.heijmans.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          },
+          {
+            "identifier": "/credentials/asset-handover/verify",
+            "title": "Verify AssetHandoverCredential",
+            "description": "Full-chain verification of an AssetHandoverCredential. Recursively verifies all linked credentials down to the material origin. Returns per-credential verification status.",
+            "endpointDescription": "https://api.heijmans.nl/dsgo/openapi.yaml#/credentials/asset-handover/verify",
+            "endpointUrl": "https://api.heijmans.nl/dsgo/credentials/asset-handover/verify",
+            "tokenEndpoint": "https://api.heijmans.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["POST"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          },
+          {
+            "identifier": "/wallet/credentials",
+            "title": "Credential Wallet — List",
+            "description": "Lists all credentials held in Heijmans's organisational wallet. Supports filtering by credential type, issuer, project, and status.",
+            "endpointDescription": "https://api.heijmans.nl/dsgo/openapi.yaml#/wallet/credentials",
+            "endpointUrl": "https://api.heijmans.nl/dsgo/wallet/credentials",
+            "tokenEndpoint": "https://api.heijmans.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["QSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          }
+        ]
+      },
+
+      "dataServicesInfo": {
+        "count": 2,
+        "totalCount": 2,
+        "currentPage": 1,
+        "pageSize": 10,
+        "totalPages": 1,
+        "next": "",
+        "previous": "",
+        "data": [
+          {
+            "title": "AssetHandoverCredential Issuance (Construction → Owner)",
+            "description": "Issues Verifiable Credentials that transfer construction asset ownership from Heijmans to the building owner/VvE. The credential bundles: the upstream AssetHandoverCredential from the manufacturer (with its full linked chain), construction-phase metadata (installation date, location within building, as-built BIM element reference, project identifier, installer declaration), and Heijmans's construction company declaration confirming correct installation per manufacturer specifications and Bouwbesluit requirements.",
+            "partyId": "did:ishare:EU.NL.NTRNL-56789012",
+            "capability": "/credentials/asset-handover/issue",
+            "licenses": ["DSGO.0001"],
+            "accessRights": "Access restricted to DSGO participants with active BuildingOwner or AssetManager role and a valid project/contract reference with Heijmans.",
+            "contactPoint": "dpp@heijmans.nl",
+            "costs": "Included in construction project delivery; no additional per-credential fee.",
+            "serviceLevelAgreements": {
+              "availability": {
+                "monday": {"start": "07:00", "end": "18:00"},
+                "tuesday": {"start": "07:00", "end": "18:00"},
+                "wednesday": {"start": "07:00", "end": "18:00"},
+                "thursday": {"start": "07:00", "end": "18:00"},
+                "friday": {"start": "07:00", "end": "17:00"},
+                "saturday": {"start": "00:00", "end": "00:00"},
+                "sunday": {"start": "00:00", "end": "00:00"}
+              },
+              "performance": "Credential issuance (including full-chain verification of upstream credentials) responds within 15 seconds for 95% of requests."
+            }
+          },
+          {
+            "title": "AssetHandoverCredential Verification (Full Chain)",
+            "description": "Full-chain verification of AssetHandoverCredentials issued by Heijmans. Recursively verifies all nested credentials down to the material origin (MaterialPassport from Arconic, ProductEnvironmentalCredential from Alba Concepts, FireSafetyCredential from SKG-IKOB). Returns per-credential verification status with domain-specific compliance flags.",
+            "partyId": "did:ishare:EU.NL.NTRNL-56789012",
+            "capability": "/credentials/asset-handover/verify",
+            "licenses": ["DSGO.0001"],
+            "accessRights": "Open to all DSGO participants with active membership.",
+            "contactPoint": "dpp@heijmans.nl",
+            "costs": "Free for all DSGO participants.",
+            "serviceLevelAgreements": {
+              "availability": {
+                "monday": {"start": "00:00", "end": "23:59"},
+                "tuesday": {"start": "00:00", "end": "23:59"},
+                "wednesday": {"start": "00:00", "end": "23:59"},
+                "thursday": {"start": "00:00", "end": "23:59"},
+                "friday": {"start": "00:00", "end": "23:59"},
+                "saturday": {"start": "00:00", "end": "23:59"},
+                "sunday": {"start": "00:00", "end": "23:59"}
+              },
+              "performance": "Full-chain verification responds within 12 seconds for 95% of requests."
+            }
+          }
+        ]
+      }
+    },
+
+    "vve": {
+      "_context": {
+        "entity": "VvE (Vereniging van Eigenaren)",
+        "role": "Building Owner",
+        "action": "Receive final AssetHandoverCredential from Heijmans, validate complete credential chain",
+        "output": "Full verified credential chain visible — demo complete"
+      },
+
+      "partyInfo": {
+        "id": "did:ishare:EU.NL.NTRNL-67890123",
+        "alsoKnownAs": [
+          "kvk:67890123"
+        ],
+        "name": "VvE Zonneparkhof",
+        "claims": [
+          {
+            "type": "dataspaceMembership",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.vve-zonneparkhof.nl/dsgo/capabilities",
+            "dataServicesUrl": "https://api.vve-zonneparkhof.nl/dsgo/data_services",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2025-01-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "f6a7b8c9-6666-4fff-b666-000000000001"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "ServiceConsumer",
+            "title": "Service Consumer",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "loa": "substantial",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2025-01-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "f6a7b8c9-6666-4fff-b666-000000000002"
+          },
+          {
+            "type": "dataspaceRole",
+            "dataspaceId": "EU.DS.NL.DSGO",
+            "roleId": "BuildingOwner",
+            "title": "Building Owner",
+            "registrarId": "did:ishare:EU.NL.NTRNL-00000600",
+            "_comment": "Role registered by VvE Belang or Vastgoedmanagement Nederland",
+            "loa": "substantial",
+            "compliancyVerified": "yes",
+            "legalAdherence": "yes",
+            "status": "Active",
+            "startDate": "2025-01-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "f6a7b8c9-6666-4fff-b666-000000000003"
+          },
+          {
+            "type": "frameworkCompliance",
+            "frameworkId": "iSHARE",
+            "registrarId": "did:ishare:EU.NL.NTRNL-63202158",
+            "capabilityUrl": "https://api.vve-zonneparkhof.nl/dsgo/capabilities",
+            "status": "Active",
+            "startDate": "2025-01-01T00:00:00.000Z",
+            "endDate": "",
+            "id": "f6a7b8c9-6666-4fff-b666-000000000004"
+          }
+        ]
+      },
+
+      "capabilitiesInfo": {
+        "publicServices": [
+          {
+            "identifier": "/capabilities",
+            "title": "Capabilities",
+            "description": "VvE Zonneparkhof DSGO capabilities endpoint",
+            "endpointDescription": "https://api.vve-zonneparkhof.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.vve-zonneparkhof.nl/dsgo/capabilities",
+            "tokenEndpoint": "https://api.vve-zonneparkhof.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["AdSeal", "ClientPassword"],
+            "conformsTo": [
+              "https://dev.ishare.eu/all-roles-common-endpoints/capabilities"
+            ]
+          },
+          {
+            "identifier": "/data_services",
+            "title": "Data Services",
+            "description": "VvE Zonneparkhof DSGO data services catalogue",
+            "endpointDescription": "https://api.vve-zonneparkhof.nl/dsgo/openapi.yaml",
+            "endpointUrl": "https://api.vve-zonneparkhof.nl/dsgo/data_services",
+            "tokenEndpoint": "https://api.vve-zonneparkhof.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "framework-defined",
+            "version": {
+              "compliesWithFrameworkVersions": ["2.1"],
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["AdSeal", "ClientPassword"],
+            "conformsTo": [
+              "https://afsprakenstelseldsgo.atlassian.net/wiki/spaces/DSGO20/pages/976065832"
+            ]
+          }
+        ],
+        "restrictedServices": [
+          {
+            "identifier": "/wallet/credentials",
+            "title": "Credential Wallet — List",
+            "description": "Lists all credentials held in the VvE's organisational wallet. Supports filtering by credential type, issuer, building element, and status.",
+            "endpointDescription": "https://api.vve-zonneparkhof.nl/dsgo/openapi.yaml#/wallet/credentials",
+            "endpointUrl": "https://api.vve-zonneparkhof.nl/dsgo/wallet/credentials",
+            "tokenEndpoint": "https://api.vve-zonneparkhof.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["AdSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          },
+          {
+            "identifier": "/wallet/credentials/{credentialId}/chain",
+            "title": "Credential Chain Viewer",
+            "description": "Retrieves and displays the full credential chain for a given AssetHandoverCredential. Resolves all linked credentials recursively and returns the complete provenance tree from material origin through manufacturing, construction, and handover.",
+            "endpointDescription": "https://api.vve-zonneparkhof.nl/dsgo/openapi.yaml#/wallet/credentials/{credentialId}/chain",
+            "endpointUrl": "https://api.vve-zonneparkhof.nl/dsgo/wallet/credentials/{credentialId}/chain",
+            "tokenEndpoint": "https://api.vve-zonneparkhof.nl/dsgo/token",
+            "status": "active",
+            "serviceType": "self-defined",
+            "version": {
+              "compliesWithDataspaceVersions": ["2.0"],
+              "capabilityVersion": ["1.0.0"]
+            },
+            "methods": ["GET"],
+            "aal": ["AdSeal"],
+            "conformsTo": [
+              "https://www.w3.org/TR/vc-data-model-2.0/"
+            ]
+          }
+        ]
+      },
+
+      "dataServicesInfo": {
+        "count": 1,
+        "totalCount": 1,
+        "currentPage": 1,
+        "pageSize": 10,
+        "totalPages": 1,
+        "next": "",
+        "previous": "",
+        "data": [
+          {
+            "title": "Building Product Credential Archive",
+            "description": "Provides read access to the VvE's building product credential archive. Stores and serves AssetHandoverCredentials received during construction handover, enabling future verification of material origin, environmental impact, and fire safety compliance for maintenance, renovation, or end-of-life recycling decisions. Supports credential chain resolution for full provenance tracing.",
+            "partyId": "did:ishare:EU.NL.NTRNL-67890123",
+            "capability": "/wallet/credentials",
+            "licenses": ["DSGO.0001"],
+            "accessRights": "Access restricted to the VvE board members and authorised asset managers. Third-party access (e.g. maintenance contractors, future recyclers) requires explicit delegation via DSGO delegation evidence.",
+            "contactPoint": "beheer@vve-zonneparkhof.nl",
+            "costs": "No cost for VvE members. Third-party access subject to delegation agreement.",
+            "serviceLevelAgreements": {
+              "availability": {
+                "monday": {"start": "00:00", "end": "23:59"},
+                "tuesday": {"start": "00:00", "end": "23:59"},
+                "wednesday": {"start": "00:00", "end": "23:59"},
+                "thursday": {"start": "00:00", "end": "23:59"},
+                "friday": {"start": "00:00", "end": "23:59"},
+                "saturday": {"start": "00:00", "end": "23:59"},
+                "sunday": {"start": "00:00", "end": "23:59"}
+              },
+              "performance": "Credential retrieval responds within 3 seconds for 95% of requests. Chain resolution responds within 10 seconds for 95% of requests."
+            }
+          }
+        ]
+      }
+    }
+  }
+}
