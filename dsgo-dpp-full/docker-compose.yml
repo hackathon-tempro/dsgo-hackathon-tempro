@@ -13,7 +13,6 @@ services:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/src/migrations/001-init.sql:/docker-entrypoint-initdb.d/001-init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-dsgo_dpp}"]
       interval: 10s
@@ -40,8 +39,7 @@ services:
       DB_NAME: ${DB_NAME:-dsgo_dpp}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       CREDENCO_BASE_URL: ${CREDENCO_BASE_URL:-https://wallet.acc.credenco.com}
-      CREDENCO_CLIENT_ID: ${CREDENCO_CLIENT_ID}
-      CREDENCO_CLIENT_SECRET: ${CREDENCO_CLIENT_SECRET}
+      CREDENCO_API_KEY: ${CREDENCO_API_KEY}
       ISHARE_BASE_URL: ${ISHARE_BASE_URL:-https://scheme.ishare.eu}
       ISHARE_CLIENT_ID: ${ISHARE_CLIENT_ID}
       ISHARE_CLIENT_SECRET: ${ISHARE_CLIENT_SECRET}
@@ -52,7 +50,6 @@ services:
         condition: service_healthy
     volumes:
       - ./backend/src:/app/src
-      - ./backend/keys:/app/keys:ro
     networks:
       - dsgo_network
     restart: unless-stopped
@@ -63,9 +60,9 @@ services:
       dockerfile: Dockerfile
     container_name: dsgo-frontend
     ports:
-      - "3001:3000"
+      - "3001:3001"
     environment:
-      REACT_APP_API_URL: http://localhost:3000/api/v1
+      VITE_API_URL: http://localhost:3000/api/v1
     depends_on:
       - backend
     networks:
