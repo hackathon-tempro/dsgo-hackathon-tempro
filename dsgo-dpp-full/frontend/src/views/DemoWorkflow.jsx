@@ -23,7 +23,13 @@ import {
 import { getWalletViewForRole, resetFlowState, useFlowSnapshot } from "../demo/sequentialFlow";
 
 const STAGE_BY_ID = Object.fromEntries(DEMO_STAGES.map((stage) => [stage.id, stage]));
-const ISSUER_IDS = ["issuer_lca", "tester", "issuer_ce"];
+const PRE_MANUFACTURER_ORDER = ["supplier", "issuer_lca", "tester", "issuer_ce"];
+const REQUIRED_MANUFACTURER_TYPES = [
+  "MaterialPassport",
+  "EnvironmentalFootprintTestPassport",
+  "TestReport",
+  "CEMArkingTestREport",
+];
 
 function actorLabel(role) {
   if (role === "supplier") return "Supplier";
@@ -53,7 +59,7 @@ function UseCaseCard({ icon: Icon, title, description, done }) {
   );
 }
 
-function StageCard({ stage, done, locked, onOpen, walletView }) {
+function StageCard({ stage, done, locked, onOpen, walletView, dsgoIdentifier }) {
   const issued = walletView?.issued || [];
   const received = walletView?.received || [];
 
@@ -74,6 +80,9 @@ function StageCard({ stage, done, locked, onOpen, walletView }) {
           </div>
           <div>
             <h3 className="font-semibold text-gray-900 text-sm">{stage.title}</h3>
+            {dsgoIdentifier && (
+              <p className="text-xs text-gray-500 font-mono mt-1">DSGO Identifier: {dsgoIdentifier}</p>
+            )}
           </div>
         </div>
       </div>
@@ -127,8 +136,8 @@ function StageCard({ stage, done, locked, onOpen, walletView }) {
 
 export default function DemoWorkflow() {
   const navigate = useNavigate();
-  const { switchToCompany, user } = useAuth();
-  useFlowSnapshot();
+  const { switchToCompany, user, companies } = useAuth();
+  const flow = useFlowSnapshot();
   const [completed, setCompleted] = useState(readDemoProgress());
 
   const completedSet = useMemo(() => new Set(completed), [completed]);
@@ -146,8 +155,33 @@ export default function DemoWorkflow() {
     return items;
   }, [completedSet]);
 
+  const manufacturerHasAllIncoming = useMemo(() => {
+    return REQUIRED_MANUFACTURER_TYPES.every((type) =>
+      flow.credentials.some(
+        (credential) => credential.type === type && credential.recipientRole === "manufacturer",
+      ),
+    );
+  }, [flow.credentials]);
+
+  const companyIdentifierById = useMemo(
+    () => Object.fromEntries((companies || []).map((company) => [company.id, company.ishareId || ""])),
+    [companies],
+  );
+
+  const isStageLocked = (stage) => {
+    const done = completedSet.has(stage.id);
+    if (done) return false;
+    if (!isStageUnlocked(stage.id, completedSet)) return true;
+    if (stage.id === "construction" && !manufacturerHasAllIncoming) return true;
+    return false;
+  };
+
   const openStage = (stage) => {
-    if (!isStageUnlocked(stage.id, completedSet)) {
+    if (isStageLocked(stage)) {
+      if (stage.id === "construction" && !manufacturerHasAllIncoming) {
+        toast.error("Issue all 4 credentials to Manufacturer before opening handover");
+        return;
+      }
       toast.error("This stage is locked until prior demo steps are completed");
       return;
     }
@@ -201,7 +235,7 @@ export default function DemoWorkflow() {
             <UseCaseCard
               icon={Flame}
               title="Parallel Certifications"
-              description="LCA, Test Lab, and SKG IKOB credentials are issued in parallel to manufacturer."
+              description="LCA, Test Lab, and SKG IKOB credentials are issued to manufacturer."
               done={useCaseStatus.certification}
             />
             <UseCaseCard
@@ -219,41 +253,10 @@ export default function DemoWorkflow() {
           )}
 
           <div className="space-y-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-sm font-semibold text-gray-700">Upstream Issuers (parallel)</h2>
-                <span className="text-xs text-gray-500">All issuers send credentials to Manufacturer</span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
-                {["supplier", ...ISSUER_IDS].map((id) => {
-                  const stage = STAGE_BY_ID[id];
-                  const done = completedSet.has(stage.id);
-                  const locked = !done && !isStageUnlocked(stage.id, completedSet);
-                  return (
-                    <StageCard
-                      key={stage.id}
-                      stage={stage}
-                      done={done}
-                      locked={locked}
-                      onOpen={() => openStage(stage)}
-                      walletView={getWalletViewForRole(stage.role)}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="flex justify-center text-gray-400 py-1">
-              <span className="text-xs font-medium">All upstream flows</span>
-            </div>
-            <div className="flex justify-center text-gray-400">
-              <ArrowRight className="w-5 h-5 rotate-90" />
-            </div>
-
-            {["manufacturer"].map((id) => {
+            {PRE_MANUFACTURER_ORDER.map((id) => {
               const stage = STAGE_BY_ID[id];
               const done = completedSet.has(stage.id);
-              const locked = !done && !isStageUnlocked(stage.id, completedSet);
+              const locked = isStageLocked(stage);
 
               return (
                 <div key={stage.id}>
@@ -263,6 +266,29 @@ export default function DemoWorkflow() {
                     locked={locked}
                     onOpen={() => openStage(stage)}
                     walletView={getWalletViewForRole(stage.role)}
+                    dsgoIdentifier={companyIdentifierById[stage.companyId]}
+                  />
+                  <div className="flex justify-center text-gray-400 py-2">
+                    <ArrowRight className="w-5 h-5 rotate-90" />
+                  </div>
+                </div>
+              );
+            })}
+
+            {["manufacturer"].map((id) => {
+              const stage = STAGE_BY_ID[id];
+              const done = completedSet.has(stage.id);
+              const locked = isStageLocked(stage);
+
+              return (
+                <div key={stage.id}>
+                  <StageCard
+                    stage={stage}
+                    done={done}
+                    locked={locked}
+                    onOpen={() => openStage(stage)}
+                    walletView={getWalletViewForRole(stage.role)}
+                    dsgoIdentifier={companyIdentifierById[stage.companyId]}
                   />
                 </div>
               );
@@ -275,7 +301,7 @@ export default function DemoWorkflow() {
             {["construction", "owner"].map((id, idx, arr) => {
               const stage = STAGE_BY_ID[id];
               const done = completedSet.has(stage.id);
-              const locked = !done && !isStageUnlocked(stage.id, completedSet);
+              const locked = isStageLocked(stage);
 
               return (
                 <div key={stage.id}>
@@ -285,6 +311,7 @@ export default function DemoWorkflow() {
                     locked={locked}
                     onOpen={() => openStage(stage)}
                     walletView={getWalletViewForRole(stage.role)}
+                    dsgoIdentifier={companyIdentifierById[stage.companyId]}
                   />
                   {idx < arr.length - 1 && (
                     <div className="flex justify-center text-gray-400 py-2">

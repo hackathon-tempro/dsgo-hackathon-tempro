@@ -11,6 +11,7 @@ const REQUIRED_MANUFACTURER_TYPES = [
 ];
 
 const DOWNSTREAM_LINKED_TYPES = [
+  "MaterialPassport",
   "TestReport",
   "CEMArkingTestREport",
   "EnvironmentalFootprintTestPassport",
@@ -20,6 +21,7 @@ let cachedRawState = null;
 let cachedParsedState = null;
 
 const CONSTRUCTION_VERIFY_ORDER = [
+  "MaterialPassport",
   "TestReport",
   "CEMArkingTestREport",
   "EnvironmentalFootprintTestPassport",

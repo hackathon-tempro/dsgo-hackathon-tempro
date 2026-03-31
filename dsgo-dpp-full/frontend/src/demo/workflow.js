@@ -13,16 +13,6 @@ export const DEMO_STAGES = [
     useCases: ["material"],
   },
   {
-    id: "manufacturer",
-    title: "Manufacturer",
-    role: "manufacturer",
-    companyId: "buildcorp",
-    interfacePath: "/manufacturer",
-    objective: "Receive incoming credentials for the product asset and issue handover package.",
-    outcome: "Manufacturer acts as the credential aggregation point.",
-    useCases: ["material", "certification"],
-  },
-  {
     id: "issuer_lca",
     title: "LCA -> Manufacturer",
     role: "lca_org",
@@ -51,6 +41,16 @@ export const DEMO_STAGES = [
     objective: "Issue CEMArkingTestREport to Manufacturer.",
     outcome: "CE marking evidence is linked with the asset package.",
     useCases: ["certification"],
+  },
+  {
+    id: "manufacturer",
+    title: "Manufacturer",
+    role: "manufacturer",
+    companyId: "buildcorp",
+    interfacePath: "/manufacturer",
+    objective: "Receive incoming credentials for the product asset and issue handover package.",
+    outcome: "Manufacturer acts as the credential aggregation point.",
+    useCases: ["material", "certification"],
   },
   {
     id: "construction",
@@ -118,13 +118,11 @@ function hasAll(completedSet, stageIds) {
 
 export function isStageUnlocked(stageId, completedSet) {
   if (stageId === "supplier") return true;
-  if (stageId === "manufacturer") return completedSet.has("supplier");
-  if (["issuer_lca", "tester", "issuer_ce"].includes(stageId)) {
-    return completedSet.has("manufacturer");
-  }
-  if (stageId === "construction") {
-    return hasAll(completedSet, ["manufacturer", "issuer_lca", "tester", "issuer_ce"]);
-  }
+  if (stageId === "issuer_lca") return completedSet.has("supplier");
+  if (stageId === "tester") return completedSet.has("issuer_lca");
+  if (stageId === "issuer_ce") return completedSet.has("tester");
+  if (stageId === "manufacturer") return completedSet.has("issuer_ce");
+  if (stageId === "construction") return completedSet.has("manufacturer");
   if (stageId === "owner") return completedSet.has("construction");
   return false;
 }

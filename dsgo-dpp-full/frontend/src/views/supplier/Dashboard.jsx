@@ -469,7 +469,7 @@ const navItems = [
 export default function SupplierDashboard() {
   const navigate = useNavigate();
   const [issuedCredentials, setIssuedCredentials] = useState([]);
-  const [prefillProduct, setPrefillProduct] = useState(null);
+  const [prefillProduct, setPrefillProduct] = useState(MOCK_PRODUCTS[0]);
 
   const handleIssued = (cred) => {
     setIssuedCredentials((prev) => [cred, ...prev]);
@@ -501,7 +501,7 @@ export default function SupplierDashboard() {
           path="passport-issuance"
           element={
             <PassportIssuance
-              selectedProduct={prefillProduct}
+              selectedProduct={prefillProduct || MOCK_PRODUCTS[0]}
               onIssued={handleIssued}
             />
           }
