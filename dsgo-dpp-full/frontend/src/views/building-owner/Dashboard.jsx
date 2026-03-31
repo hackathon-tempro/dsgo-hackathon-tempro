@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Building2, CheckCircle, Clock3, FileCheck, FileText, Package, ShieldCheck } from "lucide-react";
 import { Layout } from "../shared/Layout";
@@ -39,9 +40,76 @@ function renderCredentialSummary(credential) {
   return credential.type;
 }
 
+function renderCredentialDetails(credential) {
+  const payload = credential.payload || {};
+
+  if (credential.type === "MaterialPassport") {
+    return [
+      `Product: ${payload.productName}`,
+      `Product ID: ${payload.productId}`,
+      `Lot ID: ${payload.lotId}`,
+      `Batch: ${payload.batchNumber}`,
+      `Recycled content: ${payload.recycledContent}%`,
+      `Carbon footprint: ${payload.carbonFootprint} kg CO2e`,
+    ].filter(Boolean);
+  }
+
+  if (credential.type === "EnvironmentalFootprintTestPassport") {
+    return [
+      `Methodology: ${payload.methodology}`,
+      `Carbon emissions: ${payload.carbonEmissions ?? payload.carbonFootprint} kg CO2e`,
+      `Water footprint: ${payload.waterFootprint}`,
+      `Waste generated: ${payload.wasteGenerated}`,
+      `Renewable energy: ${payload.renewableEnergyPercentage}%`,
+    ].filter(Boolean);
+  }
+
+  if (credential.type === "CEMArkingTestREport") {
+    return [
+      `Certificate type: ${payload.certificateType}`,
+      `Certificate ID: ${payload.certId}`,
+      `Standard: ${payload.standard}`,
+      `Fire safety class: ${payload.fireSafetyClass || payload.fireResistanceClass}`,
+      `Product: ${payload.productName}`,
+    ].filter(Boolean);
+  }
+
+  if (credential.type === "AssetHandoverCredential") {
+    return [
+      `Asset ID: ${payload.assetId}`,
+      `Asset Name: ${payload.assetName}`,
+      `Product ID: ${payload.productId}`,
+      `Linked credentials: ${(payload.linkedCredentialIds || []).length}`,
+    ].filter(Boolean);
+  }
+
+  return [renderCredentialSummary(credential)];
+}
+
 function ReceivedAssetsView() {
   useFlowSnapshot();
   const pkg = getBuildingOwnerPackage();
+  const assets = useMemo(
+    () =>
+      pkg
+        ? [{
+            id: pkg.asset.id,
+            title: pkg.asset.productName,
+            productId: pkg.asset.productId,
+            linkedCredentials: pkg.linkedCredentials,
+            handover: pkg.handover,
+            asset: pkg.asset,
+          }]
+        : [],
+    [pkg],
+  );
+  const [selectedAssetId, setSelectedAssetId] = useState(pkg?.asset?.id || null);
+  const selectedAsset = assets.find((asset) => asset.id === selectedAssetId) || assets[0] || null;
+  const verificationChecks = [
+    { label: "Transfer Credential", ok: !!selectedAsset?.handover },
+    { label: "Issuer Present", ok: !!selectedAsset?.handover?.issuerOrg },
+    { label: "DPP Completeness", ok: (selectedAsset?.linkedCredentials?.length || 0) > 0 },
+  ];
 
   if (!pkg) {
     return (
@@ -56,45 +124,90 @@ function ReceivedAssetsView() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="card border border-indigo-200 bg-indigo-50">
-        <div className="flex items-center gap-3">
-          <Package className="w-5 h-5 text-indigo-600" />
-          <div>
-            <p className="font-semibold text-indigo-900">{pkg.asset.productName}</p>
-            <p className="text-xs text-indigo-700">
-              Asset ID: {pkg.asset.id} · Product ID: {pkg.asset.productId}
-            </p>
+    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+      <div className="xl:col-span-4 space-y-4">
+        <div className="card">
+          <h3 className="font-semibold">Received Assets</h3>
+          <p className="text-xs text-gray-500 mt-1">Click an asset to open full DPP details.</p>
+          <div className="mt-4 space-y-2">
+            {assets.map((asset) => {
+              const active = asset.id === selectedAssetId;
+              return (
+                <button
+                  key={asset.id}
+                  onClick={() => setSelectedAssetId(asset.id)}
+                  className={`w-full text-left rounded-lg border p-3 transition ${
+                    active ? "border-indigo-300 bg-indigo-50" : "border-gray-200 bg-white hover:border-indigo-200"
+                  }`}
+                >
+                  <p className="text-sm font-semibold text-gray-900">{asset.title}</p>
+                  <p className="text-xs text-gray-500 mt-1">Asset ID: {asset.id}</p>
+                  <p className="text-xs text-gray-500">Product ID: {asset.productId}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
-        <p className="text-xs text-indigo-700 mt-3">
-          Construction handover: <span className="font-mono break-all">{pkg.handover.id}</span>
-        </p>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {pkg.linkedCredentials.map((credential) => {
-          const verified = true;
-
-          return (
-            <div key={credential.id} className="card border border-gray-200">
-              <div className="flex justify-between items-start gap-2">
-                <div>
-                  <p className="font-semibold text-sm">{credential.type}</p>
-                  <p className="text-xs text-gray-500 mt-1">Issuer: {credential.issuerOrg}</p>
-                </div>
-                <span className={`badge ${verified ? "badge-success" : "badge-warning"}`}>
-                  {verified ? "Verified" : "Pending"}
+        <div className="card border border-indigo-200 bg-indigo-50">
+          <h3 className="font-semibold text-indigo-900">Verification Dashboard</h3>
+          <div className="mt-3 space-y-2">
+            {verificationChecks.map((item) => (
+              <div key={item.label} className="flex items-center justify-between text-xs">
+                <span className="text-indigo-800">{item.label}</span>
+                <span className={`badge ${item.ok ? "badge-success" : "badge-warning"}`}>
+                  {item.ok ? "OK" : "Missing"}
                 </span>
               </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
-              <div className="mt-3 rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
-                {renderCredentialSummary(credential)}
-              </div>
-              <p className="mt-3 text-xs text-gray-400 font-mono break-all">{credential.id}</p>
+      <div className="xl:col-span-8 space-y-4">
+        <div className="card border border-indigo-200 bg-indigo-50">
+          <div className="flex items-center gap-3">
+            <Package className="w-5 h-5 text-indigo-600" />
+            <div>
+              <p className="font-semibold text-indigo-900">{selectedAsset.asset.productName}</p>
+              <p className="text-xs text-indigo-700">
+                Asset ID: {selectedAsset.asset.id} · Product ID: {selectedAsset.asset.productId} · GTIN: {selectedAsset.asset.gtin}
+              </p>
             </div>
-          );
-        })}
+          </div>
+          <p className="text-xs text-indigo-700 mt-3">
+            Construction handover: <span className="font-mono break-all">{selectedAsset.handover.id}</span>
+          </p>
+          <p className="text-xs text-indigo-700 mt-1">
+            Ownership timeline: manufacturer -&gt; construction company -&gt; building owner
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {selectedAsset.linkedCredentials.map((credential) => {
+            const verified = true;
+            return (
+              <div key={credential.id} className="card border border-gray-200">
+                <div className="flex justify-between items-start gap-2">
+                  <div>
+                    <p className="font-semibold text-sm">{credential.type}</p>
+                    <p className="text-xs text-gray-500 mt-1">Issuer: {credential.issuerOrg}</p>
+                  </div>
+                  <span className={`badge ${verified ? "badge-success" : "badge-warning"}`}>
+                    {verified ? "Verified" : "Pending"}
+                  </span>
+                </div>
+                <div className="mt-3 rounded-lg bg-gray-50 p-3 text-xs text-gray-600 space-y-1">
+                  {renderCredentialDetails(credential).map((line) => (
+                    <div key={`${credential.id}-${line}`}>{line}</div>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs text-gray-400">{renderCredentialSummary(credential)}</p>
+                <p className="mt-2 text-xs text-gray-400 font-mono break-all">{credential.id}</p>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
