@@ -117,122 +117,55 @@ app.get('/ping', (req, res) => {
 // API ROUTES
 // ============================================
 
-/**
- * API v1 Routes
- * These will be implemented in separate route files
- */
+import authRoutes from './routes/auth.js';
+import organizationsRoutes from './routes/organizations.js';
+import materialsRoutes from './routes/materials.js';
+import productsRoutes from './routes/products.js';
+import shipmentsRoutes from './routes/shipments.js';
+import credentialsRoutes from './routes/credentials.js';
+import dppRoutes from './routes/dpp.js';
+import testLabsRoutes from './routes/testLabs.js';
+import lcaRoutes from './routes/lca.js';
+import certificationsRoutes from './routes/certifications.js';
+import transactionsRoutes from './routes/transactions.js';
+import assetHandoversRoutes from './routes/assetHandovers.js';
+import assetsRoutes from './routes/assets.js';
+import repairsRoutes from './routes/repairs.js';
+import auditRoutes from './routes/audit.js';
+import dismantlingRoutes from './routes/dismantling.js';
+import recyclingRoutes from './routes/recycling.js';
+import complianceRoutes from './routes/compliance.js';
+import presentationsRoutes from './routes/presentations.js';
+import verificationsRoutes from './routes/verifications.js';
+import healthRoutes from './routes/health.js';
 
-// Organizations
-app.get('/api/v1/organizations', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Organizations endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Credentials
-app.get('/api/v1/credentials', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Credentials endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Digital Product Passports
-app.get('/api/v1/dpp', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Digital Product Passports endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Products
-app.get('/api/v1/products', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Products endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Materials
-app.get('/api/v1/materials', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Materials endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Shipments
-app.get('/api/v1/shipments', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Shipments endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Test Labs
-app.get('/api/v1/test-labs', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Test Labs endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Repairs
-app.get('/api/v1/repairs', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Repairs endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Certifications
-app.get('/api/v1/certifications', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Certifications endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// LCA (Life Cycle Assessment)
-app.get('/api/v1/lca', authMiddleware, (req, res) => {
-  res.json({
-    message: 'LCA endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Compliance
-app.get('/api/v1/compliance', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Compliance endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Audit Logs
-app.get('/api/v1/audit', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Audit endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Transactions
-app.get('/api/v1/transactions', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Transactions endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
-
-// Assets
-app.get('/api/v1/assets', authMiddleware, (req, res) => {
-  res.json({
-    message: 'Assets endpoint - TODO: Implement',
-    organizationId: req.user?.organizationId,
-  });
-});
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/organizations', organizationsRoutes);
+app.use('/api/v1/materials', materialsRoutes);
+app.use('/api/v1/lots', materialsRoutes);
+app.use('/api/v1/products', productsRoutes);
+app.use('/api/v1/product-instances', productsRoutes);
+app.use('/api/v1/shipments', shipmentsRoutes);
+app.use('/api/v1/credentials', credentialsRoutes);
+app.use('/api/v1/verifications', verificationsRoutes);
+app.use('/api/v1/dpp', dppRoutes);
+app.use('/api/v1/test-labs', testLabsRoutes);
+app.use('/api/v1/test-requests', testLabsRoutes);
+app.use('/api/v1/samples', testLabsRoutes);
+app.use('/api/v1/test-results', testLabsRoutes);
+app.use('/api/v1/lca', lcaRoutes);
+app.use('/api/v1/certifications', certificationsRoutes);
+app.use('/api/v1/transactions', transactionsRoutes);
+app.use('/api/v1/asset-handovers', assetHandoversRoutes);
+app.use('/api/v1/assets', assetsRoutes);
+app.use('/api/v1/repairs', repairsRoutes);
+app.use('/api/v1/access-grants', repairsRoutes);
+app.use('/api/v1/audit', auditRoutes);
+app.use('/api/v1/dismantling', dismantlingRoutes);
+app.use('/api/v1/recycling', recyclingRoutes);
+app.use('/api/v1/compliance', complianceRoutes);
+app.use('/api/v1/presentations', presentationsRoutes);
+app.use('/', healthRoutes);
 
 // ============================================
 // WEBHOOK ENDPOINTS
@@ -326,15 +259,27 @@ const initServer = async () => {
     console.log(`📝 Environment: ${NODE_ENV}`);
     console.log(`🔌 Port: ${PORT}`);
 
-    // Initialize database
+    // Initialize database (with fallback to demo mode)
     console.log('\n📊 Initializing database...');
-    await initDatabase();
-    console.log('✓ Database initialized');
+    try {
+      await initDatabase();
+      console.log('✓ Database initialized');
+    } catch (dbError) {
+      console.warn('⚠ Database connection failed:', dbError.message);
+      console.log('🔄 Running in DEMO MODE (mock data)');
+      process.env.DEMO_MODE = 'true';
+    }
 
-    // Initialize audit logging
-    console.log('\n📋 Initializing audit logging...');
-    await initAuditLogging();
-    console.log('✓ Audit logging initialized');
+    // Initialize audit logging (graceful failure)
+    if (process.env.DEMO_MODE !== 'true') {
+      try {
+        console.log('\n📋 Initializing audit logging...');
+        await initAuditLogging();
+        console.log('✓ Audit logging initialized');
+      } catch (auditError) {
+        console.warn('⚠ Audit logging init failed:', auditError.message);
+      }
+    }
 
     // Test Credenco connection
     if (process.env.FEATURE_CREDENCO_ENABLED === 'true') {
@@ -363,6 +308,9 @@ const initServer = async () => {
       console.log(`\n✅ Server running on http://localhost:${PORT}`);
       console.log(`📚 API documentation: http://localhost:${PORT}/api/info`);
       console.log(`🏥 Health check: http://localhost:${PORT}/health`);
+      if (process.env.DEMO_MODE === 'true') {
+        console.log('\n⚠️  Running in DEMO MODE - using mock data');
+      }
       console.log('\n🎉 Backend initialization complete!\n');
     });
   } catch (error) {

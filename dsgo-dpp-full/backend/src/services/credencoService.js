@@ -75,9 +75,9 @@ class CredencoService {
 
       const payload = {
         '@context': [
-          'https://www.w3.org/2018/credentials/v1',
-          'https://www.w3.org/2018/credentials/examples/v1',
-          'https://credenco.com/credentials/v1',
+          'https://www.w3.org/ns/credentials/v2',
+          'https://www.w3.org/ns/credentials/examples/v2',
+          'https://credenco.com/credentials/v2',
         ],
         type: ['VerifiableCredential', credentialType],
         issuer: this.issuerDid,
@@ -88,8 +88,9 @@ class CredencoService {
           ...subjectData,
         },
         credentialStatus: {
-          id: `${this.baseURL}/credentials/${crypto.randomUUID()}/status`,
-          type: 'RevocationList2020Status',
+          id: `${this.baseURL}/credentials/status/${crypto.randomUUID()}`,
+          type: 'BitstringStatusList',
+          statusPurpose: 'revocation',
         },
       };
 
@@ -315,26 +316,46 @@ class CredencoService {
     try {
       await query(
         `INSERT INTO credentials (
-          id, credential_id, issuer, subject, type, status, expiration_date, credenco_id, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          id, credential_id, organization_id, issuer, subject_did, type, status, expires_at, metadata, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
         ON CONFLICT (credential_id) DO UPDATE SET
-          status = $6, expiration_date = $7`,
+          status = $7, expires_at = $8`,
         [
           credentialId,
           credentialId,
+          null,
           issuer,
           subject,
           type,
           status,
           expirationDate,
-          credencoId,
-          new Date(),
+          JSON.stringify({ credencoId }),
         ]
       );
     } catch (error) {
       console.error('Failed to store credential metadata:', error.message);
       throw error;
     }
+  }
+
+  /**
+   * Test connection to Credenco API
+   */
+  async testConnection() {
+    try {
+      await this.getAccessToken();
+      return { status: 'connected', message: 'Credenco API is accessible' };
+    } catch (error) {
+      return { status: 'error', message: error.message };
+    }
+  }
+
+  /**
+   * Handle Credenco webhook (alias for handleWebhook)
+   */
+  async handleCredencoWebhook(payload) {
+    const signature = payload.signature || 'no-signature';
+    return this.handleWebhook(payload, signature);
   }
 
   /**

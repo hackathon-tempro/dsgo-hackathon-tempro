@@ -1,5 +1,5 @@
-import { query } from '../database.js';
-import { v4 as uuidv4 } from 'uuid';
+import { query } from "../database.js";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Audit Logging Middleware
@@ -41,10 +41,44 @@ export const initAuditLogging = async () => {
       CREATE INDEX IF NOT EXISTS idx_audit_logs_request_id ON audit_logs(request_id);
     `);
 
-    console.log('✓ Audit logging system initialized');
+    console.log("✓ Audit logging system initialized");
   } catch (error) {
-    console.error('Failed to initialize audit logging:', error.message);
+    console.error("Failed to initialize audit logging:", error.message);
     throw error;
+  }
+};
+
+/**
+ * Log audit entry to database
+ */
+const logAuditEntry = async (entry) => {
+  try {
+    if (process.env.AUDIT_LOG_ENABLED === "false") {
+      return;
+    }
+
+    await query(
+      `INSERT INTO audit_logs
+       (user_id, organization_id, action, resource_type, resource_id, changes, ip_address, user_agent, request_id, status_code, error_message, data_classification)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+      [
+        entry.userId,
+        entry.organizationId,
+        entry.action,
+        entry.resourceType,
+        entry.resourceId,
+        entry.changes ? JSON.stringify(entry.changes) : null,
+        entry.ipAddress,
+        entry.userAgent,
+        entry.requestId,
+        entry.statusCode,
+        entry.errorMessage,
+        entry.dataClassification,
+      ],
+    );
+  } catch (error) {
+    console.error("Failed to log audit entry:", error.message);
+    // Non-critical error - don't throw
   }
 };
 
@@ -74,29 +108,33 @@ export const auditLogger = (req, res, next) => {
   };
 
   // Log on response finish
-  res.on('finish', async () => {
+  res.on("finish", async () => {
     try {
       const duration = Date.now() - startTime;
 
       // Skip health checks and non-API routes
-      if (req.path === '/health' || req.path === '/ping' || req.path.startsWith('/.')) {
+      if (
+        req.path === "/health" ||
+        req.path === "/ping" ||
+        req.path.startsWith("/.")
+      ) {
         return;
       }
 
       // Determine action type from HTTP method
       const actionMap = {
-        'GET': 'READ',
-        'POST': 'CREATE',
-        'PUT': 'UPDATE',
-        'PATCH': 'UPDATE',
-        'DELETE': 'DELETE',
+        GET: "READ",
+        POST: "CREATE",
+        PUT: "UPDATE",
+        PATCH: "UPDATE",
+        DELETE: "DELETE",
       };
 
-      const action = actionMap[req.method] || 'READ';
+      const action = actionMap[req.method] || "READ";
 
       // Extract resource type and ID from path
-      const pathParts = req.path.split('/').filter(p => p);
-      const resourceType = pathParts[1] || 'unknown';
+      const pathParts = req.path.split("/").filter((p) => p);
+      const resourceType = pathParts[1] || "unknown";
       const resourceId = pathParts[2] || null;
 
       // Prepare audit log entry
@@ -109,7 +147,7 @@ export const auditLogger = (req, res, next) => {
         resourceId,
         changes: serializeChanges(req, res),
         ipAddress: getClientIP(req),
-        userAgent: req.get('user-agent'),
+        userAgent: req.get("user-agent"),
         requestId: req.id,
         statusCode: res.statusCode,
         errorMessage: res.auditData?.error || null,
@@ -117,18 +155,18 @@ export const auditLogger = (req, res, next) => {
       };
 
       // Log to database if audit logging is enabled
-      if (process.env.AUDIT_LOG_ENABLED !== 'false') {
+      if (process.env.AUDIT_LOG_ENABLED !== "false") {
         await logAuditEntry(auditEntry);
       }
 
       // Log sensitive operations to console
-      if (action === 'DELETE' || action === 'UPDATE') {
+      if (action === "DELETE" || action === "UPDATE") {
         console.log(
-          `[AUDIT] ${action} ${resourceType}/${resourceId} by ${req.user?.email || 'anonymous'} | Status: ${res.statusCode} | Duration: ${duration}ms`
+          `[AUDIT] ${action} ${resourceType}/${resourceId} by ${req.user?.email || "anonymous"} | Status: ${res.statusCode} | Duration: ${duration}ms`,
         );
       }
     } catch (error) {
-      console.error('Error logging audit trail:', error.message);
+      console.error("Error logging audit trail:", error.message);
       // Don't throw - audit logging shouldn't break request handling
     }
   });
@@ -139,9 +177,17 @@ export const auditLogger = (req, res, next) => {
 /**
  * Log specific action to audit trail
  */
-export const logAction = async (userId, organizationId, action, resourceType, resourceId, changes = null, metadata = {}) => {
+export const logAction = async (
+  userId,
+  organizationId,
+  action,
+  resourceType,
+  resourceId,
+  changes = null,
+  metadata = {},
+) => {
   try {
-    if (process.env.AUDIT_LOG_ENABLED === 'false') {
+    if (process.env.AUDIT_LOG_ENABLED === "false") {
       return;
     }
 
@@ -157,10 +203,10 @@ export const logAction = async (userId, organizationId, action, resourceType, re
         resourceId,
         changes ? JSON.stringify(changes) : null,
         classifyData(resourceType),
-      ]
+      ],
     );
   } catch (error) {
-    console.error('Failed to log audit action:', error.message);
+    console.error("Failed to log audit action:", error.message);
     // Non-critical error - don't throw
   }
 };
@@ -170,7 +216,7 @@ export const logAction = async (userId, organizationId, action, resourceType, re
  */
 export const getAuditLogs = async (organizationId, filters = {}) => {
   try {
-    let whereClause = 'WHERE organization_id = $1';
+    let whereClause = "WHERE organization_id = $1";
     const params = [organizationId];
     let paramIndex = 2;
 
@@ -214,12 +260,12 @@ export const getAuditLogs = async (organizationId, filters = {}) => {
        ${whereClause}
        ORDER BY created_at DESC
        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
-      [...params, limit, offset]
+      [...params, limit, offset],
     );
 
     return result.rows;
   } catch (error) {
-    console.error('Failed to retrieve audit logs:', error.message);
+    console.error("Failed to retrieve audit logs:", error.message);
     throw error;
   }
 };
@@ -227,22 +273,22 @@ export const getAuditLogs = async (organizationId, filters = {}) => {
 /**
  * Export audit logs for compliance
  */
-export const exportAuditLogs = async (organizationId, format = 'json') => {
+export const exportAuditLogs = async (organizationId, format = "json") => {
   try {
     const logs = await query(
       `SELECT * FROM audit_logs
        WHERE organization_id = $1
        ORDER BY created_at DESC`,
-      [organizationId]
+      [organizationId],
     );
 
-    if (format === 'csv') {
+    if (format === "csv") {
       return convertToCSV(logs.rows);
     }
 
     return logs.rows;
   } catch (error) {
-    console.error('Failed to export audit logs:', error.message);
+    console.error("Failed to export audit logs:", error.message);
     throw error;
   }
 };
@@ -258,13 +304,13 @@ export const archiveOldLogs = async (daysToKeep = 2555) => {
     const result = await query(
       `DELETE FROM audit_logs
        WHERE created_at < $1`,
-      [cutoffDate]
+      [cutoffDate],
     );
 
     console.log(`✓ Archived ${result.rowCount} old audit logs`);
     return result.rowCount;
   } catch (error) {
-    console.error('Failed to archive old logs:', error.message);
+    console.error("Failed to archive old logs:", error.message);
     throw error;
   }
 };
@@ -273,11 +319,13 @@ export const archiveOldLogs = async (daysToKeep = 2555) => {
  * Helper: Get client IP address
  */
 function getClientIP(req) {
-  return req.ip ||
-         req.headers['x-forwarded-for']?.split(',')[0] ||
-         req.headers['x-real-ip'] ||
-         req.socket?.remoteAddress ||
-         'unknown';
+  return (
+    req.ip ||
+    req.headers["x-forwarded-for"]?.split(",")[0] ||
+    req.headers["x-real-ip"] ||
+    req.socket?.remoteAddress ||
+    "unknown"
+  );
 }
 
 /**
@@ -292,7 +340,7 @@ function serializeChanges(req, res) {
   }
 
   // Capture response data
-  if (res.auditData && typeof res.auditData === 'object') {
+  if (res.auditData && typeof res.auditData === "object") {
     changes.response = sanitizeObject(res.auditData);
   }
 
@@ -308,27 +356,31 @@ function serializeChanges(req, res) {
  * Helper: Remove sensitive data from objects
  */
 function sanitizeObject(obj) {
-  if (!obj || typeof obj !== 'object') {
+  if (!obj || typeof obj !== "object") {
     return obj;
   }
 
   const sensitiveFields = [
-    'password',
-    'token',
-    'secret',
-    'apiKey',
-    'privateKey',
-    'refreshToken',
-    'creditCard',
-    'ssn',
+    "password",
+    "token",
+    "secret",
+    "apiKey",
+    "privateKey",
+    "refreshToken",
+    "creditCard",
+    "ssn",
   ];
 
   const sanitized = Array.isArray(obj) ? [...obj] : { ...obj };
 
   Object.keys(sanitized).forEach((key) => {
-    if (sensitiveFields.some((field) => key.toLowerCase().includes(field.toLowerCase()))) {
-      sanitized[key] = '[REDACTED]';
-    } else if (typeof sanitized[key] === 'object') {
+    if (
+      sensitiveFields.some((field) =>
+        key.toLowerCase().includes(field.toLowerCase()),
+      )
+    ) {
+      sanitized[key] = "[REDACTED]";
+    } else if (typeof sanitized[key] === "object") {
       sanitized[key] = sanitizeObject(sanitized[key]);
     }
   });
@@ -340,21 +392,30 @@ function sanitizeObject(obj) {
  * Helper: Classify data by resource type for compliance
  */
 function classifyData(resourceType) {
-  const publicResources = ['products', 'materials', 'certifications'];
-  const confidentialResources = ['organizations', 'users', 'transactions'];
-  const sensitiveResources = ['credentials', 'dpp', 'repairs'];
+  const publicResources = ["products", "materials", "certifications"];
+  const confidentialResources = ["organizations", "users", "transactions"];
+  const sensitiveResources = ["credentials", "dpp", "repairs"];
 
-  if (publicResources.includes(resourceType)) return 'PUBLIC';
-  if (sensitiveResources.includes(resourceType)) return 'SENSITIVE';
-  if (confidentialResources.includes(resourceType)) return 'CONFIDENTIAL';
-  return 'INTERNAL';
+  if (publicResources.includes(resourceType)) return "PUBLIC";
+  if (sensitiveResources.includes(resourceType)) return "SENSITIVE";
+  if (confidentialResources.includes(resourceType)) return "CONFIDENTIAL";
+  return "INTERNAL";
 }
 
 /**
  * Helper: Convert logs to CSV format
  */
 function convertToCSV(logs) {
-  const headers = ['ID', 'User ID', 'Organization ID', 'Action', 'Resource Type', 'Resource ID', 'Status Code', 'Created At'];
+  const headers = [
+    "ID",
+    "User ID",
+    "Organization ID",
+    "Action",
+    "Resource Type",
+    "Resource ID",
+    "Status Code",
+    "Created At",
+  ];
   const rows = logs.map((log) => [
     log.id,
     log.user_id,
@@ -367,9 +428,9 @@ function convertToCSV(logs) {
   ]);
 
   const csvContent = [
-    headers.join(','),
-    ...rows.map((row) => row.map((cell) => `"${cell || ''}"`).join(',')),
-  ].join('\n');
+    headers.join(","),
+    ...rows.map((row) => row.map((cell) => `"${cell || ""}"`).join(",")),
+  ].join("\n");
 
   return csvContent;
 }
