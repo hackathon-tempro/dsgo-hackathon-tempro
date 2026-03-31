@@ -109,9 +109,10 @@ function safeReadState() {
 
 function writeState(state) {
   const raw = JSON.stringify(state);
+  const nextSnapshot = normalizeState(JSON.parse(raw));
   localStorage.setItem(FLOW_STORAGE_KEY, raw);
   cachedRawState = raw;
-  cachedParsedState = state;
+  cachedParsedState = nextSnapshot;
   if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") {
     const event =
       typeof CustomEvent === "function"
